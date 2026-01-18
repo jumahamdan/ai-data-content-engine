@@ -1,0 +1,25 @@
+﻿{
+  "interview_explainer": [
+    "Medallion Architecture",
+    "CDC in modern pipelines",
+    "Semantic models vs datasets",
+    "Layers of AI",
+    "Agentic RAG"
+  ],
+  "architecture": [
+    "Warehouse vs Lakehouse",
+    "Medallion vs Data Mesh",
+    "Hybrid architectures"
+  ],
+  "optimization": [
+    "SQL window functions",
+    "Spark broadcast joins",
+    "Data skew and repartitioning",
+    "RAG chunking failures"
+  ],
+  "layered": [
+    "Layers of a RAG system",
+    "Layers of an AI agent",
+    "Layers of data quality"
+  ]
+}

@@ -1,0 +1,7 @@
+﻿{
+  "platform": "linkedin",
+  "timezone": "America/Chicago",
+  "posts_per_day": 2,
+  "times": ["09:00", "16:00"],
+  "mode": "fully_automatic"
+}
