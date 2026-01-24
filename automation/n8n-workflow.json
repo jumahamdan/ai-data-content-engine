@@ -91,7 +91,7 @@
         },
         {
             "parameters": {
-                "model": "gpt-4",
+                "model": "gpt-4o-mini",
                 "messages": {
                     "values": [
                         {
