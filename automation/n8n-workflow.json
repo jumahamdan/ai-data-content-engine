@@ -26,7 +26,8 @@
                 "operation": "get",
                 "owner": "jumahamdan",
                 "repository": "ai-data-content-engine",
-                "filePath": "topics/topic-bank.json"
+                "filePath": "topics/topic-bank.json",
+                "asBinaryProperty": false
             },
             "id": "fetch-topics",
             "name": "Fetch Topics",
@@ -36,7 +37,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Content rotation logic with persistent state\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Use n8n's workflow static data for persistence across runs\nconst staticData = $getWorkflowStaticData('global');\nconst lastTemplateIndex = staticData.lastTemplateIndex ?? -1;\nconst usedTopics = staticData.usedTopics ?? {};\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Parse topic bank from GitHub response\nlet topicBank;\ntry {\n  const content = $input.item.json.content;\n  const cleanContent = content.replace(/^\\uFEFF/, '');\n  topicBank = JSON.parse(cleanContent);\n} catch (e) {\n  throw new Error('Failed to parse topic bank: ' + e.message);\n}\n\nconst availableTopics = topicBank[currentTemplate];\nif (!availableTopics || availableTopics.length === 0) {\n  throw new Error('No topics found for template: ' + currentTemplate);\n}\n\n// Filter out recently used topics for this template\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\n\n// If we've used all topics, reset the used list for this template\nif (freshTopics.length === 0) {\n  usedTopics[currentTemplate] = [];\n}\n\nconst selectedTopic = topicsToUse[0];\n\n// Update used topics tracking\nif (!usedTopics[currentTemplate]) {\n  usedTopics[currentTemplate] = [];\n}\nusedTopics[currentTemplate].push(selectedTopic);\n\n// Keep only last 3 used topics per template to allow recycling\nif (usedTopics[currentTemplate].length > 3) {\n  usedTopics[currentTemplate].shift();\n}\n\n// Save state for next run\nstaticData.lastTemplateIndex = currentTemplateIndex;\nstaticData.usedTopics = usedTopics;\n\n// Map template to prompt file\nconst promptFileMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptFileMap[currentTemplate],\n    timestamp: new Date().toISOString()\n  }\n};"
+                "jsCode": "// Content rotation logic with persistent state\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Use n8n's workflow static data for persistence across runs\nconst staticData = $getWorkflowStaticData('global');\nconst lastTemplateIndex = staticData.lastTemplateIndex ?? -1;\nconst usedTopics = staticData.usedTopics ?? {};\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Parse topic bank from GitHub response\n// Handle both binary and JSON content formats\nlet topicBank;\ntry {\n  let content;\n  // Check if content is in binary format\n  if ($input.item.binary && $input.item.binary.data) {\n    content = Buffer.from($input.item.binary.data.data, 'base64').toString('utf8');\n  } else if ($input.item.json.content) {\n    // Content is base64 encoded in JSON\n    content = Buffer.from($input.item.json.content, 'base64').toString('utf8');\n  } else {\n    // Try direct JSON access\n    content = JSON.stringify($input.item.json);\n  }\n  // Remove BOM if present\n  content = content.replace(/^\\uFEFF/, '');\n  topicBank = JSON.parse(content);\n} catch (e) {\n  throw new Error('Failed to parse topic bank: ' + e.message + ' | Input keys: ' + Object.keys($input.item.json || {}).join(','));\n}\n\nconst availableTopics = topicBank[currentTemplate];\nif (!availableTopics || availableTopics.length === 0) {\n  throw new Error('No topics found for template: ' + currentTemplate);\n}\n\n// Filter out recently used topics for this template\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\n\n// If we've used all topics, reset the used list for this template\nif (freshTopics.length === 0) {\n  usedTopics[currentTemplate] = [];\n}\n\nconst selectedTopic = topicsToUse[0];\n\n// Update used topics tracking\nif (!usedTopics[currentTemplate]) {\n  usedTopics[currentTemplate] = [];\n}\nusedTopics[currentTemplate].push(selectedTopic);\n\n// Keep only last 3 used topics per template to allow recycling\nif (usedTopics[currentTemplate].length > 3) {\n  usedTopics[currentTemplate].shift();\n}\n\n// Save state for next run\nstaticData.lastTemplateIndex = currentTemplateIndex;\nstaticData.usedTopics = usedTopics;\n\n// Map template to prompt file\nconst promptFileMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptFileMap[currentTemplate],\n    timestamp: new Date().toISOString()\n  }\n};"
             },
             "id": "content-planner",
             "name": "Plan Content",
@@ -51,7 +52,8 @@
                 "operation": "get",
                 "owner": "jumahamdan",
                 "repository": "ai-data-content-engine",
-                "filePath": "={{ $json.promptFile }}"
+                "filePath": "={{ $json.promptFile }}",
+                "asBinaryProperty": false
             },
             "id": "fetch-prompt",
             "name": "Fetch Prompt",
@@ -66,7 +68,8 @@
                 "operation": "get",
                 "owner": "jumahamdan",
                 "repository": "ai-data-content-engine",
-                "filePath": "content-spec/tone.md"
+                "filePath": "content-spec/tone.md",
+                "asBinaryProperty": false
             },
             "id": "fetch-tone",
             "name": "Fetch Tone",
@@ -141,7 +144,8 @@
                 "operation": "get",
                 "owner": "jumahamdan",
                 "repository": "ai-data-content-engine",
-                "filePath": "automation/post_log.json"
+                "filePath": "automation/post_log.json",
+                "asBinaryProperty": false
             },
             "id": "fetch-log",
             "name": "Fetch Existing Log",
@@ -151,7 +155,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Parse existing log and append new entry\nlet existingPosts = [];\ntry {\n  const content = $input.item.json.content;\n  const cleanContent = content.replace(/^\\uFEFF/, '');\n  const parsed = JSON.parse(cleanContent);\n  existingPosts = parsed.posts || [];\n} catch (e) {\n  // If log is empty or invalid, start fresh\n  existingPosts = [];\n}\n\nconst newEntry = {\n  timestamp: $node['Parse Content'].json.timestamp,\n  template: $node['Parse Content'].json.template,\n  topic: $node['Parse Content'].json.topic,\n  status: 'published',\n  linkedinPostId: $node['Post to LinkedIn'].json.id || 'N/A',\n  caption: $node['Parse Content'].json.caption.substring(0, 100) + '...',\n  hashtags: $node['Parse Content'].json.hashtags\n};\n\n// Add new entry at the beginning\nexistingPosts.unshift(newEntry);\n\n// Keep only last 100 entries\nif (existingPosts.length > 100) {\n  existingPosts = existingPosts.slice(0, 100);\n}\n\nreturn {\n  json: {\n    posts: existingPosts\n  }\n};"
+                "jsCode": "// Parse existing log and append new entry\nlet existingPosts = [];\ntry {\n  let content;\n  if ($input.item.binary && $input.item.binary.data) {\n    content = Buffer.from($input.item.binary.data.data, 'base64').toString('utf8');\n  } else if ($input.item.json.content) {\n    content = Buffer.from($input.item.json.content, 'base64').toString('utf8');\n  } else {\n    content = JSON.stringify($input.item.json);\n  }\n  content = content.replace(/^\\uFEFF/, '');\n  const parsed = JSON.parse(content);\n  existingPosts = parsed.posts || [];\n} catch (e) {\n  // If log is empty or invalid, start fresh\n  existingPosts = [];\n}\n\nconst newEntry = {\n  timestamp: $node['Parse Content'].json.timestamp,\n  template: $node['Parse Content'].json.template,\n  topic: $node['Parse Content'].json.topic,\n  status: 'published',\n  linkedinPostId: $node['Post to LinkedIn'].json.id || 'N/A',\n  caption: $node['Parse Content'].json.caption.substring(0, 100) + '...',\n  hashtags: $node['Parse Content'].json.hashtags\n};\n\n// Add new entry at the beginning\nexistingPosts.unshift(newEntry);\n\n// Keep only last 100 entries\nif (existingPosts.length > 100) {\n  existingPosts = existingPosts.slice(0, 100);\n}\n\nreturn {\n  json: {\n    posts: existingPosts\n  }\n};"
             },
             "id": "build-log",
             "name": "Build Log Entry",
