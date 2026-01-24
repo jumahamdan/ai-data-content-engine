@@ -1,6 +1,24 @@
 {
   "posts": [
     {
+      "timestamp": "2026-01-24T22:09:46.286Z",
+      "template": "interview_explainer",
+      "topic": "Medallion Architecture",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "Interview question: \"Can you explain Medallion Architecture and why it's used in data engineering pi...",
+      "hashtags": [
+        "#DataEngineering",
+        "#DataArchitecture",
+        "#DataLake",
+        "#BigData",
+        "#ETL",
+        "#MLOps",
+        "#Analytics",
+        "#DataPipeline"
+      ]
+    },
+    {
       "timestamp": "2026-01-24T22:08:58.546Z",
       "template": "interview_explainer",
       "topic": "Medallion Architecture",
