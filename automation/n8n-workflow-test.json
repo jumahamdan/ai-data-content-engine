@@ -1,0 +1,39 @@
+﻿{
+    "name": "LinkedIn AI Content Engine",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 9,16 * * *"
+                        }
+                    ]
+                },
+                "timezone": "America/Chicago"
+            },
+            "id": "cron-trigger",
+            "name": "Schedule Trigger",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Load the content rotation logic\nconst currentHour = new Date().getHours();\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Get state from previous runs (stored in n8n)\nconst lastTemplateIndex = $node['Get State'].json.lastTemplateIndex || 0;\nconst usedTopics = $node['Get State'].json.usedTopics || {};\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Decode base64 content from GitHub and remove BOM if present\nlet topicBankContent = Buffer.from($node['Fetch Topics'].json.content, 'base64').toString('utf8');\nif (topicBankContent.charCodeAt(0) === 0xFEFF) {\n  topicBankContent = topicBankContent.slice(1);\n}\n\n// Get topics for this template\nconst topicBank = JSON.parse(topicBankContent);\nconst availableTopics = topicBank[currentTemplate];\n\n// Filter out recently used topics\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\n\n// If all topics used, reset\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\nconst selectedTopic = topicsToUse[0];\n\n// Update used topics tracking\nif (!usedTopics[currentTemplate]) {\n  usedTopics[currentTemplate] = [];\n}\nusedTopics[currentTemplate].push(selectedTopic);\n\n// Keep only last 3 used topics per template\nif (usedTopics[currentTemplate].length > 3) {\n  usedTopics[currentTemplate].shift();\n}\n\n// Map template to correct prompt filename\nconst promptMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptMap[currentTemplate],\n    timestamp: new Date().toISOString(),\n    newState: {\n      lastTemplateIndex: currentTemplateIndex,\n      usedTopics: usedTopics\n    }\n  }\n};"
+            },
+            "id": "content-planner",
+            "name": "Plan Content",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                650,
+                300
+            ]
+        }
+    ]
+}
