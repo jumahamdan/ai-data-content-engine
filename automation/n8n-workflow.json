@@ -36,7 +36,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Content rotation logic\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Simple state (resets on workflow restart - replace with Redis for persistence)\nconst lastTemplateIndex = 0;\nconst usedTopics = {};\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Parse topic bank from GitHub response\nlet topicBank;\ntry {\n  const content = $input.item.json.content;\n  // Remove BOM if present and parse\n  const cleanContent = content.replace(/^\\uFEFF/, '');\n  topicBank = JSON.parse(cleanContent);\n} catch (e) {\n  throw new Error('Failed to parse topic bank: ' + e.message + ' | Raw: ' + JSON.stringify($input.item.json).substring(0, 200));\n}\n\nconst availableTopics = topicBank[currentTemplate];\nif (!availableTopics || availableTopics.length === 0) {\n  throw new Error('No topics found for template: ' + currentTemplate);\n}\n\n// Filter out recently used topics\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\nconst selectedTopic = topicsToUse[0];\n\n// Map template to prompt file\nconst promptFileMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptFileMap[currentTemplate],\n    timestamp: new Date().toISOString()\n  }\n};"
+                "jsCode": "// Content rotation logic with persistent state\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Use n8n's workflow static data for persistence across runs\nconst staticData = $getWorkflowStaticData('global');\nconst lastTemplateIndex = staticData.lastTemplateIndex ?? -1;\nconst usedTopics = staticData.usedTopics ?? {};\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Parse topic bank from GitHub response\nlet topicBank;\ntry {\n  const content = $input.item.json.content;\n  const cleanContent = content.replace(/^\\uFEFF/, '');\n  topicBank = JSON.parse(cleanContent);\n} catch (e) {\n  throw new Error('Failed to parse topic bank: ' + e.message);\n}\n\nconst availableTopics = topicBank[currentTemplate];\nif (!availableTopics || availableTopics.length === 0) {\n  throw new Error('No topics found for template: ' + currentTemplate);\n}\n\n// Filter out recently used topics for this template\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\n\n// If we've used all topics, reset the used list for this template\nif (freshTopics.length === 0) {\n  usedTopics[currentTemplate] = [];\n}\n\nconst selectedTopic = topicsToUse[0];\n\n// Update used topics tracking\nif (!usedTopics[currentTemplate]) {\n  usedTopics[currentTemplate] = [];\n}\nusedTopics[currentTemplate].push(selectedTopic);\n\n// Keep only last 3 used topics per template to allow recycling\nif (usedTopics[currentTemplate].length > 3) {\n  usedTopics[currentTemplate].shift();\n}\n\n// Save state for next run\nstaticData.lastTemplateIndex = currentTemplateIndex;\nstaticData.usedTopics = usedTopics;\n\n// Map template to prompt file\nconst promptFileMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptFileMap[currentTemplate],\n    timestamp: new Date().toISOString()\n  }\n};"
             },
             "id": "content-planner",
             "name": "Plan Content",
@@ -76,6 +76,18 @@
         },
         {
             "parameters": {
+                "mode": "combine",
+                "combineBy": "combineAll",
+                "options": {}
+            },
+            "id": "merge-specs",
+            "name": "Merge Specs",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3,
+            "position": [1050, 300]
+        },
+        {
+            "parameters": {
                 "model": "gpt-4",
                 "messages": {
                     "values": [
@@ -98,17 +110,17 @@
             "name": "Generate Content",
             "type": "n8n-nodes-base.openAi",
             "typeVersion": 1,
-            "position": [1050, 300]
+            "position": [1250, 300]
         },
         {
             "parameters": {
-                "jsCode": "// Parse the OpenAI response\nconst aiResponse = $input.item.json.choices[0].message.content;\n\n// Extract JSON from response (handle markdown code blocks)\nlet contentData;\ntry {\n  const jsonMatch = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  contentData = JSON.parse(jsonMatch ? jsonMatch[0] : aiResponse);\n} catch (e) {\n  throw new Error('Failed to parse AI response as JSON: ' + aiResponse);\n}\n\nif (!contentData.caption) {\n  throw new Error('Missing caption in AI response');\n}\n\n// Build full caption with hashtags\nconst hashtags = contentData.hashtags || [];\nconst hashtagString = hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ');\nconst fullCaption = hashtags.length > 0 \n  ? `${contentData.caption}\\n\\n${hashtagString}`\n  : contentData.caption;\n\nreturn {\n  json: {\n    caption: contentData.caption,\n    hashtags: hashtags,\n    fullCaption: fullCaption,\n    topic: $node['Plan Content'].json.topic,\n    template: $node['Plan Content'].json.template,\n    timestamp: $node['Plan Content'].json.timestamp\n  }\n};"
+                "jsCode": "// Parse the OpenAI response\nconst aiResponse = $input.item.json.choices[0].message.content;\n\nlet contentData;\ntry {\n  const jsonMatch = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  contentData = JSON.parse(jsonMatch ? jsonMatch[0] : aiResponse);\n} catch (e) {\n  throw new Error('Failed to parse AI response as JSON: ' + aiResponse);\n}\n\nif (!contentData.caption) {\n  throw new Error('Missing caption in AI response');\n}\n\nconst hashtags = contentData.hashtags || [];\nconst hashtagString = hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ');\nconst fullCaption = hashtags.length > 0 \n  ? `${contentData.caption}\\n\\n${hashtagString}`\n  : contentData.caption;\n\nreturn {\n  json: {\n    caption: contentData.caption,\n    hashtags: hashtags,\n    fullCaption: fullCaption,\n    topic: $node['Plan Content'].json.topic,\n    template: $node['Plan Content'].json.template,\n    timestamp: $node['Plan Content'].json.timestamp\n  }\n};"
             },
             "id": "parse-content",
             "name": "Parse Content",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [1250, 300]
+            "position": [1450, 300]
         },
         {
             "parameters": {
@@ -119,18 +131,33 @@
             "name": "Post to LinkedIn",
             "type": "n8n-nodes-base.linkedIn",
             "typeVersion": 1,
-            "position": [1450, 300],
+            "position": [1650, 300],
             "notes": "Text-only post. Add image support later."
         },
         {
             "parameters": {
-                "jsCode": "// Build log entry\nconst newEntry = {\n  timestamp: $node['Parse Content'].json.timestamp,\n  template: $node['Parse Content'].json.template,\n  topic: $node['Parse Content'].json.topic,\n  status: 'published',\n  linkedinPostId: $node['Post to LinkedIn'].json.id || 'N/A',\n  caption: $node['Parse Content'].json.caption.substring(0, 100) + '...',\n  hashtags: $node['Parse Content'].json.hashtags\n};\n\nreturn {\n  json: {\n    logEntry: newEntry\n  }\n};"
+                "authentication": "oAuth2",
+                "resource": "file",
+                "operation": "get",
+                "owner": "jumahamdan",
+                "repository": "ai-data-content-engine",
+                "filePath": "automation/post_log.json"
+            },
+            "id": "fetch-log",
+            "name": "Fetch Existing Log",
+            "type": "n8n-nodes-base.github",
+            "typeVersion": 1,
+            "position": [1850, 300]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Parse existing log and append new entry\nlet existingPosts = [];\ntry {\n  const content = $input.item.json.content;\n  const cleanContent = content.replace(/^\\uFEFF/, '');\n  const parsed = JSON.parse(cleanContent);\n  existingPosts = parsed.posts || [];\n} catch (e) {\n  // If log is empty or invalid, start fresh\n  existingPosts = [];\n}\n\nconst newEntry = {\n  timestamp: $node['Parse Content'].json.timestamp,\n  template: $node['Parse Content'].json.template,\n  topic: $node['Parse Content'].json.topic,\n  status: 'published',\n  linkedinPostId: $node['Post to LinkedIn'].json.id || 'N/A',\n  caption: $node['Parse Content'].json.caption.substring(0, 100) + '...',\n  hashtags: $node['Parse Content'].json.hashtags\n};\n\n// Add new entry at the beginning\nexistingPosts.unshift(newEntry);\n\n// Keep only last 100 entries\nif (existingPosts.length > 100) {\n  existingPosts = existingPosts.slice(0, 100);\n}\n\nreturn {\n  json: {\n    posts: existingPosts\n  }\n};"
             },
             "id": "build-log",
             "name": "Build Log Entry",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [1650, 300]
+            "position": [2050, 300]
         },
         {
             "parameters": {
@@ -140,14 +167,14 @@
                 "owner": "jumahamdan",
                 "repository": "ai-data-content-engine",
                 "filePath": "automation/post_log.json",
-                "fileContent": "={{ JSON.stringify({ posts: [$json.logEntry] }, null, 2) }}",
+                "fileContent": "={{ JSON.stringify($json, null, 2) }}",
                 "commitMessage": "chore: log post {{ $node['Parse Content'].json.timestamp }}"
             },
             "id": "log-to-github",
             "name": "Log to GitHub",
             "type": "n8n-nodes-base.github",
             "typeVersion": 1,
-            "position": [1850, 300]
+            "position": [2250, 300]
         }
     ],
     "connections": {
@@ -169,10 +196,15 @@
         },
         "Fetch Prompt": {
             "main": [[
-                {"node": "Generate Content", "type": "main", "index": 0}
+                {"node": "Merge Specs", "type": "main", "index": 0}
             ]]
         },
         "Fetch Tone": {
+            "main": [[
+                {"node": "Merge Specs", "type": "main", "index": 1}
+            ]]
+        },
+        "Merge Specs": {
             "main": [[
                 {"node": "Generate Content", "type": "main", "index": 0}
             ]]
@@ -188,6 +220,11 @@
             ]]
         },
         "Post to LinkedIn": {
+            "main": [[
+                {"node": "Fetch Existing Log", "type": "main", "index": 0}
+            ]]
+        },
+        "Fetch Existing Log": {
             "main": [[
                 {"node": "Build Log Entry", "type": "main", "index": 0}
             ]]
