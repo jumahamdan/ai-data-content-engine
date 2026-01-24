@@ -1,4 +1,4 @@
-﻿const https = require('https');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
@@ -113,7 +113,7 @@ async function planContent() {
   return {
     template: currentTemplate,
     topic: selectedTopic,
-    promptFile: `prompts/${currentTemplate.replace('_', '-')}.md`
+    promptFile: ({'interview_explainer':'prompts/interview-explainer.md','architecture':'prompts/architecture-comparison.md','optimization':'prompts/optimization-story.md','layered':'prompts/layered-mental-model.md'})[currentTemplate]
   };
 }
 
