@@ -11,12 +11,11 @@ const CONFIG = {
 };
 
 if (!CONFIG.githubToken) {
-  console.error('ERROR: GITHUB_TOKEN not set in .env file');
-  console.error('Create token at: https://github.com/settings/tokens/new (scope: repo)');
+  console.error('ERROR: GITHUB_TOKEN not set');
   process.exit(1);
 }
 if (!CONFIG.openaiKey) {
-  console.error('ERROR: OPENAI_API_KEY not set in .env file');
+  console.error('ERROR: OPENAI_API_KEY not set');
   process.exit(1);
 }
 
@@ -41,10 +40,14 @@ async function fetchGitHubFile(filePath) {
       res.on('end', () => {
         if (res.statusCode === 200) {
           const json = JSON.parse(data);
-          const content = Buffer.from(json.content, 'base64').toString('utf8');
+          let content = Buffer.from(json.content, 'base64').toString('utf8');
+          // Remove BOM if present
+          if (content.charCodeAt(0) === 0xFEFF) {
+            content = content.slice(1);
+          }
           resolve(content);
         } else {
-          reject(new Error(`GitHub API error: ${res.statusCode} - ${data}`));
+          reject(new Error(`GitHub API error: ${res.statusCode}`));
         }
       });
     }).on('error', reject);
@@ -116,25 +119,25 @@ async function planContent() {
 
 async function generateContent(plan) {
   console.log('\nGenerating content...');
-  console.log('Fetching prompt, tone, and visual rules...');
+  console.log('Fetching templates...');
   const [promptTemplate, tone, visualRules] = await Promise.all([
     fetchGitHubFile(plan.promptFile),
     fetchGitHubFile('content-spec/tone.md'),
     fetchGitHubFile('content-spec/visual-rules.md')
   ]);
-  console.log('Fetched all templates');
+  console.log('Templates fetched');
   const systemPrompt = 'You are a LinkedIn content creator for a senior data/AI engineer. Generate professional, educational content following the provided template and tone.';
   const userPrompt = `Template:\n${promptTemplate}\n\nTone:\n${tone}\n\nVisual Rules:\n${visualRules}\n\nTopic: ${plan.topic}\n\nGenerate a LinkedIn post with:\n1. Caption (6-12 lines, ending with a thoughtful question)\n2. Image text with title and 3-5 bullet points\n3. 5-8 relevant hashtags\n\nReturn as JSON: {"caption": "...", "imageTitle": "...", "imageBullets": [...], "hashtags": [...]}`;
-  console.log('Calling OpenAI API...');
+  console.log('Calling OpenAI...');
   const response = await callOpenAI(systemPrompt, userPrompt);
   const aiContent = response.choices[0].message.content;
-  console.log('Received AI response');
+  console.log('AI response received');
   let contentData;
   try {
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
     contentData = JSON.parse(jsonMatch ? jsonMatch[0] : aiContent);
   } catch (e) {
-    console.error('Failed to parse AI response:', aiContent);
+    console.error('Failed to parse:', aiContent);
     throw e;
   }
   return {
@@ -147,32 +150,30 @@ async function generateContent(plan) {
 }
 
 async function main() {
-  console.log('Starting LinkedIn Content Engine (Local Test)\n');
+  console.log('Starting LinkedIn Content Engine\n');
   try {
     const plan = await planContent();
     const content = await generateContent(plan);
-    console.log('\nGenerated Content:\n');
+    console.log('\nGenerated Content:');
     console.log('='.repeat(80));
     console.log(`Template: ${content.template}`);
     console.log(`Topic: ${content.topic}`);
-    console.log(`Timestamp: ${content.timestamp}`);
     console.log('='.repeat(80));
     console.log('\nCAPTION:');
     console.log(content.caption);
-    console.log('\nIMAGE TEXT:');
+    console.log('\nIMAGE:');
     console.log(`Title: ${content.imageTitle}`);
     console.log('Bullets:');
     content.imageBullets.forEach((bullet, i) => console.log(`  ${i + 1}. ${bullet}`));
     console.log('\nHASHTAGS:');
     console.log(content.hashtags.map(h => '#' + h).join(' '));
     console.log('\n' + '='.repeat(80));
-    console.log('\nSUCCESS! Content generated successfully.');
+    console.log('\nSUCCESS!');
     const outputFile = path.join(__dirname, 'test-output.json');
     fs.writeFileSync(outputFile, JSON.stringify(content, null, 2));
-    console.log(`\nFull output saved to: ${outputFile}`);
+    console.log(`\nSaved to: ${outputFile}`);
   } catch (error) {
     console.error('\nERROR:', error.message);
-    console.error(error.stack);
     process.exit(1);
   }
 }
