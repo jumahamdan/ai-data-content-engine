@@ -21,43 +21,15 @@
         },
         {
             "parameters": {
-                "jsCode": "// Content rotation logic\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Get state from previous runs\nconst lastTemplateIndex = $node['Get State'].json.lastTemplateIndex || 0;\nconst usedTopics = $node['Get State'].json.usedTopics || {};\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Get topics for this template\nconst topicBank = $input.item.json.topicBank;\nconst availableTopics = topicBank[currentTemplate];\n\n// Filter out recently used topics\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\n\n// If all topics used, reset\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\nconst selectedTopic = topicsToUse[0];\n\n// Update used topics tracking\nif (!usedTopics[currentTemplate]) {\n  usedTopics[currentTemplate] = [];\n}\nusedTopics[currentTemplate].push(selectedTopic);\n\n// Keep only last 3 used topics per template\nif (usedTopics[currentTemplate].length > 3) {\n  usedTopics[currentTemplate].shift();\n}\n\n// Map template to prompt file\nconst promptFileMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptFileMap[currentTemplate],\n    timestamp: new Date().toISOString(),\n    newState: {\n      lastTemplateIndex: currentTemplateIndex,\n      usedTopics: usedTopics\n    }\n  }\n};"
+                "mode": "raw",
+                "jsonData": "{\n  \"lastTemplateIndex\": 0,\n  \"usedTopics\": {},\n  \"repo_owner\": \"jumahamdan\",\n  \"repo_name\": \"ai-data-content-engine\"\n}"
             },
-            "id": "content-planner",
-            "name": "Plan Content",
-            "type": "n8n-nodes-base.code",
+            "id": "get-state",
+            "name": "Get State",
+            "type": "n8n-nodes-base.set",
             "typeVersion": 2,
-            "position": [650, 300]
-        },
-        {
-            "parameters": {
-                "authentication": "oAuth2",
-                "resource": "file",
-                "operation": "get",
-                "owner": "={{ $json.repo_owner }}",
-                "repository": "={{ $json.repo_name }}",
-                "filePath": "={{ $node['Plan Content'].json.promptFile }}"
-            },
-            "id": "fetch-prompt",
-            "name": "Fetch Prompt",
-            "type": "n8n-nodes-base.github",
-            "typeVersion": 1,
-            "position": [850, 200]
-        },
-        {
-            "parameters": {
-                "authentication": "oAuth2",
-                "resource": "file",
-                "operation": "get",
-                "owner": "={{ $json.repo_owner }}",
-                "repository": "={{ $json.repo_name }}",
-                "filePath": "content-spec/tone.md"
-            },
-            "id": "fetch-tone",
-            "name": "Fetch Tone",
-            "type": "n8n-nodes-base.github",
-            "typeVersion": 1,
-            "position": [850, 300]
+            "position": [450, 300],
+            "notes": "For persistent state, replace with Redis or database node"
         },
         {
             "parameters": {
@@ -72,7 +44,47 @@
             "name": "Fetch Topics",
             "type": "n8n-nodes-base.github",
             "typeVersion": 1,
-            "position": [450, 300]
+            "position": [650, 300]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Content rotation logic\nconst templateRotation = ['interview_explainer', 'architecture', 'optimization', 'layered'];\n\n// Get state from previous node\nconst lastTemplateIndex = $node['Get State'].json.lastTemplateIndex || 0;\nconst usedTopics = $node['Get State'].json.usedTopics || {};\nconst repo_owner = $node['Get State'].json.repo_owner;\nconst repo_name = $node['Get State'].json.repo_name;\n\n// Rotate to next template\nconst currentTemplateIndex = (lastTemplateIndex + 1) % templateRotation.length;\nconst currentTemplate = templateRotation[currentTemplateIndex];\n\n// Parse topic bank from GitHub response\nlet topicBank;\ntry {\n  // GitHub returns content as base64, but n8n decodes it\n  const content = $input.item.json.content || $input.item.json;\n  topicBank = typeof content === 'string' ? JSON.parse(content) : content;\n} catch (e) {\n  throw new Error('Failed to parse topic bank: ' + e.message);\n}\n\nconst availableTopics = topicBank[currentTemplate];\nif (!availableTopics || availableTopics.length === 0) {\n  throw new Error('No topics found for template: ' + currentTemplate);\n}\n\n// Filter out recently used topics\nconst recentlyUsed = usedTopics[currentTemplate] || [];\nconst freshTopics = availableTopics.filter(t => !recentlyUsed.includes(t));\n\n// If all topics used, reset\nconst topicsToUse = freshTopics.length > 0 ? freshTopics : availableTopics;\nconst selectedTopic = topicsToUse[0];\n\n// Update used topics tracking\nif (!usedTopics[currentTemplate]) {\n  usedTopics[currentTemplate] = [];\n}\nusedTopics[currentTemplate].push(selectedTopic);\n\n// Keep only last 3 used topics per template\nif (usedTopics[currentTemplate].length > 3) {\n  usedTopics[currentTemplate].shift();\n}\n\n// Map template to prompt file\nconst promptFileMap = {\n  'interview_explainer': 'prompts/interview-explainer.md',\n  'architecture': 'prompts/architecture-comparison.md',\n  'optimization': 'prompts/optimization-story.md',\n  'layered': 'prompts/layered-mental-model.md'\n};\n\nreturn {\n  json: {\n    template: currentTemplate,\n    topic: selectedTopic,\n    promptFile: promptFileMap[currentTemplate],\n    timestamp: new Date().toISOString(),\n    repo_owner: repo_owner,\n    repo_name: repo_name,\n    newState: {\n      lastTemplateIndex: currentTemplateIndex,\n      usedTopics: usedTopics\n    }\n  }\n};"
+            },
+            "id": "content-planner",
+            "name": "Plan Content",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [850, 300]
+        },
+        {
+            "parameters": {
+                "authentication": "oAuth2",
+                "resource": "file",
+                "operation": "get",
+                "owner": "={{ $json.repo_owner }}",
+                "repository": "={{ $json.repo_name }}",
+                "filePath": "={{ $json.promptFile }}"
+            },
+            "id": "fetch-prompt",
+            "name": "Fetch Prompt",
+            "type": "n8n-nodes-base.github",
+            "typeVersion": 1,
+            "position": [1050, 250]
+        },
+        {
+            "parameters": {
+                "authentication": "oAuth2",
+                "resource": "file",
+                "operation": "get",
+                "owner": "={{ $json.repo_owner }}",
+                "repository": "={{ $json.repo_name }}",
+                "filePath": "content-spec/tone.md"
+            },
+            "id": "fetch-tone",
+            "name": "Fetch Tone",
+            "type": "n8n-nodes-base.github",
+            "typeVersion": 1,
+            "position": [1050, 350]
         },
         {
             "parameters": {
@@ -98,17 +110,17 @@
             "name": "Generate Content",
             "type": "n8n-nodes-base.openAi",
             "typeVersion": 1,
-            "position": [1050, 300]
+            "position": [1250, 300]
         },
         {
             "parameters": {
-                "jsCode": "// Parse the OpenAI response\nconst aiResponse = $input.item.json.choices[0].message.content;\n\n// Extract JSON from response (handle markdown code blocks)\nlet contentData;\ntry {\n  const jsonMatch = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  contentData = JSON.parse(jsonMatch ? jsonMatch[0] : aiResponse);\n} catch (e) {\n  throw new Error('Failed to parse AI response as JSON: ' + aiResponse);\n}\n\n// Validate required fields\nif (!contentData.caption) {\n  throw new Error('Missing caption in AI response');\n}\n\n// Build full caption with hashtags\nconst hashtags = contentData.hashtags || [];\nconst hashtagString = hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ');\nconst fullCaption = hashtags.length > 0 \n  ? `${contentData.caption}\\n\\n${hashtagString}`\n  : contentData.caption;\n\nreturn {\n  json: {\n    caption: contentData.caption,\n    hashtags: hashtags,\n    fullCaption: fullCaption,\n    topic: $node['Plan Content'].json.topic,\n    template: $node['Plan Content'].json.template,\n    timestamp: $node['Plan Content'].json.timestamp\n  }\n};"
+                "jsCode": "// Parse the OpenAI response\nconst aiResponse = $input.item.json.choices[0].message.content;\n\n// Extract JSON from response (handle markdown code blocks)\nlet contentData;\ntry {\n  const jsonMatch = aiResponse.match(/\\{[\\s\\S]*\\}/);\n  contentData = JSON.parse(jsonMatch ? jsonMatch[0] : aiResponse);\n} catch (e) {\n  throw new Error('Failed to parse AI response as JSON: ' + aiResponse);\n}\n\n// Validate required fields\nif (!contentData.caption) {\n  throw new Error('Missing caption in AI response');\n}\n\n// Build full caption with hashtags\nconst hashtags = contentData.hashtags || [];\nconst hashtagString = hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ');\nconst fullCaption = hashtags.length > 0 \n  ? `${contentData.caption}\\n\\n${hashtagString}`\n  : contentData.caption;\n\nreturn {\n  json: {\n    caption: contentData.caption,\n    hashtags: hashtags,\n    fullCaption: fullCaption,\n    topic: $node['Plan Content'].json.topic,\n    template: $node['Plan Content'].json.template,\n    timestamp: $node['Plan Content'].json.timestamp,\n    repo_owner: $node['Plan Content'].json.repo_owner,\n    repo_name: $node['Plan Content'].json.repo_name\n  }\n};"
             },
             "id": "parse-content",
             "name": "Parse Content",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [1250, 300]
+            "position": [1450, 300]
         },
         {
             "parameters": {
@@ -119,18 +131,18 @@
             "name": "Post to LinkedIn",
             "type": "n8n-nodes-base.linkedIn",
             "typeVersion": 1,
-            "position": [1450, 300],
+            "position": [1650, 300],
             "notes": "Text-only post. Add image support later by adding mediaUrl parameter."
         },
         {
             "parameters": {
-                "jsCode": "// Build log entry\nconst existing = $input.item.json.existingLog || [];\n\nconst newEntry = {\n  timestamp: $node['Parse Content'].json.timestamp,\n  template: $node['Parse Content'].json.template,\n  topic: $node['Parse Content'].json.topic,\n  status: 'published',\n  linkedinPostId: $node['Post to LinkedIn'].json.id || 'N/A',\n  caption: $node['Parse Content'].json.caption.substring(0, 100) + '...',\n  hashtags: $node['Parse Content'].json.hashtags\n};\n\nexisting.unshift(newEntry);\n\n// Keep only last 100 entries\nif (existing.length > 100) {\n  existing.pop();\n}\n\nreturn {\n  json: {\n    posts: existing\n  }\n};"
+                "jsCode": "// Build log entry\nconst existing = $input.item.json.existingLog || [];\n\nconst newEntry = {\n  timestamp: $node['Parse Content'].json.timestamp,\n  template: $node['Parse Content'].json.template,\n  topic: $node['Parse Content'].json.topic,\n  status: 'published',\n  linkedinPostId: $node['Post to LinkedIn'].json.id || 'N/A',\n  caption: $node['Parse Content'].json.caption.substring(0, 100) + '...',\n  hashtags: $node['Parse Content'].json.hashtags\n};\n\nexisting.unshift(newEntry);\n\n// Keep only last 100 entries\nif (existing.length > 100) {\n  existing.pop();\n}\n\nreturn {\n  json: {\n    posts: existing,\n    repo_owner: $node['Parse Content'].json.repo_owner,\n    repo_name: $node['Parse Content'].json.repo_name\n  }\n};"
             },
             "id": "build-log",
             "name": "Build Log Entry",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [1650, 300]
+            "position": [1850, 300]
         },
         {
             "parameters": {
@@ -140,14 +152,14 @@
                 "owner": "={{ $json.repo_owner }}",
                 "repository": "={{ $json.repo_name }}",
                 "filePath": "automation/post_log.json",
-                "fileContent": "={{ JSON.stringify($node['Build Log Entry'].json, null, 2) }}",
+                "fileContent": "={{ JSON.stringify({ posts: $node['Build Log Entry'].json.posts }, null, 2) }}",
                 "commitMessage": "chore: log post {{ $node['Parse Content'].json.timestamp }}"
             },
             "id": "log-to-github",
             "name": "Log to GitHub",
             "type": "n8n-nodes-base.github",
             "typeVersion": 1,
-            "position": [1850, 300]
+            "position": [2050, 300]
         },
         {
             "parameters": {
@@ -164,7 +176,7 @@
             "name": "Check for Errors",
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
-            "position": [1150, 500]
+            "position": [1350, 500]
         },
         {
             "parameters": {
@@ -177,34 +189,25 @@
             "name": "Send Error Alert",
             "type": "n8n-nodes-base.emailSend",
             "typeVersion": 2,
-            "position": [1350, 600],
+            "position": [1550, 500],
             "notes": "Optional: Replace with Slack node for notifications"
-        },
-        {
-            "parameters": {
-                "mode": "raw",
-                "jsonData": "{\n  \"lastTemplateIndex\": 0,\n  \"usedTopics\": {},\n  \"repo_owner\": \"jumahamdan\",\n  \"repo_name\": \"ai-data-content-engine\"\n}"
-            },
-            "id": "get-state",
-            "name": "Get State",
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 2,
-            "position": [450, 200],
-            "notes": "For persistent state, replace with Redis or database node"
         }
     ],
     "connections": {
         "Schedule Trigger": {
             "main": [[
-                {"node": "Get State", "type": "main", "index": 0},
-                {"node": "Fetch Topics", "type": "main", "index": 0}
+                {"node": "Get State", "type": "main", "index": 0}
             ]]
         },
         "Get State": {
-            "main": [[{"node": "Plan Content", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Fetch Topics", "type": "main", "index": 0}
+            ]]
         },
         "Fetch Topics": {
-            "main": [[{"node": "Plan Content", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Plan Content", "type": "main", "index": 0}
+            ]]
         },
         "Plan Content": {
             "main": [[
@@ -213,10 +216,14 @@
             ]]
         },
         "Fetch Prompt": {
-            "main": [[{"node": "Generate Content", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Generate Content", "type": "main", "index": 0}
+            ]]
         },
         "Fetch Tone": {
-            "main": [[{"node": "Generate Content", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Generate Content", "type": "main", "index": 0}
+            ]]
         },
         "Generate Content": {
             "main": [[
@@ -225,16 +232,24 @@
             ]]
         },
         "Parse Content": {
-            "main": [[{"node": "Post to LinkedIn", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Post to LinkedIn", "type": "main", "index": 0}
+            ]]
         },
         "Post to LinkedIn": {
-            "main": [[{"node": "Build Log Entry", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Build Log Entry", "type": "main", "index": 0}
+            ]]
         },
         "Build Log Entry": {
-            "main": [[{"node": "Log to GitHub", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Log to GitHub", "type": "main", "index": 0}
+            ]]
         },
         "Check for Errors": {
-            "main": [[{"node": "Send Error Alert", "type": "main", "index": 0}]]
+            "main": [[
+                {"node": "Send Error Alert", "type": "main", "index": 0}
+            ]]
         }
     },
     "settings": {
