@@ -1,3 +1,22 @@
 {
-    "posts": []
+  "posts": [
+    {
+      "timestamp": "2026-01-24T22:08:58.546Z",
+      "template": "interview_explainer",
+      "topic": "Medallion Architecture",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "“Can you explain Medallion Architecture and why it’s important for large-scale data platforms?”\n\nThi...",
+      "hashtags": [
+        "#DataEngineering",
+        "#DataArchitecture",
+        "#MedallionArchitecture",
+        "#DataQuality",
+        "#AnalyticsEngineering",
+        "#ScalableSystems",
+        "#ETLDesign",
+        "#InterviewPreparation"
+      ]
+    }
+  ]
 }
