@@ -2,136 +2,142 @@
 
 ## 1. Overview
 
-Your n8n workflow will run twice per day at **09:00** and **16:00** (CST), pull content specs and prompts from your GitHub repo, generate a caption and image, and publish a post to LinkedIn. Later, this can be extended to other platforms (Instagram, Facebook, etc.).
+Your n8n workflow runs twice per day at **09:00** and **16:00** (CST), pulls content specs and prompts from your GitHub repo, generates a caption using OpenAI, and publishes a text post to LinkedIn.
+
+**Current Mode**: Text-only posts (MVP)
+**Future**: Add image generation via Canva or similar service
 
 ---
 
 ## 2. Workflow Nodes
 
-### Cron Trigger
-
+### Schedule Trigger
 - **Configuration**: Two times: 09:00 and 16:00 America/Chicago
 - **Purpose**: Starts the workflow twice daily
 
-### Get Content Plan
+### Get State
+- **Purpose**: Stores template rotation index and recently used topics
+- **Note**: Currently uses hardcoded state; replace with Redis/database for persistence across restarts
 
-Use a **Code node (JavaScript)** to:
+### Fetch Topics
+- **Purpose**: Gets topic bank from GitHub repo
+- **File**: `topics/topic-bank.json`
 
-- Read `schedule/linkedin.json` for timing info
-- Pick one of your four templates (rotate sequentially)
-- Load a topic from the relevant section of `topics/topic-bank.json` and remove it or track which topics have been used recently
+### Plan Content
+Uses a **Code node (JavaScript)** to:
+- Pick one of four templates (rotates sequentially: interview_explainer → architecture → optimization → layered)
+- Select a topic from the relevant section of `topics/topic-bank.json`
+- Track which topics have been used recently (avoids repeats)
 
-### Fetch Prompt & Specs from GitHub
-
-Use the **n8n HTTP Request node** (GitHub API) or a **GitHub node** to:
-
+### Fetch Prompt & Tone from GitHub
+Uses **GitHub nodes** to:
 - Fetch the appropriate prompt file under `prompts/` (e.g., `prompts/interview-explainer.md`)
-- Fetch tone and visual rules from `content-spec/`
-- **Note**: This ensures any updates you push to your repo automatically sync with your workflow
+- Fetch tone guidelines from `content-spec/tone.md`
+- **Benefit**: Any updates you push to your repo automatically sync with your workflow
 
-### Generate Caption & Image Text
+### Generate Content
+Uses an **OpenAI node** to call GPT-4:
+- Provides the chosen prompt, topic, and tone description
+- Returns JSON with caption and hashtags
+- **Error Handling**: Conditional node sends alert if API call fails
 
-Use an **OpenAI node** to call the ChatGPT API:
-
-- Provide the chosen prompt, the topic, and tone description
-- Parse the returned JSON (caption and bullet points for the image)
-- **Error Handling**: Add a conditional node—if the API call fails, send a fallback notification to your email or Slack
-
-### Generate the Image
-
-Use an **HTTP node** to call the Canva API (if available) or a preferred image service:
-
-- Populate the title and bullets into a chosen template style (square 1080×1080)
-- Save the resulting image to temporary storage (e.g., AWS S3, n8n's binary data, or GitHub)
+### Parse Content
+Uses a **Code node** to:
+- Extract JSON from OpenAI response
+- Build full caption with hashtags appended
+- Validate required fields
 
 ### Post to LinkedIn
+Uses the **LinkedIn node** to:
+- Post the text caption with hashtags
+- **Note**: Text-only for MVP; image support can be added later
 
-Use the **LinkedIn node** to:
-
-- Upload the image
-- Post the caption text with hashtags and reflective question
-- **Error Handling**: If the post fails (e.g., API issues), send an alert or retry
-
-### Log Post Results
-
-Use a **Code or GitHub node** to:
-
-- Append a record to a log file in your repo (e.g., `automation/post_log.json`) with:
-  - Date
-  - Template
+### Build Log Entry & Log to GitHub
+Uses **Code and GitHub nodes** to:
+- Append a record to `automation/post_log.json` with:
+  - Timestamp
+  - Template used
   - Topic
   - Status
-  - URL of the posted content
+  - LinkedIn post ID
+  - Caption preview
+  - Hashtags
 - **Purpose**: Makes future analytics or troubleshooting easier
 
-### End Workflow
+---
 
-**Optional**: Send a summary via email or Slack summarizing what was posted
+## 3. Workflow Diagram
+
+```
+Schedule Trigger (09:00, 16:00 CST)
+    ↓
+┌───────────────┬───────────────┐
+│   Get State   │  Fetch Topics │
+└───────┬───────┴───────┬───────┘
+        └───────┬───────┘
+                ↓
+         Plan Content
+                ↓
+    ┌───────────┴───────────┐
+    │                       │
+Fetch Prompt           Fetch Tone
+    │                       │
+    └───────────┬───────────┘
+                ↓
+        Generate Content (OpenAI)
+                ↓
+          Parse Content
+                ↓
+        Post to LinkedIn
+                ↓
+        Build Log Entry
+                ↓
+        Log to GitHub
+```
 
 ---
 
-## 3. Future Extensions
+## 4. Required Credentials
 
-### Approval Mode
-Insert a manual approval step before the LinkedIn node, such as sending the draft to your Slack and waiting for confirmation.
+| Credential | Purpose | Scopes Needed |
+|------------|---------|---------------|
+| GitHub OAuth2 | Fetch files, update log | `repo` or `public_repo` |
+| OpenAI API | Generate content | N/A (API key) |
+| LinkedIn OAuth2 | Post content | `openid profile email w_member_social` |
 
-### Platform Branching
-Add separate LinkedIn, Instagram, and Facebook nodes with conditional logic to determine which post goes where.
-
-### Analytics and Optimization
-Use additional nodes to pull LinkedIn engagement data and refine your topic rotation.
-
----
-
-## 4. Repository Integration Notes
-
-- Your GitHub repository (`ai-data-content-engine`) holds all prompts, tone specs, and visual rules
-- n8n will fetch and update these files via the GitHub API
-- **Required**: Ensure your workflow has the appropriate GitHub token with read/write permissions
-- **Benefit**: As you add or adjust topics and templates, just commit changes to the repo; the workflow will automatically pick them up on the next run
+**Important**: Do NOT include `w_organization_social` in LinkedIn scopes unless posting to company pages.
 
 ---
 
 ## 5. Implementation Checklist
 
-- [ ] Set up n8n instance
-- [ ] Configure Cron Trigger (09:00 and 16:00 CST)
-- [ ] Create Code node for content plan logic
-- [ ] Set up GitHub API credentials
-- [ ] Configure OpenAI API credentials
-- [ ] Set up Canva API or image generation service
-- [ ] Configure LinkedIn API credentials
-- [ ] Create post logging mechanism
+- [x] Set up n8n instance
+- [x] Configure Schedule Trigger (09:00 and 16:00 CST)
+- [x] Create Code node for content plan logic
+- [x] Set up GitHub API credentials
+- [x] Configure OpenAI API credentials
+- [ ] Configure LinkedIn API credentials (fix scope issue)
+- [x] Create post logging mechanism
 - [ ] Test error handling flows
 - [ ] Test complete workflow end-to-end
+- [ ] Enable workflow for production
 
 ---
 
-## 6. Required API Credentials
+## 6. Future Enhancements
 
-1. **GitHub Personal Access Token** - Read/write access to repository
-2. **OpenAI API Key** - For caption and content generation
-3. **LinkedIn API Credentials** - For posting content
-4. **Canva API Key** (or alternative image service) - For image generation
+### Phase 2: Image Support
+- Add Canva API or alternative image service
+- Modify LinkedIn node to include `mediaUrl` parameter
 
----
+### Phase 3: Approval Mode
+- Insert manual approval step before LinkedIn node
+- Send draft to Slack and wait for confirmation
 
-## 7. Workflow Diagram
+### Phase 4: Multi-Platform
+- Add Instagram, Facebook nodes with conditional logic
+- Adjust caption format for each platform
 
-```
-Cron Trigger (09:00, 16:00 CST)
-    ↓
-Get Content Plan (Code Node)
-    ↓
-Fetch Prompt & Specs (GitHub API)
-    ↓
-Generate Caption & Image Text (OpenAI)
-    ↓
-Generate Image (Canva API)
-    ↓
-Post to LinkedIn (LinkedIn Node)
-    ↓
-Log Post Results (GitHub API)
-    ↓
-End / Summary Notification
-```
+### Phase 5: Analytics
+- Pull LinkedIn engagement data
+- Refine topic rotation based on performance

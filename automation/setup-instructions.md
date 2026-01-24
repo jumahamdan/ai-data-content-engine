@@ -7,7 +7,6 @@
    - GitHub Personal Access Token (read/write repo access)
    - OpenAI API Key
    - LinkedIn API credentials
-   - Canva API Key (or alternative image service)
 
 ---
 
@@ -29,57 +28,58 @@
 3. Follow GitHub's OAuth app setup:
    - Go to GitHub Settings → Developer Settings → OAuth Apps
    - Create new OAuth App
-   - Set Authorization callback URL to your n8n instance
+   - Set Authorization callback URL to: `https://your-n8n-domain/rest/oauth2-credential/callback`
    - Copy Client ID and Client Secret to n8n
 4. Grant permissions for `repo` scope
 
 ### OpenAI API
 
 1. Add **OpenAI** credential in n8n
-2. Enter your OpenAI API key
+2. Enter your OpenAI API key from https://platform.openai.com/api-keys
 3. Test the connection
 
 ### LinkedIn OAuth2
 
-1. Add **LinkedIn OAuth2** credential
+1. Add **LinkedIn OAuth2** credential in n8n
 2. Create LinkedIn app at https://www.linkedin.com/developers
-3. Required permissions:
-   - `w_member_social` (share content)
-   - `r_liteprofile` (basic profile)
-4. Copy Client ID and Secret to n8n
+3. Configure the app:
+   - Add product: "Share on LinkedIn"
+   - Add product: "Sign In with LinkedIn using OpenID Connect"
 
-### Canva API (Optional)
+4. **Important - Set correct scopes in n8n**:
+   ```
+   openid profile email w_member_social
+   ```
 
-1. Sign up for Canva API access
-2. Add **HTTP Header Auth** credential in n8n
-3. Name: `Authorization`, Value: `Bearer YOUR_API_KEY`
-4. **Alternative**: Replace with any image generation service (Cloudinary, Bannerbear, etc.)
+   **DO NOT include** `w_organization_social` unless you're posting to company pages.
+
+5. Set redirect URL in LinkedIn Developer Portal:
+   ```
+   https://your-n8n-domain/rest/oauth2-credential/callback
+   ```
+
+6. Copy Client ID and Client Secret to n8n
+
+#### Troubleshooting LinkedIn OAuth
+
+**Error: "Scope w_organization_social is not authorized"**
+- Edit your LinkedIn credential in n8n
+- Remove `w_organization_social` from the scope field
+- Only use: `openid profile email w_member_social`
+
+**Error: "Invalid redirect_uri"**
+- Verify the redirect URL in LinkedIn Developer Portal exactly matches n8n's callback URL
+- Check for trailing slashes or http vs https differences
+
+**Error: "This app is in development mode"**
+- Development mode works for testing with your own account
+- For production, you may need to verify your app with LinkedIn
 
 ---
 
-## Step 3: Configure State Management
+## Step 3: Update Repository Configuration
 
-The workflow uses a simple **Set** node for state. For production:
-
-**Option A: Use n8n's Built-in Database** (Recommended for n8n Cloud)
-- The workflow stores state in workflow static data
-- No additional setup needed
-
-**Option B: Use Redis** (Recommended for self-hosted)
-1. Install Redis node from n8n community nodes
-2. Replace "Get State" node with Redis GET
-3. Add Redis SET node after "Plan Content"
-
-**Option C: Use GitHub as State Store**
-1. Create `automation/workflow-state.json` in your repo
-2. Modify "Get State" to fetch from GitHub
-3. Add GitHub commit after each run to update state
-
----
-
-## Step 4: Update Repository Configuration
-
-In the **Get State** node, update:
+In the **Get State** node, verify these match your repo:
 ```json
 {
   "repo_owner": "jumahamdan",
@@ -87,59 +87,43 @@ In the **Get State** node, update:
 }
 ```
 
-Make sure these match your actual GitHub repository.
-
 ---
 
-## Step 5: Test the Workflow
+## Step 4: Test the Workflow
 
 ### Manual Test Run
 
 1. Click **Execute Workflow** in n8n
 2. Watch each node execute
 3. Check outputs at each step:
-   - ✅ Content plan generated
+   - ✅ Content plan generated (template + topic selected)
    - ✅ Files fetched from GitHub
    - ✅ OpenAI generates content
-   - ✅ Image created
    - ✅ LinkedIn post published
    - ✅ Log updated in GitHub
 
 ### Troubleshooting Common Issues
 
-**GitHub API Rate Limits**
-- Use conditional caching for specs/prompts
-- Consider caching tone and visual rules locally
+**GitHub API errors**
+- Verify your GitHub token has `repo` scope
+- Check the file paths in the workflow match your repo structure
 
 **OpenAI Response Parsing Errors**
 - Check the JSON format in responses
 - Adjust temperature if responses are inconsistent
-- Add retry logic in error handler
+- Review the prompt templates for clarity
 
 **LinkedIn Posting Fails**
-- Verify OAuth token hasn't expired
-- Check image URL is publicly accessible
+- Verify OAuth token hasn't expired (re-authenticate if needed)
 - Ensure caption doesn't exceed LinkedIn limits (3000 chars)
+- Check that all required scopes are authorized
 
 ---
 
-## Step 6: Adjust Schedule (Optional)
-
-The workflow is set to run at **09:00 and 16:00 CST**.
-
-To modify:
-1. Click the **Schedule Trigger** node
-2. Edit the cron expression:
-   - Current: `0 9,16 * * *`
-   - Example for 3x/day: `0 9,14,18 * * *`
-3. Verify timezone is set to `America/Chicago`
-
----
-
-## Step 7: Enable Workflow
+## Step 5: Enable Workflow
 
 1. Click **Active** toggle in the top-right
-2. Workflow will now run automatically at scheduled times
+2. Workflow will now run automatically at 09:00 and 16:00 CST
 3. Monitor executions in the **Executions** tab
 
 ---
@@ -158,7 +142,7 @@ To modify:
 
 ### Update Content
 Any changes to these files are automatically picked up:
-- `prompts/*.md` - Add new templates
+- `prompts/*.md` - Prompt templates
 - `topics/topic-bank.json` - Add topics
 - `content-spec/*.md` - Adjust tone or rules
 
@@ -166,40 +150,23 @@ No workflow changes needed—just commit to GitHub!
 
 ---
 
-## Advanced Configurations
-
-### Add Manual Approval Step
-
-1. Add **Slack** or **Email** node after "Parse Content"
-2. Send preview with approve/reject buttons
-3. Add **Wait** node to pause workflow
-4. Add **IF** node to check approval status
-5. Only proceed to LinkedIn if approved
-
-### Multi-Platform Publishing
-
-1. Duplicate the "Post to LinkedIn" branch
-2. Add Instagram, Facebook, or Twitter nodes
-3. Add conditional logic to determine platform per post
-4. Adjust caption format for each platform
-
-### A/B Testing & Analytics
-
-1. Add **Webhook** node to receive LinkedIn analytics
-2. Store engagement data in separate log
-3. Use data to refine topic selection logic
-4. Rotate high-performing templates more frequently
-
----
-
 ## Cost Estimates
 
 **Per post** (2x/day = 60 posts/month):
-- OpenAI API: ~$0.02 per generation
-- Canva API: ~$0.05 per image (or free alternatives)
+- OpenAI API: ~$0.02-0.05 per generation (GPT-4)
 - n8n: Free (self-hosted) or $20/month (Cloud)
 
-**Monthly estimate**: $4-5 in API costs + n8n hosting
+**Monthly estimate**: $2-5 in API costs + n8n hosting
+
+---
+
+## Future: Adding Image Support
+
+To add images later:
+
+1. Set up Canva API or alternative service (Bannerbear, Placid, etc.)
+2. Add HTTP Request node after "Parse Content"
+3. Update "Post to LinkedIn" node to include `mediaUrl` parameter
 
 ---
 
@@ -209,5 +176,3 @@ No workflow changes needed—just commit to GitHub!
 - [GitHub API Reference](https://docs.github.com/en/rest)
 - [OpenAI API Docs](https://platform.openai.com/docs)
 - [LinkedIn API Docs](https://learn.microsoft.com/en-us/linkedin/)
-
-For issues with this workflow, check the n8n community forum or review execution logs.

@@ -1,4 +1,4 @@
-﻿Generate a LinkedIn post that explains {{topic}} as a layered or stacked mental model.
+Generate a LinkedIn post that explains {{topic}} as a layered or stacked mental model.
 
 Structure:
 - Short framing about why the topic feels complex

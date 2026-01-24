@@ -1,4 +1,4 @@
-﻿# Tone Specification
+# Tone Specification
 
 Default tone for all generated content:
 - Senior but approachable

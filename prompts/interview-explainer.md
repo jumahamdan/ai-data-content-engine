@@ -1,4 +1,4 @@
-﻿Generate a LinkedIn post that explains {{concept}} as if answering an interview question.
+Generate a LinkedIn post that explains {{concept}} as if answering an interview question.
 
 Structure:
 - Hook that frames it as an interview or real-world question

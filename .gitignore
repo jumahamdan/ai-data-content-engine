@@ -12,3 +12,10 @@ automation/test-output.json
 
 # Dependencies
 automation/node_modules/
+
+# Backup files
+*.backup
+*.bak
+
+# Claude Code
+.claude/

@@ -1,4 +1,4 @@
-﻿# Roadmap
+# Roadmap
 
 ## Phase 1 (MVP)
 - Generate image + caption

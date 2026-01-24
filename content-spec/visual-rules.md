@@ -1,4 +1,4 @@
-﻿# Visual Rules
+# Visual Rules
 
 - Size: 1080x1080 (square)
 - One idea per image

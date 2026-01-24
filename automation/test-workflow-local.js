@@ -1,7 +1,7 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const CONFIG = {
   githubToken: process.env.GITHUB_TOKEN,
@@ -113,7 +113,7 @@ async function planContent() {
   return {
     template: currentTemplate,
     topic: selectedTopic,
-    promptFile: ({'interview_explainer':'prompts/interview-explainer.md','architecture':'prompts/architecture-comparison.md','optimization':'prompts/optimization-story.md','layered':'prompts/layered-mental-model.md'})[currentTemplate]
+    promptFile: ({ 'interview_explainer': 'prompts/interview-explainer.md', 'architecture': 'prompts/architecture-comparison.md', 'optimization': 'prompts/optimization-story.md', 'layered': 'prompts/layered-mental-model.md' })[currentTemplate]
   };
 }
 

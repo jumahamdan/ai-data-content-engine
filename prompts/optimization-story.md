@@ -1,4 +1,4 @@
-﻿Generate a LinkedIn post describing a real-world performance or design improvement.
+Generate a LinkedIn post describing a real-world performance or design improvement.
 
 Structure:
 - Opening with a concrete before/after result

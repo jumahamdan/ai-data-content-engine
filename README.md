@@ -1,4 +1,4 @@
-﻿# AI & Data Content Engine
+# AI & Data Content Engine
 
 This repository defines the **content system** used to generate and automatically publish technical posts about:
 - Data Engineering

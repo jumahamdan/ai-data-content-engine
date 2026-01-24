@@ -1,4 +1,4 @@
-﻿Generate a LinkedIn post comparing data or AI architectures from a real-world engineering perspective.
+Generate a LinkedIn post comparing data or AI architectures from a real-world engineering perspective.
 
 Structure:
 - Opening framing why architecture choices matter

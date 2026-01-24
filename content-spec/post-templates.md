@@ -1,4 +1,4 @@
-﻿# Post Templates
+# Post Templates
 
 ## 1) Interview Explainer
 Explains a concept as if answering an interview question.
