@@ -1,6 +1,24 @@
 {
   "posts": [
     {
+      "timestamp": "2026-01-28T14:00:00.892Z",
+      "template": "interview_explainer",
+      "topic": "Medallion Architecture",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "“Can you explain the Medallion Architecture and why it's used in modern data platforms?”\n\nThis is a ...",
+      "hashtags": [
+        "#DataEngineering",
+        "#DataArchitecture",
+        "#MedallionArchitecture",
+        "#DataPlatforms",
+        "#ETL",
+        "#DataQuality",
+        "#AnalyticsEngineering",
+        "#DataPipelineDesign"
+      ]
+    },
+    {
       "timestamp": "2026-01-27T21:00:00.775Z",
       "template": "interview_explainer",
       "topic": "Medallion Architecture",
