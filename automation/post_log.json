@@ -1,6 +1,23 @@
 {
   "posts": [
     {
+      "timestamp": "2026-02-01T07:08:13.920Z",
+      "template": "architecture",
+      "topic": "Warehouse vs Lakehouse",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "Architecture decisions shape how data teams operate and scale. One of the most debated choices today...",
+      "hashtags": [
+        "#DataArchitecture",
+        "#Lakehouse",
+        "#DataWarehouse",
+        "#DataEngineering",
+        "#AnalyticsEngineering",
+        "#ModernDataStack",
+        "#ScalableData"
+      ]
+    },
+    {
       "timestamp": "2026-01-31T21:00:00.771Z",
       "template": "interview_explainer",
       "topic": "Medallion Architecture",
