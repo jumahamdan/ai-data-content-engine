@@ -93,17 +93,17 @@ Icons are auto-detected from text content or can be specified explicitly.
 
 ## Customization
 
-### Modify Templates
+### Modify Layouts
 
-Edit `templates/card.html` or `templates/diagram.html` for layout changes.
-
-### Update Styles
-
-Edit `styles/base.css` for colors, fonts, and spacing.
+Edit the HTML builder functions in `index.js`:
+- `buildCardHtml()` - Card layout with numbered bullets
+- `buildDiagramHtml()` - Horizontal comparison boxes
+- `buildLayeredHtml()` - Vertical stacked layers
+- `getBaseStyles()` - CSS styles (inlined for Puppeteer reliability)
 
 ### Add Icons
 
-Add new SVG icons to `icons/index.js`.
+Add new SVG icons to `icons/index.js` using `{fill}` and `{stroke}` placeholders.
 
 ## Output
 
