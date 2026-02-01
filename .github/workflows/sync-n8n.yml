@@ -1,0 +1,44 @@
+name: Sync n8n Workflow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'automation/n8n-workflow.json'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update n8n workflow
+        run: |
+          # Read the workflow JSON and update via n8n API
+          HTTP_STATUS=$(curl -s -o response.json -w "%{http_code}" \
+            -X PUT "${{ secrets.N8N_INSTANCE_URL }}/api/v1/workflows/${{ secrets.N8N_WORKFLOW_ID }}" \
+            -H "X-N8N-API-KEY: ${{ secrets.N8N_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d @automation/n8n-workflow.json)
+
+          echo "HTTP Status: $HTTP_STATUS"
+          cat response.json
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "✅ Workflow updated successfully"
+          else
+            echo "❌ Failed to update workflow"
+            exit 1
+          fi
+
+      - name: Activate workflow
+        run: |
+          # Ensure the workflow is active after update
+          curl -s -X PATCH "${{ secrets.N8N_INSTANCE_URL }}/api/v1/workflows/${{ secrets.N8N_WORKFLOW_ID }}" \
+            -H "X-N8N-API-KEY: ${{ secrets.N8N_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"active": true}'
+
+          echo "✅ Workflow activated"
