@@ -9,60 +9,38 @@
 
 const path = require('path');
 const fs = require('fs');
-const { renderToBuffer, renderToFile, loadTemplate } = require('./renderer');
+const { renderToBuffer, renderToFile } = require('./renderer');
 const { getIcon, getStyledIcon } = require('./icons');
 
 // Color schemes for sections
-const SECTION_COLORS = ['purple', 'orange', 'green', 'blue', 'cyan'];
+const SECTION_COLORS = {
+  purple: { bg: '#EEF2FF', border: '#6366F1', text: '#4338CA' },
+  orange: { bg: '#FFF7ED', border: '#F97316', text: '#C2410C' },
+  green: { bg: '#F0FDF4', border: '#22C55E', text: '#15803D' },
+  blue: { bg: '#EFF6FF', border: '#3B82F6', text: '#1D4ED8' },
+  cyan: { bg: '#ECFEFF', border: '#06B6D4', text: '#0E7490' }
+};
+
+const COLOR_ORDER = ['purple', 'orange', 'green', 'blue', 'cyan'];
 
 // Icon mapping for common data engineering concepts
 const TOPIC_ICONS = {
-  // Architectures
-  'medallion': 'layers',
-  'warehouse': 'warehouse',
-  'lakehouse': 'lake',
-  'data mesh': 'mesh',
-  'hybrid': 'network',
-
-  // Layers
-  'bronze': 'database',
-  'silver': 'filter',
-  'gold': 'sparkles',
-  'raw': 'document',
-  'curated': 'check',
-  'aggregated': 'chart',
-
-  // Processing
-  'etl': 'flow',
-  'elt': 'flow',
-  'streaming': 'lightning',
-  'batch': 'server',
-  'cdc': 'refresh',
-
-  // AI/ML
-  'rag': 'brain',
-  'agent': 'robot',
-  'llm': 'sparkles',
-  'embedding': 'target',
-  'chunking': 'filter',
-
-  // General
-  'optimization': 'wrench',
-  'performance': 'zap',
-  'security': 'lock',
-  'api': 'api',
-  'cloud': 'cloud',
-
-  // Interview/educational
-  'interview': 'question',
-  'tip': 'lightbulb',
-  'explain': 'lightbulb'
+  'medallion': 'layers', 'warehouse': 'warehouse', 'lakehouse': 'lake',
+  'data mesh': 'mesh', 'hybrid': 'network', 'bronze': 'database',
+  'silver': 'filter', 'gold': 'sparkles', 'raw': 'document',
+  'curated': 'check', 'aggregated': 'chart', 'etl': 'flow',
+  'elt': 'flow', 'streaming': 'lightning', 'batch': 'server',
+  'cdc': 'refresh', 'rag': 'brain', 'agent': 'robot',
+  'llm': 'sparkles', 'embedding': 'target', 'chunking': 'filter',
+  'optimization': 'wrench', 'performance': 'zap', 'security': 'lock',
+  'api': 'api', 'cloud': 'cloud', 'interview': 'question',
+  'tip': 'lightbulb', 'explain': 'lightbulb', 'sql': 'database',
+  'window': 'chart', 'ingestion': 'document', 'vector': 'database',
+  'retrieval': 'brain', 'generation': 'sparkles'
 };
 
 /**
  * Detect appropriate icon based on text content
- * @param {string} text - Text to analyze
- * @returns {string} Icon name
  */
 function detectIcon(text) {
   const lowerText = text.toLowerCase();
@@ -71,74 +49,418 @@ function detectIcon(text) {
       return icon;
     }
   }
-  return 'sparkles'; // default
+  return 'sparkles';
 }
 
 /**
- * Simple template engine - replaces {{variables}} with values
- * Supports:
- * - {{variable}} - simple replacement
- * - {{{variable}}} - HTML (unescaped)
- * - {{#if var}}...{{/if}} - conditionals
- * - {{#each array}}...{{/each}} - loops
- * - {{@index}}, {{@indexPlusOne}} - loop indices
- * - {{this}} - current item in loop
+ * Get base CSS styles (inlined for Puppeteer)
  */
-function renderTemplate(template, data) {
-  let html = template;
+function getBaseStyles() {
+  return `
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  // Handle {{#each array}}...{{/each}}
-  html = html.replace(/\{\{#each\s+(\w+)\}\}([\s\S]*?)\{\{\/each\}\}/g, (match, arrayName, content) => {
-    const array = data[arrayName];
-    if (!Array.isArray(array)) return '';
+    body {
+      width: 1080px;
+      height: 1080px;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #FAFBFC 0%, #F3F4F6 100%);
+      color: #1F2937;
+      overflow: hidden;
+    }
 
-    return array.map((item, index) => {
-      let itemContent = content;
-      // Replace {{this}} with item value (for simple arrays)
-      itemContent = itemContent.replace(/\{\{this\}\}/g, typeof item === 'string' ? item : '');
-      // Replace {{@index}} and {{@indexPlusOne}}
-      itemContent = itemContent.replace(/\{\{@index\}\}/g, index);
-      itemContent = itemContent.replace(/\{\{@indexPlusOne\}\}/g, index + 1);
-      // Replace {{@last}} check
-      itemContent = itemContent.replace(/\{\{#unless\s+@last\}\}([\s\S]*?)\{\{\/unless\}\}/g,
-        index === array.length - 1 ? '' : '$1');
-      // Replace {{../variable}} with parent data
-      itemContent = itemContent.replace(/\{\{\.\.\/([\w.]+)\}\}/g, (m, key) => {
-        return data[key] !== undefined ? data[key] : '';
-      });
-      // For object items, replace {{property}}
-      if (typeof item === 'object') {
-        for (const [key, value] of Object.entries(item)) {
-          const escapedValue = typeof value === 'string' ? escapeHtml(value) : value;
-          itemContent = itemContent.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), escapedValue);
-          itemContent = itemContent.replace(new RegExp(`\\{\\{\\{${key}\\}\\}\\}`, 'g'), value);
-        }
-      }
-      return itemContent;
-    }).join('');
-  });
+    .container {
+      width: 100%;
+      height: 100%;
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+    }
 
-  // Handle {{#if variable}}...{{/if}}
-  html = html.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, varName, content) => {
-    return data[varName] ? content : '';
-  });
+    .title {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 40px;
+      color: #1F2937;
+    }
 
-  // Handle {{{unescaped}}} - HTML content
-  html = html.replace(/\{\{\{(\w+)\}\}\}/g, (match, key) => {
-    return data[key] !== undefined ? data[key] : '';
-  });
+    .header-icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 24px;
+      color: #6366F1;
+    }
 
-  // Handle {{escaped}}
-  html = html.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-    const value = data[key];
-    return value !== undefined ? escapeHtml(String(value)) : '';
-  });
+    .header-icon svg {
+      width: 100%;
+      height: 100%;
+    }
 
-  return html;
+    /* Card styles */
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .bullet-list {
+      list-style: none;
+    }
+
+    .bullet-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid #E5E7EB;
+      font-size: 26px;
+      line-height: 1.4;
+    }
+
+    .bullet-item:last-child {
+      border-bottom: none;
+    }
+
+    .bullet-number {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      background: #6366F1;
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 22px;
+    }
+
+    .bullet-text {
+      flex: 1;
+      color: #374151;
+      padding-top: 6px;
+    }
+
+    /* Diagram styles */
+    .diagram-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .diagram-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .flow-horizontal {
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .flow-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .section-box {
+      flex: 1;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-top: 5px solid #6366F1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      color: #6366F1;
+    }
+
+    .section-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .section-items {
+      list-style: none;
+      flex: 1;
+    }
+
+    .section-item {
+      font-size: 17px;
+      line-height: 1.5;
+      padding: 6px 0;
+      color: #4B5563;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .section-item::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: #6366F1;
+      border-radius: 50%;
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Layer box (vertical stacked) */
+    .layer-box {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 28px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-left: 5px solid #6366F1;
+    }
+
+    .layer-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      color: #6366F1;
+    }
+
+    .layer-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .layer-content {
+      flex: 1;
+    }
+
+    .layer-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #1F2937;
+    }
+
+    .layer-description {
+      font-size: 16px;
+      color: #6B7280;
+    }
+
+    .arrow-connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9CA3AF;
+      padding: 4px 0;
+    }
+
+    .arrow-connector svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: auto;
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      font-size: 16px;
+      color: #9CA3AF;
+      font-weight: 500;
+    }
+
+    .footer-handle {
+      font-size: 18px;
+      color: #6366F1;
+      font-weight: 600;
+    }
+  `;
+}
+
+/**
+ * Build card HTML directly (no template engine)
+ */
+function buildCardHtml(data) {
+  const { title, bullets = [], headerIcon } = data;
+
+  const headerIconHtml = headerIcon
+    ? `<div class="header-icon">${getStyledIcon(headerIcon, '#6366F1', '#6366F1')}</div>`
+    : '';
+
+  const bulletsHtml = bullets.map((text, i) => `
+    <li class="bullet-item">
+      <span class="bullet-number">${i + 1}</span>
+      <span class="bullet-text">${escapeHtml(text)}</span>
+    </li>
+  `).join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>${getBaseStyles()}</style>
+</head>
+<body>
+  <div class="container">
+    <div class="card-header">
+      ${headerIconHtml}
+      <h1 class="title">${escapeHtml(title)}</h1>
+    </div>
+    <div class="card-content">
+      <ul class="bullet-list">
+        ${bulletsHtml}
+      </ul>
+    </div>
+    <div class="footer">
+      <span class="footer-brand">Data & AI Insights</span>
+      <span class="footer-handle">@jumahamdan</span>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Build diagram HTML (horizontal comparison)
+ */
+function buildDiagramHtml(data) {
+  const { title, sections = [] } = data;
+
+  const sectionsHtml = sections.map((section, i) => {
+    const colorKey = COLOR_ORDER[i % COLOR_ORDER.length];
+    const colors = SECTION_COLORS[colorKey];
+    const iconHtml = getStyledIcon(section.icon || detectIcon(section.title), colors.border, colors.border);
+
+    const itemsHtml = (section.items || []).map(item => `
+      <li class="section-item">${escapeHtml(item)}</li>
+    `).join('');
+
+    return `
+      <div class="section-box" style="border-top-color: ${colors.border}; background: ${colors.bg};">
+        <div class="section-header">
+          <div class="section-icon" style="color: ${colors.border};">${iconHtml}</div>
+          <h3 class="section-title" style="color: ${colors.text};">${escapeHtml(section.title)}</h3>
+        </div>
+        <ul class="section-items">
+          ${itemsHtml}
+        </ul>
+      </div>
+    `;
+  }).join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>${getBaseStyles()}</style>
+</head>
+<body>
+  <div class="container">
+    <div class="diagram-title">
+      <h1 class="title">${escapeHtml(title)}</h1>
+    </div>
+    <div class="diagram-container">
+      <div class="flow-horizontal">
+        ${sectionsHtml}
+      </div>
+    </div>
+    <div class="footer">
+      <span class="footer-brand">Data & AI Insights</span>
+      <span class="footer-handle">@jumahamdan</span>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Build layered diagram HTML (vertical stacked)
+ */
+function buildLayeredHtml(data) {
+  const { title, sections = [] } = data;
+  const arrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
+
+  const layersHtml = sections.map((section, i) => {
+    const colorKey = COLOR_ORDER[i % COLOR_ORDER.length];
+    const colors = SECTION_COLORS[colorKey];
+    const iconHtml = getStyledIcon(section.icon || detectIcon(section.title), colors.border, colors.border);
+
+    const layerHtml = `
+      <div class="layer-box" style="border-left-color: ${colors.border}; background: ${colors.bg};">
+        <div class="layer-icon" style="color: ${colors.border};">${iconHtml}</div>
+        <div class="layer-content">
+          <div class="layer-title" style="color: ${colors.text};">${escapeHtml(section.title)}</div>
+          ${section.description ? `<div class="layer-description">${escapeHtml(section.description)}</div>` : ''}
+        </div>
+      </div>
+    `;
+
+    // Add arrow between layers (except after last)
+    if (i < sections.length - 1) {
+      return layerHtml + `<div class="arrow-connector">${arrowSvg}</div>`;
+    }
+    return layerHtml;
+  }).join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>${getBaseStyles()}</style>
+</head>
+<body>
+  <div class="container">
+    <div class="diagram-title">
+      <h1 class="title">${escapeHtml(title)}</h1>
+    </div>
+    <div class="diagram-container">
+      <div class="flow-vertical">
+        ${layersHtml}
+      </div>
+    </div>
+    <div class="footer">
+      <span class="footer-brand">Data & AI Insights</span>
+      <span class="footer-handle">@jumahamdan</span>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 function escapeHtml(text) {
-  return text
+  if (!text) return '';
+  return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -146,84 +468,33 @@ function escapeHtml(text) {
 }
 
 /**
- * Generate a card image (title + bullet points)
- * @param {object} input - Card data
- * @param {string} input.title - Card title
- * @param {string[]} input.bullets - Bullet point texts
- * @param {string} input.theme - "light" or "dark"
- * @param {boolean} input.useNumbers - Use numbers instead of icons
- * @param {string} input.headerIcon - Optional header icon name
- * @returns {Promise<Buffer>} PNG buffer
+ * Generate a card image
  */
 async function generateCard(input) {
-  const { title, bullets = [], theme = 'light', useNumbers = true, headerIcon = null } = input;
-
-  // Prepare bullet data with icons
-  const bulletData = bullets.map((text, i) => ({
-    text,
-    icon: getStyledIcon(detectIcon(text))
-  }));
-
-  const templateData = {
-    theme: theme === 'dark' ? 'dark' : '',
+  const { title, bullets = [], headerIcon } = input;
+  const html = buildCardHtml({
     title,
-    subtitle: input.subtitle || '',
-    bullets: bulletData,
-    useNumbers,
-    headerIcon: headerIcon ? getStyledIcon(headerIcon) : null
-  };
-
-  const template = loadTemplate('card');
-  const html = renderTemplate(template, templateData);
-
+    bullets,
+    headerIcon: headerIcon || detectIcon(title)
+  });
   return renderToBuffer(html);
 }
 
 /**
- * Generate a diagram image (architecture comparison, layers, flows)
- * @param {object} input - Diagram data
- * @param {string} input.title - Diagram title
- * @param {object[]} input.sections - Sections/boxes to display
- * @param {boolean} input.isLayered - Use vertical layered layout
- * @param {string} input.theme - "light" or "dark"
- * @returns {Promise<Buffer>} PNG buffer
+ * Generate a diagram image
  */
 async function generateDiagram(input) {
-  const { title, sections = [], isLayered = false, theme = 'light' } = input;
+  const { title, sections = [], isLayered = false } = input;
 
-  // Prepare section data with colors and icons
-  const sectionData = sections.map((section, i) => ({
-    title: section.title,
-    items: section.items || [],
-    description: section.description || '',
-    icon: getStyledIcon(section.icon || detectIcon(section.title)),
-    color: section.color || SECTION_COLORS[i % SECTION_COLORS.length]
-  }));
-
-  const templateData = {
-    theme: theme === 'dark' ? 'dark' : '',
-    title,
-    subtitle: input.subtitle || '',
-    sections: sectionData,
-    isLayered
-  };
-
-  const template = loadTemplate('diagram');
-  const html = renderTemplate(template, templateData);
+  const html = isLayered
+    ? buildLayeredHtml({ title, sections })
+    : buildDiagramHtml({ title, sections });
 
   return renderToBuffer(html);
 }
 
 /**
  * Main image generation function
- * @param {object} input - Image generation input
- * @param {string} input.imageType - "card" or "diagram"
- * @param {string} input.imageTitle - Image title
- * @param {string[]} input.imageBullets - Bullet points (for cards)
- * @param {object[]} input.imageSections - Sections (for diagrams)
- * @param {string} input.theme - "light" or "dark"
- * @param {string} input.template - Original template name (interview_explainer, architecture, etc.)
- * @returns {Promise<{buffer: Buffer, type: string}>}
  */
 async function generateImage(input) {
   const {
@@ -231,66 +502,53 @@ async function generateImage(input) {
     imageTitle,
     imageBullets = [],
     imageSections = [],
-    theme = 'light',
     template: templateName
   } = input;
 
-  // Determine if diagram should be layered based on template
   const isLayered = templateName === 'layered' ||
-    imageTitle.toLowerCase().includes('layer') ||
-    imageTitle.toLowerCase().includes('medallion');
+    imageTitle.toLowerCase().includes('layer');
 
   if (imageType === 'diagram') {
-    // For diagrams, use sections if provided, otherwise convert bullets to sections
     let sections = imageSections;
     if (!sections.length && imageBullets.length) {
-      // Convert bullets to simple sections
-      sections = imageBullets.map((bullet, i) => ({
-        title: bullet,
-        items: [],
-        color: SECTION_COLORS[i % SECTION_COLORS.length]
-      }));
+      // Convert bullets to sections
+      sections = imageBullets.map((bullet, i) => {
+        const parts = bullet.split(':');
+        return {
+          title: parts[0].trim(),
+          items: parts.length > 1 ? [parts.slice(1).join(':').trim()] : [],
+          description: parts.length > 1 ? parts.slice(1).join(':').trim() : ''
+        };
+      });
     }
 
     const buffer = await generateDiagram({
       title: imageTitle,
       sections,
-      isLayered,
-      theme
+      isLayered
     });
-
     return { buffer, type: 'diagram' };
   } else {
-    // Default to card
     const buffer = await generateCard({
       title: imageTitle,
-      bullets: imageBullets,
-      theme,
-      useNumbers: true,
-      headerIcon: detectIcon(imageTitle)
+      bullets: imageBullets
     });
-
     return { buffer, type: 'card' };
   }
 }
 
 /**
  * Generate image and save to file
- * @param {object} input - Image input (same as generateImage)
- * @param {string} outputPath - Path to save the image
- * @returns {Promise<{path: string, type: string}>}
  */
 async function generateImageToFile(input, outputPath) {
   const result = await generateImage(input);
 
-  // Ensure output directory exists
   const dir = path.dirname(outputPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
   fs.writeFileSync(outputPath, result.buffer);
-
   return { path: outputPath, type: result.type };
 }
 
