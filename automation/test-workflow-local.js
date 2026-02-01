@@ -3,6 +3,9 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+// Image generator integration
+const { generateFromWorkflow } = require('./image-generator/workflow-integration');
+
 const CONFIG = {
   githubToken: process.env.GITHUB_TOKEN,
   openaiKey: process.env.OPENAI_API_KEY,
@@ -127,7 +130,7 @@ async function generateContent(plan) {
   ]);
   console.log('Templates fetched');
   const systemPrompt = 'You are a LinkedIn content creator for a senior data/AI engineer. Generate professional, educational content following the provided template and tone.';
-  const userPrompt = `Template:\n${promptTemplate}\n\nTone:\n${tone}\n\nVisual Rules:\n${visualRules}\n\nTopic: ${plan.topic}\n\nGenerate a LinkedIn post with:\n1. Caption (6-12 lines, ending with a thoughtful question)\n2. Image text with title and 3-5 bullet points\n3. 5-8 relevant hashtags\n\nReturn as JSON: {"caption": "...", "imageTitle": "...", "imageBullets": [...], "hashtags": [...]}`;
+  const userPrompt = `Template:\n${promptTemplate}\n\nTone:\n${tone}\n\nVisual Rules:\n${visualRules}\n\nTopic: ${plan.topic}\n\nGenerate a LinkedIn post with:\n1. Caption (6-12 lines, ending with a thoughtful question)\n2. Image content:\n   - imageType: "card" for simple bullet lists (interview tips, optimization tips), "diagram" for architecture comparisons or layered concepts\n   - imageTitle: concise title (max 10 words)\n   - imageBullets: 3-5 bullet points (max 36 chars each)\n3. 5-8 relevant hashtags\n\nReturn as JSON: {"caption": "...", "imageType": "card"|"diagram", "imageTitle": "...", "imageBullets": [...], "hashtags": [...]}`;
   console.log('Calling OpenAI...');
   const response = await callOpenAI(systemPrompt, userPrompt);
   const aiContent = response.choices[0].message.content;
@@ -162,11 +165,27 @@ async function main() {
     console.log('\nCAPTION:');
     console.log(content.caption);
     console.log('\nIMAGE:');
+    console.log(`Type: ${content.imageType || 'auto'}`);
     console.log(`Title: ${content.imageTitle}`);
     console.log('Bullets:');
     content.imageBullets.forEach((bullet, i) => console.log(`  ${i + 1}. ${bullet}`));
     console.log('\nHASHTAGS:');
     console.log(content.hashtags.map(h => '#' + h).join(' '));
+
+    // Generate the image
+    console.log('\n' + '-'.repeat(40));
+    console.log('Generating image...');
+    const sanitizedTopic = content.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const imageResult = await generateFromWorkflow(content, {
+      outputDir: path.join(__dirname, 'test-outputs'),
+      filename: `${sanitizedTopic}-${Date.now()}`
+    });
+    console.log(`Image generated: ${imageResult.imagePath}`);
+    console.log(`Image type: ${imageResult.imageType}`);
+
+    // Add image path to content
+    content.imagePath = imageResult.imagePath;
+
     console.log('\n' + '='.repeat(80));
     console.log('\nSUCCESS!');
     const outputFile = path.join(__dirname, 'test-output.json');

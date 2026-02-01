@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1080">
+  <link rel="stylesheet" href="../styles/base.css">
+  <style>
+    /* Diagram-specific overrides */
+    .diagram-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .diagram-title h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .diagram-title .subtitle {
+      font-size: 24px;
+      color: var(--text-medium);
+    }
+  </style>
+</head>
+<body class="{{theme}}">
+  <div class="container">
+    <div class="diagram-title">
+      <h1 class="title">{{{title}}}</h1>
+      {{#if subtitle}}
+      <p class="subtitle">{{subtitle}}</p>
+      {{/if}}
+    </div>
+
+    <div class="diagram-container">
+      {{#if isLayered}}
+      <!-- Vertical layered layout -->
+      <div class="flow-vertical">
+        {{#each sections}}
+        <div class="layer-box {{color}}">
+          <div class="layer-icon">{{{icon}}}</div>
+          <div class="layer-content">
+            <div class="layer-title">{{title}}</div>
+            {{#if description}}
+            <div class="layer-description">{{description}}</div>
+            {{/if}}
+          </div>
+        </div>
+        {{#unless @last}}
+        <div class="arrow-down">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+        {{/unless}}
+        {{/each}}
+      </div>
+      {{else}}
+      <!-- Horizontal comparison layout -->
+      <div class="flow-horizontal">
+        {{#each sections}}
+        <div class="section-box {{color}}">
+          <div class="section-header">
+            <div class="section-icon">{{{icon}}}</div>
+            <h3 class="section-title">{{title}}</h3>
+          </div>
+          <ul class="section-items">
+            {{#each items}}
+            <li class="section-item">{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{#unless @last}}
+        <div class="arrow-right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+        {{/unless}}
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="footer">
+      <span class="footer-brand">Data & AI Insights</span>
+      <span class="footer-handle">@jumahamdan</span>
+    </div>
+  </div>
+</body>
+</html>

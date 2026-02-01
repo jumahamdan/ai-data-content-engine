@@ -10,6 +10,9 @@ automation/*-fixed.js
 automation/*-github.js
 automation/test-output.json
 
+# Generated image outputs (run npm run test-images to regenerate)
+automation/test-outputs/*.png
+
 # Dependencies
 automation/node_modules/
 
