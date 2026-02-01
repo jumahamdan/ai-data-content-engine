@@ -71,23 +71,24 @@ function getBaseStyles() {
     .container {
       width: 100%;
       height: 100%;
-      padding: 60px;
+      padding: 48px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
     }
 
     .title {
-      font-size: 48px;
+      font-size: 52px;
       font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 40px;
+      line-height: 1.15;
+      margin-bottom: 32px;
       color: #1F2937;
     }
 
     .header-icon {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 24px;
+      width: 72px;
+      height: 72px;
+      margin-bottom: 20px;
       color: #6366F1;
     }
 
@@ -98,10 +99,8 @@ function getBaseStyles() {
 
     /* Card styles */
     .card-content {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
     }
 
     .bullet-list {
@@ -110,12 +109,12 @@ function getBaseStyles() {
 
     .bullet-item {
       display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 20px 0;
-      border-bottom: 1px solid #E5E7EB;
-      font-size: 26px;
-      line-height: 1.4;
+      align-items: center;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 2px solid #E5E7EB;
+      font-size: 30px;
+      line-height: 1.3;
     }
 
     .bullet-item:last-child {
@@ -124,58 +123,55 @@ function getBaseStyles() {
 
     .bullet-number {
       flex-shrink: 0;
-      width: 44px;
-      height: 44px;
+      width: 52px;
+      height: 52px;
       background: #6366F1;
       color: white;
-      border-radius: 12px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 22px;
+      font-size: 26px;
     }
 
     .bullet-text {
       flex: 1;
       color: #374151;
-      padding-top: 6px;
     }
 
     /* Diagram styles */
     .diagram-title {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
     .diagram-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      justify-content: center;
     }
 
     .flow-horizontal {
       display: flex;
-      gap: 20px;
+      gap: 24px;
       align-items: stretch;
-      flex: 1;
     }
 
     .flow-vertical {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      flex: 1;
+      gap: 16px;
     }
 
     .section-box {
       flex: 1;
       background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border-top: 5px solid #6366F1;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      border-top: 6px solid #6366F1;
       display: flex;
       flex-direction: column;
     }
@@ -183,13 +179,13 @@ function getBaseStyles() {
     .section-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
     .section-icon {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       color: #6366F1;
     }
 
@@ -199,7 +195,7 @@ function getBaseStyles() {
     }
 
     .section-title {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 700;
       color: #1F2937;
     }
@@ -210,40 +206,40 @@ function getBaseStyles() {
     }
 
     .section-item {
-      font-size: 17px;
+      font-size: 20px;
       line-height: 1.5;
-      padding: 6px 0;
+      padding: 10px 0;
       color: #4B5563;
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
     }
 
     .section-item::before {
       content: "";
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       background: #6366F1;
       border-radius: 50%;
-      margin-top: 8px;
+      margin-top: 10px;
       flex-shrink: 0;
     }
 
     /* Layer box (vertical stacked) */
     .layer-box {
       background: white;
-      border-radius: 14px;
-      padding: 20px 28px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 3px 16px rgba(0, 0, 0, 0.07);
       display: flex;
       align-items: center;
-      gap: 20px;
-      border-left: 5px solid #6366F1;
+      gap: 24px;
+      border-left: 6px solid #6366F1;
     }
 
     .layer-icon {
-      width: 44px;
-      height: 44px;
+      width: 52px;
+      height: 52px;
       flex-shrink: 0;
       color: #6366F1;
     }
@@ -258,14 +254,14 @@ function getBaseStyles() {
     }
 
     .layer-title {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       color: #1F2937;
     }
 
     .layer-description {
-      font-size: 16px;
+      font-size: 19px;
       color: #6B7280;
     }
 
@@ -274,33 +270,12 @@ function getBaseStyles() {
       align-items: center;
       justify-content: center;
       color: #9CA3AF;
-      padding: 4px 0;
+      padding: 8px 0;
     }
 
     .arrow-connector svg {
-      width: 28px;
-      height: 28px;
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: auto;
-      padding-top: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-brand {
-      font-size: 16px;
-      color: #9CA3AF;
-      font-weight: 500;
-    }
-
-    .footer-handle {
-      font-size: 18px;
-      color: #6366F1;
-      font-weight: 600;
+      width: 32px;
+      height: 32px;
     }
   `;
 }
@@ -339,10 +314,6 @@ function buildCardHtml(data) {
       <ul class="bullet-list">
         ${bulletsHtml}
       </ul>
-    </div>
-    <div class="footer">
-      <span class="footer-brand">Data & AI Insights</span>
-      <span class="footer-handle">@jumahamdan</span>
     </div>
   </div>
 </body>
@@ -394,10 +365,6 @@ function buildDiagramHtml(data) {
         ${sectionsHtml}
       </div>
     </div>
-    <div class="footer">
-      <span class="footer-brand">Data & AI Insights</span>
-      <span class="footer-handle">@jumahamdan</span>
-    </div>
   </div>
 </body>
 </html>`;
@@ -448,10 +415,6 @@ function buildLayeredHtml(data) {
       <div class="flow-vertical">
         ${layersHtml}
       </div>
-    </div>
-    <div class="footer">
-      <span class="footer-brand">Data & AI Insights</span>
-      <span class="footer-handle">@jumahamdan</span>
     </div>
   </div>
 </body>
