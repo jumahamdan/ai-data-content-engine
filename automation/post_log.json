@@ -1,6 +1,24 @@
 {
   "posts": [
     {
+      "timestamp": "2026-02-02T04:55:17.646Z",
+      "template": "optimization",
+      "topic": "SQL window functions",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "Reduced query time from 22 minutes to under 90 seconds by replacing a multi-step aggregation pipelin...",
+      "hashtags": [
+        "#sql",
+        "#dataengineering",
+        "#performanceoptimization",
+        "#windowfunctions",
+        "#analyticsengineering",
+        "#scalability",
+        "#querydesign",
+        "#datamodeling"
+      ]
+    },
+    {
       "timestamp": "2026-02-01T07:08:13.920Z",
       "template": "architecture",
       "topic": "Warehouse vs Lakehouse",
