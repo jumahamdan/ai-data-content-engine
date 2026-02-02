@@ -1,6 +1,24 @@
 {
   "posts": [
     {
+      "timestamp": "2026-02-02T21:00:01.066Z",
+      "template": "interview_explainer",
+      "topic": "CDC in modern pipelines",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "“Can you walk us through how you’d implement Change Data Capture in a modern data pipeline?”\n\nThis i...",
+      "hashtags": [
+        "#DataEngineering",
+        "#ChangeDataCapture",
+        "#StreamingData",
+        "#DataPipelines",
+        "#ETL",
+        "#DataArchitecture",
+        "#TechLeadership",
+        "#SystemDesign"
+      ]
+    },
+    {
       "timestamp": "2026-02-02T14:00:01.107Z",
       "template": "layered",
       "topic": "Layers of a RAG system",
