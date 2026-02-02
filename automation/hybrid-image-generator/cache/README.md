@@ -10,8 +10,16 @@ cache/
 │   ├── chalkboard/      # Dark chalkboard texture backgrounds
 │   ├── watercolor/      # Light cream paper backgrounds
 │   └── tech/            # Dark gradient tech backgrounds
-└── illustrations/        # Reusable illustration elements (future)
-    └── (coming in Phase 1, Task 1.4)
+└── illustrations/        # Reusable illustration elements
+    ├── chalkboard/      # Chalk sketch style illustrations
+    │   ├── building/    # Buildings and structures
+    │   ├── icon/        # Icons and symbols
+    │   ├── diagram/     # Diagrams and flows
+    │   └── character/   # People and characters
+    ├── watercolor/      # Watercolor style illustrations
+    │   └── (same structure)
+    └── tech/            # Tech/isometric style illustrations
+        └── (same structure)
 ```
 
 ## Caching Strategy
@@ -20,7 +28,9 @@ cache/
 - **Illustrations:** Generated once, reused across all posts
 - **Cost savings:** ~$0.04 per cached image reused = $0.04 saved per post
 
-## Warmup Scripts
+## Generation Scripts
+
+### Backgrounds
 
 Pre-generate backgrounds before running the workflow:
 
@@ -35,6 +45,24 @@ node test-background-warmup.js 5
 node test-background-warmup.js 3 --clear
 ```
 
+### Illustrations
+
+Pre-generate the full illustration library (one-time setup):
+
+```bash
+# Generate all illustrations for all themes (~60 illustrations × 3 themes = 180 total)
+DALLE_ENABLED=true node generate-illustration-library.js
+
+# Generate for specific theme only
+DALLE_ENABLED=true node generate-illustration-library.js --theme watercolor
+
+# Clear and regenerate
+DALLE_ENABLED=true node generate-illustration-library.js --clear
+```
+
+**Note:** Illustration generation requires `OPENAI_API_KEY` and costs ~$0.04 per image.
+Estimated cost for full library: ~$7.20 (180 illustrations × $0.04)
+
 ## Git Policy
 
 - `.gitkeep` files are tracked to preserve directory structure
@@ -46,14 +74,21 @@ node test-background-warmup.js 3 --clear
 Clear cache programmatically:
 
 ```javascript
+// Backgrounds
 const { createBackgroundGenerator } = require('./background-generator');
 const bgGen = createBackgroundGenerator();
 
-// Clear specific theme
-await bgGen.clearCache('chalkboard');
+await bgGen.clearCache('chalkboard');  // Clear specific theme
+await bgGen.clearCache();              // Clear all themes
 
-// Clear all themes
-await bgGen.clearCache();
+// Illustrations
+const { createIllustrationCache } = require('./illustration-cache');
+const cache = createIllustrationCache();
+
+await cache.deleteIllustration('warehouse', 'watercolor', 'building');  // Delete specific
+await cache.clearCache('watercolor', 'building');  // Clear category
+await cache.clearCache('watercolor');              // Clear theme
+await cache.clearCache();                          // Clear all
 ```
 
 Or manually delete files:
@@ -62,6 +97,12 @@ Or manually delete files:
 # Clear all backgrounds
 rm -rf automation/hybrid-image-generator/cache/backgrounds/*/*.png
 
-# Clear specific theme
+# Clear specific theme backgrounds
 rm -rf automation/hybrid-image-generator/cache/backgrounds/chalkboard/*.png
+
+# Clear all illustrations
+rm -rf automation/hybrid-image-generator/cache/illustrations/*/*/*.png
+
+# Clear specific theme illustrations
+rm -rf automation/hybrid-image-generator/cache/illustrations/watercolor/*/*
 ```
