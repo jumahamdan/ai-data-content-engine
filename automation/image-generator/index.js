@@ -2,9 +2,10 @@
  * LinkedIn Image Generator
  * Generates professional infographic images for LinkedIn posts
  *
- * Supports two image types:
+ * Supports image types:
  * - card: Simple bullet-point cards (title + 3-5 bullets)
  * - diagram: Architecture diagrams (flow layouts, comparisons, layers)
+ * - cheatsheet: Table/grid comparisons with code snippets
  */
 
 const path = require('path');
@@ -277,6 +278,165 @@ function getBaseStyles() {
       width: 32px;
       height: 32px;
     }
+
+    /* Cheatsheet/Table styles */
+    .cheatsheet-container {
+      width: 100%;
+      height: 100%;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cheatsheet-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .cheatsheet-title {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .cheatsheet-title .highlight {
+      color: #3B82F6;
+    }
+
+    .cheatsheet-title .highlight-orange {
+      color: #F97316;
+    }
+
+    .cheatsheet-title .highlight-green {
+      color: #22C55E;
+    }
+
+    .cheatsheet-subtitle {
+      display: inline-block;
+      background: #F3F4F6;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-size: 18px;
+      color: #6B7280;
+      font-weight: 500;
+    }
+
+    .cheatsheet-table {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-header {
+      display: flex;
+    }
+
+    .table-header-cell {
+      flex: 1;
+      padding: 16px 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .table-header-cell.label-col {
+      flex: 0 0 140px;
+      background: #374151;
+    }
+
+    .table-header-cell.col-blue { background: #3B82F6; }
+    .table-header-cell.col-orange { background: #F97316; }
+    .table-header-cell.col-green { background: #22C55E; }
+    .table-header-cell.col-purple { background: #6366F1; }
+    .table-header-cell.col-cyan { background: #06B6D4; }
+
+    .table-header-cell svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .table-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-row {
+      display: flex;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .table-row:last-child {
+      border-bottom: none;
+    }
+
+    .table-row:nth-child(even) {
+      background: #F9FAFB;
+    }
+
+    .table-cell {
+      flex: 1;
+      padding: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #E5E7EB;
+    }
+
+    .table-cell:last-child {
+      border-right: none;
+    }
+
+    .table-cell.label-col {
+      flex: 0 0 140px;
+      font-weight: 600;
+      color: #374151;
+      background: #F9FAFB;
+      font-size: 13px;
+    }
+
+    .table-cell code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      color: #1F2937;
+      word-break: break-word;
+    }
+
+    .table-cell .code-highlight {
+      color: #059669;
+    }
+
+    .table-cell .code-string {
+      color: #D97706;
+    }
+
+    .table-footer {
+      display: flex;
+      padding: 12px;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .footer-badge {
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .footer-badge.blue { background: #3B82F6; }
+    .footer-badge.orange { background: #F97316; }
+    .footer-badge.green { background: #22C55E; }
   `;
 }
 
@@ -421,6 +581,85 @@ function buildLayeredHtml(data) {
 </html>`;
 }
 
+/**
+ * Build cheatsheet/table HTML
+ * Perfect for comparison tables like "SQL vs Pandas vs PySpark"
+ */
+function buildCheatsheetHtml(data) {
+  const { title, subtitle, columns = [], rows = [], footerLabels = [] } = data;
+
+  // Build title with colored words
+  let titleHtml = escapeHtml(title);
+  columns.forEach((col, i) => {
+    const colorClass = i === 0 ? 'highlight' : i === 1 ? 'highlight-orange' : 'highlight-green';
+    titleHtml = titleHtml.replace(new RegExp(`\\b${escapeHtml(col.title)}\\b`, 'gi'),
+      `<span class="${colorClass}">${escapeHtml(col.title)}</span>`);
+  });
+
+  // Header cells
+  const headerCellsHtml = columns.map((col, i) => {
+    const colorClass = `col-${col.color || COLOR_ORDER[i % COLOR_ORDER.length]}`;
+    const iconHtml = col.icon ? getStyledIcon(col.icon, 'white', 'white') : '';
+    return `<div class="table-header-cell ${colorClass}">${iconHtml}${escapeHtml(col.title)}</div>`;
+  }).join('');
+
+  // Data rows
+  const rowsHtml = rows.map(row => {
+    const cellsHtml = row.values.map(val => {
+      // Format code with syntax highlighting
+      let formatted = escapeHtml(val);
+      // Highlight strings in quotes
+      formatted = formatted.replace(/"([^"]*)"/g, '<span class="code-string">"$1"</span>');
+      formatted = formatted.replace(/'([^']*)'/g, '<span class="code-string">\'$1\'</span>');
+      return `<div class="table-cell"><code>${formatted}</code></div>`;
+    }).join('');
+
+    return `
+      <div class="table-row">
+        <div class="table-cell label-col">${escapeHtml(row.label)}</div>
+        ${cellsHtml}
+      </div>
+    `;
+  }).join('');
+
+  // Footer badges
+  const footerHtml = footerLabels.length > 0 ? `
+    <div class="table-footer">
+      ${footerLabels.map((label, i) => {
+        const color = columns[i]?.color || COLOR_ORDER[i % COLOR_ORDER.length];
+        return `<div class="footer-badge ${color}">${escapeHtml(label)}</div>`;
+      }).join('')}
+    </div>
+  ` : '';
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>${getBaseStyles()}</style>
+</head>
+<body>
+  <div class="cheatsheet-container">
+    <div class="cheatsheet-header">
+      <h1 class="cheatsheet-title">${titleHtml}</h1>
+      ${subtitle ? `<span class="cheatsheet-subtitle">${escapeHtml(subtitle)}</span>` : ''}
+    </div>
+    <div class="cheatsheet-table">
+      <div class="table-header">
+        <div class="table-header-cell label-col">Operation</div>
+        ${headerCellsHtml}
+      </div>
+      <div class="table-body">
+        ${rowsHtml}
+      </div>
+      ${footerHtml}
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)
@@ -457,6 +696,15 @@ async function generateDiagram(input) {
 }
 
 /**
+ * Generate a cheatsheet/table image
+ */
+async function generateCheatsheet(input) {
+  const { title, subtitle, columns = [], rows = [], footerLabels = [] } = input;
+  const html = buildCheatsheetHtml({ title, subtitle, columns, rows, footerLabels });
+  return renderToBuffer(html);
+}
+
+/**
  * Main image generation function
  */
 async function generateImage(input) {
@@ -465,13 +713,26 @@ async function generateImage(input) {
     imageTitle,
     imageBullets = [],
     imageSections = [],
+    imageColumns = [],
+    imageRows = [],
+    imageSubtitle = '',
+    footerLabels = [],
     template: templateName
   } = input;
 
   const isLayered = templateName === 'layered' ||
     imageTitle.toLowerCase().includes('layer');
 
-  if (imageType === 'diagram') {
+  if (imageType === 'cheatsheet') {
+    const buffer = await generateCheatsheet({
+      title: imageTitle,
+      subtitle: imageSubtitle,
+      columns: imageColumns,
+      rows: imageRows,
+      footerLabels
+    });
+    return { buffer, type: 'cheatsheet' };
+  } else if (imageType === 'diagram') {
     let sections = imageSections;
     if (!sections.length && imageBullets.length) {
       // Convert bullets to sections
@@ -520,6 +781,7 @@ module.exports = {
   generateImageToFile,
   generateCard,
   generateDiagram,
+  generateCheatsheet,
   detectIcon,
   SECTION_COLORS,
   TOPIC_ICONS

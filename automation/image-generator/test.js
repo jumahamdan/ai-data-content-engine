@@ -90,6 +90,30 @@ const sampleOptimization = {
   theme: 'light'
 };
 
+const sampleCheatsheet = {
+  imageType: 'cheatsheet',
+  imageTitle: 'SQL vs Pandas vs PySpark',
+  imageSubtitle: 'Complete Cheatsheet',
+  imageColumns: [
+    { title: 'SQL', color: 'blue', icon: 'database' },
+    { title: 'Pandas', color: 'orange', icon: 'chart' },
+    { title: 'PySpark', color: 'green', icon: 'lightning' }
+  ],
+  imageRows: [
+    { label: 'Read Data', values: ['SELECT * FROM table', 'pd.read_csv("file.csv")', 'spark.read.csv("file")'] },
+    { label: 'Select Cols', values: ['SELECT col1, col2', 'df[["col1", "col2"]]', 'df.select("col1", "col2")'] },
+    { label: 'Filter Rows', values: ['WHERE age > 30', 'df[df.age > 30]', 'df.filter(df.age > 30)'] },
+    { label: 'Add Column', values: ['SELECT *, a+b AS total', 'df["total"] = df.a + df.b', 'df.withColumn("total", df.a+df.b)'] },
+    { label: 'Group By', values: ['GROUP BY dept', 'df.groupby("dept")', 'df.groupBy("dept")'] },
+    { label: 'Aggregation', values: ['COUNT(*), SUM(sal)', 'agg({"sal": "sum"})', 'agg(sum("sal"))'] },
+    { label: 'Join Tables', values: ['FROM a JOIN b ON id', 'df1.merge(df2, on="id")', 'df1.join(df2, "id")'] },
+    { label: 'Sort Data', values: ['ORDER BY salary DESC', 'df.sort_values("salary")', 'df.orderBy("salary")'] },
+    { label: 'Remove Dups', values: ['SELECT DISTINCT col', 'df.drop_duplicates()', 'df.dropDuplicates()'] },
+    { label: 'Null Check', values: ['IS NULL / IS NOT NULL', 'df.isna() / df.fillna(0)', 'isNull() / fillna(0)'] }
+  ],
+  footerLabels: ['SQL for Databases', 'Pandas for Local', 'PySpark for Big Data']
+};
+
 async function runTests() {
   console.log('LinkedIn Image Generator - Test Suite\n');
   console.log('=' .repeat(50));
@@ -98,7 +122,8 @@ async function runTests() {
     { name: 'card-interview', data: sampleCard },
     { name: 'diagram-architecture', data: sampleDiagram },
     { name: 'diagram-layered', data: sampleLayered },
-    { name: 'card-optimization', data: sampleOptimization }
+    { name: 'card-optimization', data: sampleOptimization },
+    { name: 'cheatsheet-comparison', data: sampleCheatsheet }
   ];
 
   for (const test of tests) {
