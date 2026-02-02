@@ -370,11 +370,11 @@ DALLE_SIZE=1024x1024
 - [x] Task 2.3: Create `themes/tech.js`
 - [x] Task 2.4: Create theme loader with fallback defaults
 
-### Phase 3: Layout Templates
-- [ ] Task 3.1: Create `layouts/comparison.html` — Side-by-side with background image support
-- [ ] Task 3.2: Create `layouts/evolution.html` — Horizontal flow
-- [ ] Task 3.3: Create `layouts/single.html` — Deep dive single topic
-- [ ] Task 3.4: Create `styles/base.css` — Shared styles, Google Fonts
+### Phase 3: Layout Templates ✅ COMPLETE
+- [x] Task 3.1: Create `layouts/comparison.html` — Side-by-side with background image support
+- [x] Task 3.2: Create `layouts/evolution.html` — Horizontal flow
+- [x] Task 3.3: Create `layouts/single.html` — Deep dive single topic
+- [x] Task 3.4: Create `styles/base.css` — Shared styles, Google Fonts
 
 ### Phase 4: Compositor
 - [ ] Task 4.1: Create `automation/hybrid-image-generator/compositor.js` — Puppeteer rendering
