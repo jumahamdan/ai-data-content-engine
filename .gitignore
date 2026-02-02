@@ -13,6 +13,10 @@ automation/test-output.json
 # Generated image outputs (run npm run test-images to regenerate)
 automation/test-outputs/*.png
 
+# Cached backgrounds and illustrations (regenerate with warmup scripts)
+automation/hybrid-image-generator/cache/backgrounds/**/*.png
+automation/hybrid-image-generator/cache/illustrations/**/*.png
+
 # Dependencies
 automation/node_modules/
 
