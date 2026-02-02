@@ -1,6 +1,24 @@
 {
   "posts": [
     {
+      "timestamp": "2026-02-02T14:00:01.107Z",
+      "template": "layered",
+      "topic": "Layers of a RAG system",
+      "status": "published",
+      "linkedinPostId": "N/A",
+      "caption": "RAG (Retrieval-Augmented Generation) systems feel complex because they span multiple domains: search...",
+      "hashtags": [
+        "#AIEngineering",
+        "#RAGSystems",
+        "#LLMInfrastructure",
+        "#DataEngineering",
+        "#MachineLearning",
+        "#VectorSearch",
+        "#ArtificialIntelligence",
+        "#PromptEngineering"
+      ]
+    },
+    {
       "timestamp": "2026-02-02T04:55:17.646Z",
       "template": "optimization",
       "topic": "SQL window functions",
