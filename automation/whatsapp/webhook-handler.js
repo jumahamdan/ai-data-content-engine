@@ -7,6 +7,7 @@ const { parseCommand } = require('./message-parser');
 const queue = require('./queue-manager');
 const { sendConfirmation, sendPendingList } = require('./index');
 const { sendToOwner } = require('./twilio-client');
+const { postToLinkedIn } = require('../linkedin-poster');
 
 const PORT = parseInt(process.env.WEBHOOK_PORT, 10) || 3000;
 const WEBHOOK_PATH = process.env.WEBHOOK_PATH || '/whatsapp/incoming';
@@ -151,8 +152,15 @@ async function handleApprove(postId) {
 
   queue.updateStatus(postId, 'approved');
 
-  // TODO: Post to LinkedIn (stub — will be implemented in Phase 5)
-  console.log(`Webhook: Post #${postId} approved — LinkedIn posting stub`);
+  // Post to LinkedIn
+  try {
+    const result = await postToLinkedIn(post);
+    console.log(`Webhook: Post #${postId} — LinkedIn: ${result.message}`);
+  } catch (err) {
+    console.error(`Webhook: LinkedIn posting failed for #${postId}: ${err.message}`);
+    await sendToOwner(`Post #${postId} approved but LinkedIn posting failed: ${err.message}`);
+    return;
+  }
 
   await sendConfirmation(postId, 'approved');
 }
@@ -216,8 +224,14 @@ async function handleApproveAll() {
 
   for (const post of pending) {
     queue.updateStatus(post.id, 'approved');
-    // TODO: Post to LinkedIn (stub)
-    console.log(`Webhook: Post #${post.id} approved — LinkedIn posting stub`);
+    // Post to LinkedIn
+    try {
+      const result = await postToLinkedIn(post);
+      console.log(`Webhook: Post #${post.id} — LinkedIn: ${result.message}`);
+    } catch (err) {
+      console.error(`Webhook: LinkedIn posting failed for #${post.id}: ${err.message}`);
+      // Continue with remaining posts; don't abort the batch
+    }
   }
 
   await sendToOwner(`✅ ${pending.length} post(s) approved and queued for LinkedIn.`);
