@@ -10,12 +10,23 @@ automation/*-fixed.js
 automation/*-github.js
 automation/test-output.json
 
+# Generated image outputs (run npm run test-images to regenerate)
+automation/test-outputs/*.png
+
+# Cached backgrounds and illustrations (regenerate with warmup scripts)
+automation/hybrid-image-generator/cache/backgrounds/**/*.png
+automation/hybrid-image-generator/cache/illustrations/**/*.png
+
 # Dependencies
 automation/node_modules/
 
 # Backup files
 *.backup
 *.bak
+
+# Pending posts queue (file-based, regenerated at runtime)
+automation/pending-posts/*
+!automation/pending-posts/.gitkeep
 
 # Claude Code
 .claude/

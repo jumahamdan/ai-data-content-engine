@@ -1,5 +1,18 @@
 {
+  "name": "linkedin-content-engine",
+  "version": "1.0.0",
+  "description": "Automated LinkedIn content generation with images",
+  "main": "test-workflow-local.js",
+  "scripts": {
+    "test": "node test-workflow-local.js",
+    "test-images": "node image-generator/test.js",
+    "generate-samples": "node image-generator/test.js"
+  },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mustache": "^4.2.0",
+    "puppeteer": "^22.0.0",
+    "twilio": "^5.12.0"
   }
 }

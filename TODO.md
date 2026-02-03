@@ -13,14 +13,55 @@
 - [x] Log posts to GitHub
 
 ### Remaining for MVP
-- [ ] Generate images (DALL-E or similar)
+- [x] **Image Generation System** (completed - see `automation/image-generator/`)
 - [ ] Post images WITH captions to LinkedIn
 - [ ] Expand topic bank (currently only 15 topics)
   - interview_explainer: 5 topics
   - architecture: 3 topics
   - optimization: 4 topics
   - layered: 3 topics
-- [ ] Define Canva templates (assets/canva-templates.md is empty)
+
+---
+
+## Image Generation Instructions (COMPLETED)
+
+> **Status**: Implemented in `automation/image-generator/`
+>
+> **Approach**: Puppeteer + HTML/CSS/SVG (as recommended)
+>
+> **Run tests**: `cd automation && npm run test-images`
+
+### What Was Built
+
+1. **Module Structure** (`automation/image-generator/`)
+   - `index.js` - Main API with `generateImage()` and `generateImageToFile()`
+   - `renderer.js` - Puppeteer screenshot engine (1080x1080, 2x scale)
+   - `templates/card.html` - Bullet-point card layout
+   - `templates/diagram.html` - Architecture/layered diagram layout
+   - `styles/base.css` - Professional styling with color palette
+   - `icons/index.js` - 30+ SVG icons for data engineering concepts
+   - `workflow-integration.js` - Bridge between OpenAI output and image generator
+
+2. **Image Types Supported**
+   - **Cards**: Title + numbered bullets (for interview_explainer, optimization)
+   - **Diagrams**: Horizontal comparison boxes OR vertical layered flows (for architecture, layered)
+
+3. **Auto-Detection**
+   - Template name auto-maps to image type if not explicitly provided
+   - Icon detection from text content (e.g., "medallion" → layers icon)
+
+4. **Workflow Integration**
+   - Updated `test-workflow-local.js` to generate images
+   - OpenAI prompt updated to request `imageType` field
+   - Sample outputs in `automation/test-outputs/`
+
+### Future Enhancements (Phase 3)
+- GIF animation support (frame capture)
+- MP4 video generation
+- Dark theme toggle
+- Custom font loading
+
+---
 
 ## Phase 2 - Multi-Platform Expansion
 - [ ] Add Instagram posting (Meta Graph API)

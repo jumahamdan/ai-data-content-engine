@@ -1,0 +1,465 @@
+/**
+ * Base Styles for Hybrid Image Generator
+ *
+ * This file defines:
+ * 1. CSS variable naming conventions and default values
+ * 2. Shared utility classes
+ * 3. Common reset styles
+ * 4. Typography base settings
+ *
+ * These styles can be:
+ * - Linked in HTML templates
+ * - Injected by the compositor with theme-specific values
+ * - Used as reference for variable naming
+ */
+
+/* ========================================
+   CSS VARIABLES - THEME SYSTEM
+   ======================================== */
+
+:root {
+  /* Typography - Fonts */
+  --title-font: 'Arial', sans-serif;
+  --body-font: 'Arial', sans-serif;
+
+  /* Typography - Colors */
+  --title-color: #ffffff;
+  --body-color: #333333;
+  --accent-color: #4CAF50;
+
+  /* Background */
+  --bg-color: #f5f5f5;
+  --overlay-opacity: 0.1;
+
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 40px;
+  --spacing-3xl: 60px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 6px 18px rgba(0, 0, 0, 0.2);
+  --text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+
+  /* Canvas size */
+  --canvas-width: 1080px;
+  --canvas-height: 1080px;
+}
+
+/* Theme-specific variable overrides will be injected by compositor:
+
+   Chalkboard theme:
+   --title-font: 'Permanent Marker', cursive;
+   --body-font: 'Patrick Hand', cursive;
+   --title-color: #ffffff;
+   --body-color: #e8e8e8;
+   --accent-color: #f4d03f;
+   --bg-color: #2d4a3e;
+
+   Watercolor theme:
+   --title-font: 'Playfair Display', serif;
+   --body-font: 'Open Sans', sans-serif;
+   --title-color: #2c3e50;
+   --body-color: #34495e;
+   --accent-color: #3498db;
+   --bg-color: #faf8f5;
+
+   Tech theme:
+   --title-font: 'Inter', sans-serif;
+   --body-font: 'Inter', sans-serif;
+   --title-color: #ffffff;
+   --body-color: #b8b8b8;
+   --accent-color: #00d4aa;
+   --bg-color: #1a1a2e;
+*/
+
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  width: var(--canvas-width);
+  height: var(--canvas-height);
+  overflow: hidden;
+  position: relative;
+  font-family: var(--body-font);
+  color: var(--body-color);
+  line-height: 1.5;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Layout utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+/* Text utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-shadow {
+  text-shadow: var(--text-shadow);
+}
+
+.font-title {
+  font-family: var(--title-font);
+}
+
+.font-body {
+  font-family: var(--body-font);
+}
+
+.color-title {
+  color: var(--title-color);
+}
+
+.color-body {
+  color: var(--body-color);
+}
+
+.color-accent {
+  color: var(--accent-color);
+}
+
+/* Background utilities */
+.bg-white-90 {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.bg-white-95 {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.bg-black-10 {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.bg-black-30 {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Border utilities */
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+/* Shadow utilities */
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.drop-shadow {
+  filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+/* Spacing utilities */
+.p-sm {
+  padding: var(--spacing-sm);
+}
+
+.p-md {
+  padding: var(--spacing-md);
+}
+
+.p-lg {
+  padding: var(--spacing-lg);
+}
+
+.p-xl {
+  padding: var(--spacing-xl);
+}
+
+.m-sm {
+  margin: var(--spacing-sm);
+}
+
+.m-md {
+  margin: var(--spacing-md);
+}
+
+.m-lg {
+  margin: var(--spacing-lg);
+}
+
+.m-xl {
+  margin: var(--spacing-xl);
+}
+
+/* ========================================
+   COMMON COMPONENTS
+   ======================================== */
+
+/* Background layer pattern */
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-color: var(--bg-color);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Overlay pattern */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: rgba(0, 0, 0, var(--overlay-opacity, 0.1));
+}
+
+/* Content container pattern */
+.content-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+/* Card pattern */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* Button pattern (for future interactive elements) */
+.button {
+  font-family: var(--body-font);
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--accent-color);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Icon sizes */
+.icon-sm {
+  font-size: 20px;
+}
+
+.icon-md {
+  font-size: 28px;
+}
+
+.icon-lg {
+  font-size: 36px;
+}
+
+.icon-xl {
+  font-size: 48px;
+}
+
+/* ========================================
+   TYPOGRAPHY SCALE
+   ======================================== */
+
+.text-xs {
+  font-size: 16px;
+}
+
+.text-sm {
+  font-size: 18px;
+}
+
+.text-base {
+  font-size: 20px;
+}
+
+.text-lg {
+  font-size: 24px;
+}
+
+.text-xl {
+  font-size: 28px;
+}
+
+.text-2xl {
+  font-size: 32px;
+}
+
+.text-3xl {
+  font-size: 40px;
+}
+
+.text-4xl {
+  font-size: 48px;
+}
+
+.text-5xl {
+  font-size: 52px;
+}
+
+/* ========================================
+   ANIMATIONS (for future use)
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.4s ease-out;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   PRINT STYLES (for PDF export)
+   ======================================== */
+
+@media print {
+  body {
+    width: var(--canvas-width);
+    height: var(--canvas-height);
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

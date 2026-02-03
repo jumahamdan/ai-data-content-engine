@@ -3,6 +3,14 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+// Image generator integration
+const { generateFromWorkflow } = require('./image-generator/workflow-integration');
+const { generateImage: generateHybridImage } = require('./hybrid-image-generator');
+
+// WhatsApp approval queue
+const queue = require('./whatsapp/queue-manager');
+const { sendPreview } = require('./whatsapp/index');
+
 const CONFIG = {
   githubToken: process.env.GITHUB_TOKEN,
   openaiKey: process.env.OPENAI_API_KEY,
@@ -127,7 +135,7 @@ async function generateContent(plan) {
   ]);
   console.log('Templates fetched');
   const systemPrompt = 'You are a LinkedIn content creator for a senior data/AI engineer. Generate professional, educational content following the provided template and tone.';
-  const userPrompt = `Template:\n${promptTemplate}\n\nTone:\n${tone}\n\nVisual Rules:\n${visualRules}\n\nTopic: ${plan.topic}\n\nGenerate a LinkedIn post with:\n1. Caption (6-12 lines, ending with a thoughtful question)\n2. Image text with title and 3-5 bullet points\n3. 5-8 relevant hashtags\n\nReturn as JSON: {"caption": "...", "imageTitle": "...", "imageBullets": [...], "hashtags": [...]}`;
+  const userPrompt = `Template:\n${promptTemplate}\n\nTone:\n${tone}\n\nVisual Rules:\n${visualRules}\n\nTopic: ${plan.topic}\n\nGenerate a LinkedIn post with:\n1. Caption (6-12 lines, ending with a thoughtful question)\n2. Image metadata for hybrid infographic generation:\n   - imageType: "card" for simple bullet lists, "diagram" for comparisons (legacy - kept for backwards compatibility)\n   - imageLayout: "comparison" (side-by-side), "evolution" (horizontal flow), or "single" (deep dive)\n   - imageTheme: "chalkboard" (educational), "watercolor" (professional), or "tech" (technical)\n   - imageTitle: concise title (max 10 words)\n   - imageBullets: 3-5 bullet points (max 36 chars each) - legacy format\n   - imageSections: Array of structured sections with:\n     * title: Section heading\n     * type: "pros", "cons", or "neutral"\n     * items: Array of bullet points (max 36 chars each)\n   - imageInsight: Key takeaway quote (1-2 sentences)\n   - imageMood: "educational", "professional", or "technical" (used for theme selection)\n3. 5-8 relevant hashtags\n\nGuidelines for new image fields:\n- For comparison posts (A vs B, pros/cons): use imageLayout="comparison" with 2 sections\n- For evolution posts (stages, progression): use imageLayout="evolution" with 2-4 sections\n- For explanatory posts (deep dive): use imageLayout="single" with 2-3 sections\n- Match imageTheme to content mood: chalkboard=casual/educational, watercolor=professional/architectural, tech=technical/modern\n\nReturn as JSON: {"caption": "...", "imageType": "card"|"diagram", "imageLayout": "comparison"|"evolution"|"single", "imageTheme": "chalkboard"|"watercolor"|"tech", "imageTitle": "...", "imageBullets": [...], "imageSections": [{"title": "...", "type": "pros"|"cons"|"neutral", "items": [...]}], "imageInsight": "...", "imageMood": "...", "hashtags": [...]}`;
   console.log('Calling OpenAI...');
   const response = await callOpenAI(systemPrompt, userPrompt);
   const aiContent = response.choices[0].message.content;
@@ -162,16 +170,125 @@ async function main() {
     console.log('\nCAPTION:');
     console.log(content.caption);
     console.log('\nIMAGE:');
+    console.log(`Type: ${content.imageType || 'auto'}`);
     console.log(`Title: ${content.imageTitle}`);
     console.log('Bullets:');
     content.imageBullets.forEach((bullet, i) => console.log(`  ${i + 1}. ${bullet}`));
     console.log('\nHASHTAGS:');
     console.log(content.hashtags.map(h => '#' + h).join(' '));
-    console.log('\n' + '='.repeat(80));
-    console.log('\nSUCCESS!');
+
+    // Generate the image
+    console.log('\n' + '-'.repeat(40));
+    console.log('Generating image...');
+    const sanitizedTopic = content.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    // Check if hybrid image generation is enabled
+    const useHybridImages = process.env.HYBRID_IMAGES_ENABLED === 'true';
+
+    let imageResult;
+
+    if (useHybridImages) {
+      console.log('Using hybrid image generator (DALL-E + Puppeteer)...');
+
+      // Prepare content data for hybrid generator
+      const hybridContentData = {
+        title: content.imageTitle,
+        subtitle: content.imageSubtitle || '',
+        sections: content.imageSections || [],
+        insight: content.imageInsight || '',
+        theme: content.imageTheme,
+        layout: content.imageLayout,
+        imageMood: content.imageMood
+      };
+
+      const outputPath = path.join(__dirname, 'test-outputs', `${sanitizedTopic}-${Date.now()}.png`);
+
+      const hybridResult = await generateHybridImage(hybridContentData, {
+        outputPath,
+        verbose: true
+      });
+
+      if (hybridResult.success) {
+        imageResult = {
+          imagePath: hybridResult.imagePath,
+          imageType: hybridResult.metadata.layout,
+          theme: hybridResult.metadata.theme,
+          latency: hybridResult.metadata.latency.total
+        };
+        console.log(`Hybrid image generated: ${imageResult.imagePath}`);
+        console.log(`Theme: ${imageResult.theme}, Layout: ${imageResult.imageType}`);
+        console.log(`Generation time: ${imageResult.latency}ms`);
+      } else {
+        console.error('Hybrid generation failed:', hybridResult.error);
+        console.log('Falling back to legacy image generator...');
+
+        // Fallback to legacy generator
+        imageResult = await generateFromWorkflow(content, {
+          outputDir: path.join(__dirname, 'test-outputs'),
+          filename: `${sanitizedTopic}-${Date.now()}`
+        });
+        console.log(`Fallback image generated: ${imageResult.imagePath}`);
+      }
+    } else {
+      console.log('Using legacy image generator...');
+      imageResult = await generateFromWorkflow(content, {
+        outputDir: path.join(__dirname, 'test-outputs'),
+        filename: `${sanitizedTopic}-${Date.now()}`
+      });
+      console.log(`Image generated: ${imageResult.imagePath}`);
+      console.log(`Image type: ${imageResult.imageType}`);
+    }
+
+    // Add image path to content
+    content.imagePath = imageResult.imagePath;
+
+    // Queue post for WhatsApp approval instead of direct posting
+    console.log('\n' + '-'.repeat(40));
+    console.log('Queuing post for WhatsApp approval...');
+
+    const post = queue.addToQueue({
+      content: content,
+      imagePath: imageResult.imagePath || null
+    });
+
+    // Set notifiedAt (timeout checker uses this to measure elapsed time)
+    post.notifiedAt = new Date().toISOString();
+
+    // Determine public image URL for Twilio
+    // Local file paths cannot be fetched by Twilio; pass null for local dev
+    let imageUrl = null;
+    const imgPath = imageResult.imagePath || '';
+    if (imgPath && !imgPath.startsWith('/') && !imgPath.match(/^[A-Z]:\\/i)) {
+      // Looks like a URL already
+      imageUrl = imgPath;
+    } else if (imgPath) {
+      console.log('Note: Image is a local file path — Twilio cannot fetch it.');
+      console.log('      Preview will be sent without image attachment.');
+      console.log('      For production, upload images to a public URL first.');
+    }
+
+    // Send WhatsApp preview
+    try {
+      await sendPreview(post, imageUrl);
+      console.log(`WhatsApp preview sent for post #${post.id}`);
+    } catch (err) {
+      console.error(`Failed to send WhatsApp preview: ${err.message}`);
+      console.log('Post is still queued — approve via WhatsApp commands.');
+    }
+
+    // Persist notifiedAt update to post file
+    const postFilePath = path.join(queue.PENDING_DIR, `${post.id}.json`);
+    fs.writeFileSync(postFilePath, JSON.stringify(post, null, 2), 'utf8');
+
+    // Also save to test-output.json for backwards compatibility
     const outputFile = path.join(__dirname, 'test-output.json');
     fs.writeFileSync(outputFile, JSON.stringify(content, null, 2));
-    console.log(`\nSaved to: ${outputFile}`);
+
+    console.log('\n' + '='.repeat(80));
+    console.log('\nSUCCESS!');
+    console.log(`Post #${post.id} queued for approval`);
+    console.log(`Reply YES ${post.id} or NO ${post.id} via WhatsApp`);
+    console.log(`Saved to: ${outputFile}`);
   } catch (error) {
     console.error('\nERROR:', error.message);
     process.exit(1);
