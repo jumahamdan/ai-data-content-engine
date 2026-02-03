@@ -1,11 +1,15 @@
 /**
  * Test script for webhook-handler.js
- * Tests the Express endpoint and command routing using HTTP requests.
+ * Tests the Express endpoint, command routing, and Twilio signature validation.
  * Does NOT require Twilio credentials — mocks the WhatsApp send functions.
  */
 
 const http = require('http');
 const querystring = require('querystring');
+const twilio = require('twilio');
+
+// Disable signature validation for command-routing tests (enabled in signature-specific tests)
+process.env.WEBHOOK_VALIDATE_SIGNATURE = 'false';
 
 let passed = 0;
 let failed = 0;
@@ -93,18 +97,26 @@ function stopServer() {
 
 /**
  * Send a simulated Twilio webhook POST request.
+ * @param {string} body - Message body
+ * @param {string} from - Sender number
+ * @param {object} opts - Extra options
+ * @param {object} opts.extraHeaders - Additional HTTP headers to include
  */
-function sendWebhook(body, from = 'whatsapp:+15551234567') {
+function sendWebhook(body, from = 'whatsapp:+15551234567', opts = {}) {
   return new Promise((resolve, reject) => {
-    const data = querystring.stringify({ Body: body, From: from });
+    const params = { Body: body, From: from };
+    const data = querystring.stringify(params);
     const url = new URL(process.env.WEBHOOK_PATH || '/whatsapp/incoming', baseUrl);
+
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': Buffer.byteLength(data),
+      ...(opts.extraHeaders || {})
+    };
 
     const req = http.request(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(data)
-      }
+      headers
     }, (res) => {
       let responseBody = '';
       res.on('data', chunk => responseBody += chunk);
@@ -282,9 +294,77 @@ async function runTests() {
   const p100case = queue.getPost('100');
   assert(p100case.status === 'approved', 'YES (uppercase) works');
 
-  // ── Cleanup ──
+  // ── Cleanup from command tests ──
   queue.deletePost('100');
   queue.deletePost('101');
+
+  // ═══════════════════════════════════════════
+  //  Signature Validation Tests
+  // ═══════════════════════════════════════════
+  console.log('\n── Signature Validation Tests ──');
+
+  // Enable signature validation for these tests
+  process.env.WEBHOOK_VALIDATE_SIGNATURE = 'true';
+  const testAuthToken = 'test_auth_token_for_signature';
+  process.env.TWILIO_AUTH_TOKEN = testAuthToken;
+
+  const webhookPath = process.env.WEBHOOK_PATH || '/whatsapp/incoming';
+  const webhookUrl = `${baseUrl}${webhookPath}`;
+
+  // ── Test 14: Reject request with no signature header ──
+  console.log('\nTest 14: Reject request with no X-Twilio-Signature header');
+  sentMessages.length = 0;
+  const res14 = await sendWebhook('list');
+  assert(res14.status === 403, 'Returns 403 status');
+  assert(res14.body.includes('<Response>'), 'Returns TwiML even on rejection');
+  await wait();
+
+  // ── Test 15: Reject request with invalid signature ──
+  console.log('\nTest 15: Reject request with invalid signature');
+  sentMessages.length = 0;
+  const res15 = await sendWebhook('list', 'whatsapp:+15551234567', {
+    extraHeaders: { 'X-Twilio-Signature': 'invalid_signature_value' }
+  });
+  assert(res15.status === 403, 'Returns 403 for invalid signature');
+  await wait();
+
+  // ── Test 16: Accept request with valid Twilio signature ──
+  console.log('\nTest 16: Accept request with valid Twilio signature');
+  sentMessages.length = 0;
+  const validParams = { Body: 'status', From: 'whatsapp:+15551234567' };
+  const validSignature = twilio.getExpectedTwilioSignature(testAuthToken, webhookUrl, validParams);
+  const res16 = await sendWebhook('status', 'whatsapp:+15551234567', {
+    extraHeaders: { 'X-Twilio-Signature': validSignature }
+  });
+  assert(res16.status === 200, 'Returns 200 for valid signature');
+  assert(res16.body.includes('<Response>'), 'Returns TwiML response');
+  await wait();
+  assert(sentMessages.length > 0, 'Command was processed after valid signature');
+
+  // ── Test 17: Skip validation when WEBHOOK_VALIDATE_SIGNATURE=false ──
+  console.log('\nTest 17: Skip validation when WEBHOOK_VALIDATE_SIGNATURE=false');
+  process.env.WEBHOOK_VALIDATE_SIGNATURE = 'false';
+  sentMessages.length = 0;
+  const res17 = await sendWebhook('status');
+  assert(res17.status === 200, 'Returns 200 with validation disabled');
+  await wait();
+  assert(sentMessages.length > 0, 'Command processed without signature');
+
+  // ── Test 18: Reject when auth token is missing ──
+  console.log('\nTest 18: Reject when TWILIO_AUTH_TOKEN is missing');
+  process.env.WEBHOOK_VALIDATE_SIGNATURE = 'true';
+  const savedToken = process.env.TWILIO_AUTH_TOKEN;
+  delete process.env.TWILIO_AUTH_TOKEN;
+  sentMessages.length = 0;
+  const res18 = await sendWebhook('list', 'whatsapp:+15551234567', {
+    extraHeaders: { 'X-Twilio-Signature': 'some_signature' }
+  });
+  assert(res18.status === 403, 'Returns 403 when auth token missing');
+  process.env.TWILIO_AUTH_TOKEN = savedToken;
+  await wait();
+
+  // Restore validation disabled for any further tests
+  process.env.WEBHOOK_VALIDATE_SIGNATURE = 'false';
 
   await stopServer();
 

@@ -1,4 +1,5 @@
 const express = require('express');
+const twilio = require('twilio');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
@@ -16,11 +17,50 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 
 /**
+ * Middleware: Validate Twilio request signature.
+ * Uses X-Twilio-Signature header + TWILIO_AUTH_TOKEN to verify
+ * that requests genuinely come from Twilio.
+ *
+ * Controlled by WEBHOOK_VALIDATE_SIGNATURE env var (default: true).
+ * Set to 'false' for local development without ngrok.
+ */
+function validateTwilioSignature(req, res, next) {
+  if (process.env.WEBHOOK_VALIDATE_SIGNATURE === 'false') {
+    return next();
+  }
+
+  const signature = req.headers['x-twilio-signature'];
+  if (!signature) {
+    console.warn('Webhook: Missing X-Twilio-Signature header — rejected');
+    return res.status(403).type('text/xml').send('<Response></Response>');
+  }
+
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) {
+    console.error('Webhook: TWILIO_AUTH_TOKEN not set — cannot validate signature');
+    return res.status(403).type('text/xml').send('<Response></Response>');
+  }
+
+  // Build the full URL Twilio used to sign the request.
+  // WEBHOOK_URL overrides auto-detection (needed behind proxies/ngrok).
+  const webhookUrl = process.env.WEBHOOK_URL
+    || `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+
+  const isValid = twilio.validateRequest(authToken, signature, webhookUrl, req.body);
+  if (!isValid) {
+    console.warn('Webhook: Invalid Twilio signature — rejected');
+    return res.status(403).type('text/xml').send('<Response></Response>');
+  }
+
+  next();
+}
+
+/**
  * Twilio webhook endpoint — receives incoming WhatsApp messages.
  * Extracts Body and From, parses the command, and routes to the handler.
  * Responds with empty TwiML (actual replies sent via Twilio API).
  */
-app.post(WEBHOOK_PATH, async (req, res) => {
+app.post(WEBHOOK_PATH, validateTwilioSignature, async (req, res) => {
   const messageBody = req.body.Body || '';
   const sender = req.body.From || '';
 
@@ -191,4 +231,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, handleCommand };
+module.exports = { app, handleCommand, validateTwilioSignature };
