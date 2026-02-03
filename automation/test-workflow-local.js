@@ -7,6 +7,10 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { generateFromWorkflow } = require('./image-generator/workflow-integration');
 const { generateImage: generateHybridImage } = require('./hybrid-image-generator');
 
+// WhatsApp approval queue
+const queue = require('./whatsapp/queue-manager');
+const { sendPreview } = require('./whatsapp/index');
+
 const CONFIG = {
   githubToken: process.env.GITHUB_TOKEN,
   openaiKey: process.env.OPENAI_API_KEY,
@@ -238,11 +242,53 @@ async function main() {
     // Add image path to content
     content.imagePath = imageResult.imagePath;
 
-    console.log('\n' + '='.repeat(80));
-    console.log('\nSUCCESS!');
+    // Queue post for WhatsApp approval instead of direct posting
+    console.log('\n' + '-'.repeat(40));
+    console.log('Queuing post for WhatsApp approval...');
+
+    const post = queue.addToQueue({
+      content: content,
+      imagePath: imageResult.imagePath || null
+    });
+
+    // Set notifiedAt (timeout checker uses this to measure elapsed time)
+    post.notifiedAt = new Date().toISOString();
+
+    // Determine public image URL for Twilio
+    // Local file paths cannot be fetched by Twilio; pass null for local dev
+    let imageUrl = null;
+    const imgPath = imageResult.imagePath || '';
+    if (imgPath && !imgPath.startsWith('/') && !imgPath.match(/^[A-Z]:\\/i)) {
+      // Looks like a URL already
+      imageUrl = imgPath;
+    } else if (imgPath) {
+      console.log('Note: Image is a local file path — Twilio cannot fetch it.');
+      console.log('      Preview will be sent without image attachment.');
+      console.log('      For production, upload images to a public URL first.');
+    }
+
+    // Send WhatsApp preview
+    try {
+      await sendPreview(post, imageUrl);
+      console.log(`WhatsApp preview sent for post #${post.id}`);
+    } catch (err) {
+      console.error(`Failed to send WhatsApp preview: ${err.message}`);
+      console.log('Post is still queued — approve via WhatsApp commands.');
+    }
+
+    // Persist notifiedAt update to post file
+    const postFilePath = path.join(queue.PENDING_DIR, `${post.id}.json`);
+    fs.writeFileSync(postFilePath, JSON.stringify(post, null, 2), 'utf8');
+
+    // Also save to test-output.json for backwards compatibility
     const outputFile = path.join(__dirname, 'test-output.json');
     fs.writeFileSync(outputFile, JSON.stringify(content, null, 2));
-    console.log(`\nSaved to: ${outputFile}`);
+
+    console.log('\n' + '='.repeat(80));
+    console.log('\nSUCCESS!');
+    console.log(`Post #${post.id} queued for approval`);
+    console.log(`Reply YES ${post.id} or NO ${post.id} via WhatsApp`);
+    console.log(`Saved to: ${outputFile}`);
   } catch (error) {
     console.error('\nERROR:', error.message);
     process.exit(1);
