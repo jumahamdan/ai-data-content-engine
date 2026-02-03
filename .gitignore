@@ -24,5 +24,9 @@ automation/node_modules/
 *.backup
 *.bak
 
+# Pending posts queue (file-based, regenerated at runtime)
+automation/pending-posts/*
+!automation/pending-posts/.gitkeep
+
 # Claude Code
 .claude/
