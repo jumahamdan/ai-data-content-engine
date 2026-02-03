@@ -8,6 +8,7 @@ const queue = require('./queue-manager');
 const { sendConfirmation, sendPendingList } = require('./index');
 const { sendToOwner } = require('./twilio-client');
 const { postToLinkedIn } = require('../linkedin-poster');
+const { startTimeoutChecker } = require('./timeout-checker');
 
 const PORT = parseInt(process.env.WEBHOOK_PORT, 10) || 3000;
 const WEBHOOK_PATH = process.env.WEBHOOK_PATH || '/whatsapp/incoming';
@@ -259,6 +260,7 @@ if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`WhatsApp webhook server running on port ${PORT}`);
     console.log(`Webhook endpoint: POST http://localhost:${PORT}${WEBHOOK_PATH}`);
+    startTimeoutChecker();
   });
 }
 
