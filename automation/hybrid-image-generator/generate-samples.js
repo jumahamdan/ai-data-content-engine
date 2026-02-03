@@ -15,8 +15,8 @@
  * Task 5.4: Main API & Integration - Phase 5
  */
 
-const path = require('path');
-const fs = require('fs').promises;
+const path = require('node:path');
+const fs = require('node:fs').promises;
 const { batchGenerate } = require('./index');
 
 // Output directory
@@ -278,10 +278,7 @@ const args = process.argv.slice(2);
 
 if (args.length === 0) {
   // Generate all samples
-  generateAllSamples().catch(error => {
-    console.error('Error:', error);
-    process.exit(1);
-  });
+  await generateAllSamples();
 } else if (args[0] === '--help' || args[0] === '-h') {
   console.log(`
 Usage: node generate-samples.js [options]
@@ -299,22 +296,11 @@ Examples:
   node generate-samples.js --theme watercolor --layout evolution
 `);
 } else {
-  // Parse filters
-  let filterTheme = null;
-  let filterLayout = null;
+  // Parse filters using indexOf
+  const themeIdx = args.indexOf('--theme');
+  const layoutIdx = args.indexOf('--layout');
+  const filterTheme = themeIdx !== -1 && args[themeIdx + 1] ? args[themeIdx + 1] : null;
+  const filterLayout = layoutIdx !== -1 && args[layoutIdx + 1] ? args[layoutIdx + 1] : null;
 
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--theme' && args[i + 1]) {
-      filterTheme = args[i + 1];
-      i++;
-    } else if (args[i] === '--layout' && args[i + 1]) {
-      filterLayout = args[i + 1];
-      i++;
-    }
-  }
-
-  generateFilteredSamples(filterTheme, filterLayout).catch(error => {
-    console.error('Error:', error);
-    process.exit(1);
-  });
+  await generateFilteredSamples(filterTheme, filterLayout);
 }

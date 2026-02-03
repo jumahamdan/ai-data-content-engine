@@ -9,8 +9,10 @@
     "generate-samples": "node image-generator/test.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.72.1",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "firebase-admin": "^13.6.0",
     "mustache": "^4.2.0",
     "puppeteer": "^22.0.0",
     "twilio": "^5.12.0"

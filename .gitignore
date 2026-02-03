@@ -2,6 +2,10 @@
 automation/.env
 **/.env
 
+# Firebase credentials (NEVER commit these)
+config/
+*firebase-adminsdk*.json
+
 # Test files
 automation/test.js
 automation/test-*.js

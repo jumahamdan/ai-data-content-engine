@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-function",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "twilio-run",
+    "deploy": "twilio-run deploy"
+  },
+  "dependencies": {
+    "@twilio/runtime-handler": "2.0.3",
+    "firebase-admin": "^13.6.0",
+    "twilio": "5.0.3"
+  },
+  "devDependencies": {
+    "twilio-run": "^5.0.0"
+  },
+  "engines": {
+    "node": "^20.x || ^22.x"
+  }
+}

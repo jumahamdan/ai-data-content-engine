@@ -1,38 +1,129 @@
 # AI & Data Content Engine
 
-This repository defines the **content system** used to generate and automatically publish technical posts about:
-- Data Engineering
-- AI / LLMs
-- RAG & Agentic Systems
-- Architecture & Mental Models
+![Generate Content](https://github.com/jumahamdan/ai-data-content-engine/actions/workflows/generate-content.yml/badge.svg)
+![Publish Content](https://github.com/jumahamdan/ai-data-content-engine/actions/workflows/publish-content.yml/badge.svg)
 
-## Goals
-- High-signal, practitioner-focused content
-- Image-first + long-form captions
-- Fully automatable posting (LinkedIn first)
-- Reusable across platforms (IG/FB later, TikTok/Snapchat near future)
+Automated LinkedIn content publishing system with WhatsApp approval workflow. Generates and posts 2x daily technical content about Data Engineering, AI/LLMs, RAG, and Architecture.
 
-## Source of Truth
-- content-spec/  -> tone + rules
-- prompts/       -> AI generation templates
-- topics/        -> topic rotation bank
-- schedule/      -> posting cadence
-- automation/    -> n8n workflows
+## 🏗️ Architecture
 
-Treat this repo like a production system: versioned, auditable, extensible.
+**100% Serverless** - No local server required!
 
-## WhatsApp Post Approval
-
-Before any post goes live, you get a WhatsApp preview and approve or reject it with a simple reply. Posts queue up if you're busy, with automatic reminders after 60 minutes.
-
-**Quick start:**
-```bash
-cd automation
-node whatsapp/test-connection.js --dry-run   # Validate config
-node whatsapp/test-e2e-flow.js               # Run end-to-end test
-node whatsapp/webhook-handler.js             # Start webhook server
+```
+GitHub Actions → Claude API → Firestore → WhatsApp → LinkedIn
+   (schedule)     (generate)    (queue)    (approve)   (post)
 ```
 
-**Commands:** `yes <id>`, `no <id>`, `list`, `status`, `yes all`, `no all`
+See [docs/architecture.md](docs/architecture.md) for detailed system design.
 
-Full documentation: [docs/features/whatsapp-approval.md](docs/features/whatsapp-approval.md)
+## 🚀 Quick Start
+
+### WhatsApp Commands
+
+Send to WhatsApp Sandbox (`+1 415 523 8886`, join code: `join well-hospital`):
+
+| Command    | Description                   |
+| ---------- | ----------------------------- |
+| `list`     | Show pending posts            |
+| `status`   | Check system connectivity     |
+| `<id>`     | View post details (e.g., `1`) |
+| `yes <id>` | Approve a post                |
+| `no <id>`  | Reject a post                 |
+| `yes all`  | Approve all pending           |
+| `no all`   | Reject all pending            |
+
+### Manual Post Generation
+
+```bash
+cd automation
+node content-generator/index.js
+```
+
+### Automated Schedule
+
+Posts are generated automatically at:
+- **8:00 AM CT** - Morning post
+- **4:00 PM CT** - Evening post
+
+## 📁 Project Structure
+
+```
+ai-data-content-engine/
+├── .github/workflows/       # Automated workflows
+├── automation/
+│   ├── content-generator/   # Claude API integration
+│   ├── publisher/           # LinkedIn posting
+│   ├── whatsapp/            # Approval queue (Firestore)
+│   ├── whatsapp-function/   # Twilio webhook (deployed)
+│   └── image-generator/     # Post images
+├── config/                  # Credentials (gitignored)
+├── content-spec/            # Tone & style guidelines
+├── prompts/                 # AI generation templates
+├── topics/                  # Topic rotation bank
+└── docs/                    # Documentation
+```
+
+## 📖 Documentation
+
+| Document                                         | Description               |
+| ------------------------------------------------ | ------------------------- |
+| [Architecture](docs/architecture.md)             | System design & data flow |
+| [Claude Guide](docs/claude-development-guide.md) | Development standards     |
+| [Roadmap](docs/roadmap.md)                       | Feature phases            |
+
+### Feature Specs
+
+| Feature                                                             | Status        |
+| ------------------------------------------------------------------- | ------------- |
+| [WhatsApp Approval](docs/features/whatsapp-approval.md)             | ✅ Complete    |
+| [GitHub Actions Workflow](docs/features/github-actions-workflow.md) | 🔄 In Progress |
+| [Image Generator](docs/features/image-generator.md)                 | ✅ Complete    |
+
+## ☁️ Cloud Services
+
+| Service                | Purpose             | Status        |
+| ---------------------- | ------------------- | ------------- |
+| **Firebase Firestore** | Post queue          | ✅ Deployed    |
+| **Twilio Functions**   | WhatsApp webhook    | ✅ Deployed    |
+| **GitHub Actions**     | Scheduled workflows | 🔄 In Progress |
+| **Claude API**         | Content generation  | 🔄 In Progress |
+| **LinkedIn API**       | Publishing          | ⏳ Planned     |
+
+## 🔑 Environment Setup
+
+### Local Development
+
+```bash
+cd automation
+cp .env.example .env
+# Edit .env with your credentials
+npm install
+```
+
+### GitHub Secrets (for Actions)
+
+- `ANTHROPIC_API_KEY` - Claude API
+- `FIREBASE_SERVICE_ACCOUNT` - Base64 encoded JSON
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
+- `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`
+
+## 🗺️ Roadmap
+
+### Phase 1: MVP (Current)
+- ✅ WhatsApp approval workflow
+- ✅ Firestore queue
+- 🔄 GitHub Actions automation
+- ⏳ LinkedIn posting
+
+### Phase 2: Multi-Platform
+- Instagram + Facebook (Meta Graph API)
+- Carousel support
+
+### Phase 3: Advanced
+- TikTok integration
+- Video/animation content
+- Analytics & optimization
+
+---
+
+Built with ❤️ for automating thought leadership content.
