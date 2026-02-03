@@ -156,6 +156,48 @@
         },
         {
             "parameters": {
+                "jsCode": "// Queue post for WhatsApp approval\n// Sends an HTTP request to the webhook server to queue the post\n// and trigger a WhatsApp preview notification\nconst content = $input.item.json;\nconst webhookServerUrl = $env.WHATSAPP_WEBHOOK_URL || 'http://localhost:3000';\n\nconsole.log('Queuing post for WhatsApp approval:', content.topic);\n\nreturn {\n  json: {\n    ...content,\n    approvalStatus: 'pending',\n    queuedAt: new Date().toISOString()\n  }\n};"
+            },
+            "id": "queue-whatsapp",
+            "name": "Queue to WhatsApp",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [2050, 300]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "whatsapp-approval",
+                "responseMode": "onReceived",
+                "options": {}
+            },
+            "id": "wait-approval",
+            "name": "Wait for Approval",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [2250, 300],
+            "webhookId": "whatsapp-approval"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.body.status }}",
+                            "operation": "equals",
+                            "value2": "approved"
+                        }
+                    ]
+                }
+            },
+            "id": "check-approval",
+            "name": "Check Approval",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [2450, 300]
+        },
+        {
+            "parameters": {
                 "resource": "post",
                 "text": "={{ $json.fullCaption }}"
             },
@@ -163,8 +205,18 @@
             "name": "Post to LinkedIn",
             "type": "n8n-nodes-base.linkedIn",
             "typeVersion": 1,
-            "position": [2050, 300],
+            "position": [2650, 300],
             "notes": "Text-only post. Add image support later."
+        },
+        {
+            "parameters": {
+                "jsCode": "// Log that the post was rejected via WhatsApp\nconsole.log('Post rejected via WhatsApp:', $json.body?.postId);\nreturn {\n  json: {\n    status: 'rejected',\n    postId: $json.body?.postId,\n    topic: $json.topic,\n    timestamp: new Date().toISOString()\n  }\n};"
+            },
+            "id": "log-rejection",
+            "name": "Log Rejection",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [2650, 450]
         },
         {
             "parameters": {
@@ -180,7 +232,7 @@
             "name": "Fetch Existing Log",
             "type": "n8n-nodes-base.github",
             "typeVersion": 1,
-            "position": [2250, 300]
+            "position": [2850, 300]
         },
         {
             "parameters": {
@@ -190,7 +242,7 @@
             "name": "Build Log Entry",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [2450, 300]
+            "position": [3050, 300]
         },
         {
             "parameters": {
@@ -207,7 +259,7 @@
             "name": "Log to GitHub",
             "type": "n8n-nodes-base.github",
             "typeVersion": 1,
-            "position": [2650, 300]
+            "position": [3250, 300]
         }
     ],
     "connections": {
@@ -265,8 +317,24 @@
         },
         "Parse Content": {
             "main": [[
-                {"node": "Post to LinkedIn", "type": "main", "index": 0}
+                {"node": "Queue to WhatsApp", "type": "main", "index": 0}
             ]]
+        },
+        "Queue to WhatsApp": {
+            "main": [[
+                {"node": "Wait for Approval", "type": "main", "index": 0}
+            ]]
+        },
+        "Wait for Approval": {
+            "main": [[
+                {"node": "Check Approval", "type": "main", "index": 0}
+            ]]
+        },
+        "Check Approval": {
+            "main": [
+                [{"node": "Post to LinkedIn", "type": "main", "index": 0}],
+                [{"node": "Log Rejection", "type": "main", "index": 0}]
+            ]
         },
         "Post to LinkedIn": {
             "main": [[
