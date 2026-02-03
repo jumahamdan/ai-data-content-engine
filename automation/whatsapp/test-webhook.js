@@ -129,6 +129,21 @@ function sendWebhook(body, from = 'whatsapp:+15551234567', opts = {}) {
   });
 }
 
+/**
+ * Send a GET request to the given path.
+ */
+function sendGet(urlPath) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlPath, baseUrl);
+
+    http.get(url, (res) => {
+      let responseBody = '';
+      res.on('data', chunk => responseBody += chunk);
+      res.on('end', () => resolve({ status: res.statusCode, body: responseBody }));
+    }).on('error', reject);
+  });
+}
+
 // Small delay to let async handlers finish
 function wait(ms = 100) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -299,6 +314,30 @@ async function runTests() {
   queue.deletePost('101');
 
   // ═══════════════════════════════════════════
+  //  Health Endpoint Tests
+  // ═══════════════════════════════════════════
+  console.log('\n── Health Endpoint Tests ──');
+
+  // ── Test 14: Health endpoint returns JSON ──
+  console.log('\nTest 14: GET /health returns JSON status');
+  const resH1 = await sendGet('/health');
+  assert(resH1.status === 200, 'Returns 200 status');
+  const health = JSON.parse(resH1.body);
+  assert(health.status === 'ok', 'Status is ok');
+  assert(typeof health.pendingPosts === 'number', 'Has pendingPosts count');
+  assert(typeof health.uptime === 'number', 'Has uptime in seconds');
+  assert(typeof health.signatureValidation === 'boolean', 'Has signatureValidation flag');
+
+  // ── Test 15: Health endpoint reflects pending count ──
+  console.log('\nTest 15: Health endpoint reflects pending post count');
+  seedTestPosts();
+  const resH2 = await sendGet('/health');
+  const health2 = JSON.parse(resH2.body);
+  assert(health2.pendingPosts === 2, 'Shows 2 pending posts');
+  queue.deletePost('100');
+  queue.deletePost('101');
+
+  // ═══════════════════════════════════════════
   //  Signature Validation Tests
   // ═══════════════════════════════════════════
   console.log('\n── Signature Validation Tests ──');
@@ -311,55 +350,55 @@ async function runTests() {
   const webhookPath = process.env.WEBHOOK_PATH || '/whatsapp/incoming';
   const webhookUrl = `${baseUrl}${webhookPath}`;
 
-  // ── Test 14: Reject request with no signature header ──
-  console.log('\nTest 14: Reject request with no X-Twilio-Signature header');
+  // ── Test 16: Reject request with no signature header ──
+  console.log('\nTest 16: Reject request with no X-Twilio-Signature header');
   sentMessages.length = 0;
-  const res14 = await sendWebhook('list');
-  assert(res14.status === 403, 'Returns 403 status');
-  assert(res14.body.includes('<Response>'), 'Returns TwiML even on rejection');
+  const res16 = await sendWebhook('list');
+  assert(res16.status === 403, 'Returns 403 status');
+  assert(res16.body.includes('<Response>'), 'Returns TwiML even on rejection');
   await wait();
 
-  // ── Test 15: Reject request with invalid signature ──
-  console.log('\nTest 15: Reject request with invalid signature');
+  // ── Test 17: Reject request with invalid signature ──
+  console.log('\nTest 17: Reject request with invalid signature');
   sentMessages.length = 0;
-  const res15 = await sendWebhook('list', 'whatsapp:+15551234567', {
+  const res17 = await sendWebhook('list', 'whatsapp:+15551234567', {
     extraHeaders: { 'X-Twilio-Signature': 'invalid_signature_value' }
   });
-  assert(res15.status === 403, 'Returns 403 for invalid signature');
+  assert(res17.status === 403, 'Returns 403 for invalid signature');
   await wait();
 
-  // ── Test 16: Accept request with valid Twilio signature ──
-  console.log('\nTest 16: Accept request with valid Twilio signature');
+  // ── Test 18: Accept request with valid Twilio signature ──
+  console.log('\nTest 18: Accept request with valid Twilio signature');
   sentMessages.length = 0;
   const validParams = { Body: 'status', From: 'whatsapp:+15551234567' };
   const validSignature = twilio.getExpectedTwilioSignature(testAuthToken, webhookUrl, validParams);
-  const res16 = await sendWebhook('status', 'whatsapp:+15551234567', {
+  const res18 = await sendWebhook('status', 'whatsapp:+15551234567', {
     extraHeaders: { 'X-Twilio-Signature': validSignature }
   });
-  assert(res16.status === 200, 'Returns 200 for valid signature');
-  assert(res16.body.includes('<Response>'), 'Returns TwiML response');
+  assert(res18.status === 200, 'Returns 200 for valid signature');
+  assert(res18.body.includes('<Response>'), 'Returns TwiML response');
   await wait();
   assert(sentMessages.length > 0, 'Command was processed after valid signature');
 
-  // ── Test 17: Skip validation when WEBHOOK_VALIDATE_SIGNATURE=false ──
-  console.log('\nTest 17: Skip validation when WEBHOOK_VALIDATE_SIGNATURE=false');
+  // ── Test 19: Skip validation when WEBHOOK_VALIDATE_SIGNATURE=false ──
+  console.log('\nTest 19: Skip validation when WEBHOOK_VALIDATE_SIGNATURE=false');
   process.env.WEBHOOK_VALIDATE_SIGNATURE = 'false';
   sentMessages.length = 0;
-  const res17 = await sendWebhook('status');
-  assert(res17.status === 200, 'Returns 200 with validation disabled');
+  const res19 = await sendWebhook('status');
+  assert(res19.status === 200, 'Returns 200 with validation disabled');
   await wait();
   assert(sentMessages.length > 0, 'Command processed without signature');
 
-  // ── Test 18: Reject when auth token is missing ──
-  console.log('\nTest 18: Reject when TWILIO_AUTH_TOKEN is missing');
+  // ── Test 20: Reject when auth token is missing ──
+  console.log('\nTest 20: Reject when TWILIO_AUTH_TOKEN is missing');
   process.env.WEBHOOK_VALIDATE_SIGNATURE = 'true';
   const savedToken = process.env.TWILIO_AUTH_TOKEN;
   delete process.env.TWILIO_AUTH_TOKEN;
   sentMessages.length = 0;
-  const res18 = await sendWebhook('list', 'whatsapp:+15551234567', {
+  const res20 = await sendWebhook('list', 'whatsapp:+15551234567', {
     extraHeaders: { 'X-Twilio-Signature': 'some_signature' }
   });
-  assert(res18.status === 403, 'Returns 403 when auth token missing');
+  assert(res20.status === 403, 'Returns 403 when auth token missing');
   process.env.TWILIO_AUTH_TOKEN = savedToken;
   await wait();
 

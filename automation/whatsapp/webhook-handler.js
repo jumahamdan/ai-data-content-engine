@@ -56,6 +56,23 @@ function validateTwilioSignature(req, res, next) {
 }
 
 /**
+ * Health check endpoint for monitoring.
+ * Returns JSON with server status, pending post count, and uptime.
+ * No authentication required — safe for uptime monitors.
+ */
+app.get('/health', (req, res) => {
+  const pending = queue.listPending();
+  const uptime = process.uptime();
+
+  res.json({
+    status: 'ok',
+    pendingPosts: pending.length,
+    uptime: Math.floor(uptime),
+    signatureValidation: process.env.WEBHOOK_VALIDATE_SIGNATURE !== 'false'
+  });
+});
+
+/**
  * Twilio webhook endpoint — receives incoming WhatsApp messages.
  * Extracts Body and From, parses the command, and routes to the handler.
  * Responds with empty TwiML (actual replies sent via Twilio API).
