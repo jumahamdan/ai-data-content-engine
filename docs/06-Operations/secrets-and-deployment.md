@@ -13,7 +13,6 @@ Manage at: `Settings → Secrets and variables → Actions`
 | `TWILIO_WHATSAPP_FROM` | `whatsapp:+14155238886` (sandbox) | Both workflows |
 | `WHATSAPP_TO` | `whatsapp:+1YOURNUMBER` | Both workflows |
 | `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com/) | Image generation |
-| `GH_PAT` | GitHub Settings → Developer settings → Tokens | Repo access |
 
 ### Encoding Firebase Service Account
 
@@ -23,8 +22,11 @@ Manage at: `Settings → Secrets and variables → Actions`
 ```
 
 ```bash
-# Linux/macOS
+# Linux (GNU coreutils)
 base64 -w 0 config/firebase-service-account.json
+
+# macOS (BSD base64)
+base64 -b 0 config/firebase-service-account.json
 ```
 
 ## Local Development

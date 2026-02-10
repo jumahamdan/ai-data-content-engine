@@ -41,9 +41,11 @@ node content-generator/index.js
 
 ### Automated Schedule
 
-Posts are generated automatically at:
+Posts will be generated automatically at:
 - **8:00 AM CT** - Morning post
 - **4:00 PM CT** - Evening post
+
+> **Note:** Cron schedules are currently disabled (manual dispatch only). Re-enable in `.github/workflows/` when ready.
 
 ## 📁 Project Structure
 
