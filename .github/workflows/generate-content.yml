@@ -1,9 +1,9 @@
 name: Generate Content
 
 on:
-  schedule:
-    - cron: '0 14 * * *'   # 8:00 AM CT (UTC-6)
-    - cron: '0 22 * * *'   # 4:00 PM CT (UTC-6)
+  # schedule:                     # Disabled until Anthropic billing is resolved
+  #   - cron: '0 14 * * *'       # 8:00 AM CT (UTC-6)
+  #   - cron: '0 22 * * *'       # 4:00 PM CT (UTC-6)
   workflow_dispatch:        # Manual trigger for testing
 
 jobs:
