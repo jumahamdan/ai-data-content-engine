@@ -32,14 +32,14 @@ content-spec/            # Tone, visual rules, post templates
 prompts/                 # AI generation templates
 topics/                  # Topic rotation bank
 docs/                    # Architecture, roadmap, feature specs
-docs/features/           # Individual feature documentation
+docs/03-Features/           # Individual feature documentation
 ```
 
 ---
 
 ## Architecture
 
-See [docs/architecture.md](architecture.md) for full system design.
+See [System Architecture](../02-Architecture/system-architecture.md) for full system design.
 
 ```
 GitHub Actions → Claude API → Firestore → WhatsApp → LinkedIn
@@ -56,7 +56,7 @@ GitHub Actions → Claude API → Firestore → WhatsApp → LinkedIn
 
 1. **Read the feature doc first:**
    ```
-   Read docs/features/<feature-name>.md and follow the Claude AI Development Prompt section.
+   Read docs/03-Features/<feature-name>.md and follow the Claude AI Development Prompt section.
    ```
 
 2. **Check current state:**
@@ -261,21 +261,21 @@ When completing a feature:
 
 ### Start a Feature
 ```
-Read docs/features/<name>.md and follow the Claude AI Development Prompt.
+Read docs/03-Features/<name>.md and follow the Claude AI Development Prompt.
 Tasks 1.1-X.X are complete. Start with Task X.X: <description>.
 ```
 
 ### Resume a Feature
 ```
-Read docs/features/<name>.md. I left off at Task X.X. Continue from there.
+Read docs/03-Features/<name>.md. I left off at Task X.X. Continue from there.
 ```
 
 ### Review Before Implementing
 ```
-Before building, review the approach in docs/features/<name>.md.
+Before building, review the approach in docs/03-Features/<name>.md.
 If you see improvements, suggest them before coding.
 ```
 
 ---
 
-[← Back to README](../README.md)
+[← Back to README](../../README.md)

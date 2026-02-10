@@ -190,4 +190,4 @@ Each platform adapter follows the same interface:
 
 ---
 
-[← Back to README](../README.md)
+[← Back to README](../../README.md)

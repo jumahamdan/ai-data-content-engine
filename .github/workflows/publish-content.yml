@@ -1,8 +1,8 @@
 name: Publish Content
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes
+  # schedule:                      # Disabled until end-to-end testing passes
+  #   - cron: '*/15 * * * *'      # Every 15 minutes
   workflow_dispatch:         # Manual trigger for testing
 
 jobs:

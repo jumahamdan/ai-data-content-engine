@@ -236,7 +236,7 @@ automation/hybrid-image-generator/
 When you return to this feature, use this prompt with Claude Code:
 
 ```
-Read docs/features/image-generator.md and docs/claude-development-guide.md.
+Read docs/03-Features/image-generator.md and docs/04-Development/coding-standards.md.
 
 CONTEXT:
 - Branch: feature/hybrid-image-generator
@@ -259,4 +259,4 @@ Start by asking me about branding preferences before building.
 
 ---
 
-[← Back to TODO](../../TODO.md) | [Development Guide](../claude-development-guide.md)
+[← Back to TODO](../01-Project/TODO.md) | [Development Guide](../04-Development/coding-standards.md)

@@ -24,7 +24,7 @@
 
 ## Current Focus: GitHub Actions Workflow
 
-See [docs/features/github-actions-workflow.md](docs/features/github-actions-workflow.md) for detailed tasks.
+See [GitHub Actions Workflow](../03-Features/github-actions-workflow.md) for detailed tasks.
 
 ### Content Generator
 - [ ] Task 1.1: Create `content-generator/index.js`

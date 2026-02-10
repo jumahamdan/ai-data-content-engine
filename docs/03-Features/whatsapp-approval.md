@@ -314,4 +314,4 @@ npm test
 
 ---
 
-[← Back to TODO](../../TODO.md) | [Development Guide](../claude-development-guide.md)
+[← Back to TODO](../01-Project/TODO.md) | [Development Guide](../04-Development/coding-standards.md)
