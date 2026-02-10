@@ -260,19 +260,13 @@ node publisher/index.js
 ## Claude AI Development Prompt
 
 ```
-Read docs/features/github-actions-workflow.md and docs/architecture.md.
+Follow the workflow in docs/04-Development/AI_AGENT_INSTRUCTIONS.md
 
-Current status: [check which tasks are done above]
-
-Continue with the next unchecked task. Follow these guidelines:
-1. One task at a time
-2. Test locally before committing
-3. Update task checkbox when complete
-4. Commit after each task with message: "Task X.X: <description>"
-
-Reference docs/claude-development-guide.md for coding standards.
+I want to continue building the GitHub Actions workflow.
+Read docs/03-Features/github-actions-workflow.md for task list.
+Read docs/02-Architecture/system-architecture.md for system design.
 ```
 
 ---
 
-[← Back to Architecture](../architecture.md) | [← Back to README](../../README.md)
+[← Back to Architecture](../02-Architecture/system-architecture.md) | [← Back to README](../../README.md)

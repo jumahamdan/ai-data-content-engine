@@ -14,7 +14,7 @@ GitHub Actions → Claude API → Firestore → WhatsApp → LinkedIn
    (schedule)     (generate)    (queue)    (approve)   (post)
 ```
 
-See [docs/architecture.md](docs/architecture.md) for detailed system design.
+See [System Architecture](docs/02-Architecture/system-architecture.md) for detailed system design.
 
 ## 🚀 Quick Start
 
@@ -49,35 +49,43 @@ Posts are generated automatically at:
 
 ```
 ai-data-content-engine/
-├── .github/workflows/       # Automated workflows
+├── .github/workflows/          # GitHub Actions (generate + publish)
 ├── automation/
-│   ├── content-generator/   # Claude API integration
-│   ├── publisher/           # LinkedIn posting
-│   ├── whatsapp/            # Approval queue (Firestore)
-│   ├── whatsapp-function/   # Twilio webhook (deployed)
-│   └── image-generator/     # Post images
-├── config/                  # Credentials (gitignored)
-├── content-spec/            # Tone & style guidelines
-├── prompts/                 # AI generation templates
-├── topics/                  # Topic rotation bank
-└── docs/                    # Documentation
+│   ├── content-generator/      # Claude API content generation
+│   ├── publisher/              # LinkedIn posting pipeline
+│   ├── whatsapp/               # Firestore queue + Twilio client
+│   ├── whatsapp-function/      # Twilio webhook (deployed)
+│   └── image-generator/        # Puppeteer image generation
+├── config/                     # Credentials (gitignored)
+├── content-spec/               # Tone & style guidelines
+├── prompts/                    # AI prompt templates
+├── topics/                     # Topic rotation bank
+├── docs/
+│   ├── 01-Project/             # Roadmap, changelog, TODO
+│   ├── 02-Architecture/        # System design
+│   ├── 03-Features/            # Feature specifications
+│   ├── 04-Development/         # AI agent instructions, coding standards
+│   ├── 05-Testing/             # Test plans
+│   ├── 06-Operations/          # Secrets, deployment
+│   └── XX-Archive/             # Deprecated docs
+└── CLAUDE.md                   # AI agent project map
 ```
 
 ## 📖 Documentation
 
 | Document                                         | Description               |
 | ------------------------------------------------ | ------------------------- |
-| [Architecture](docs/architecture.md)             | System design & data flow |
-| [Claude Guide](docs/claude-development-guide.md) | Development standards     |
-| [Roadmap](docs/roadmap.md)                       | Feature phases            |
+| [Architecture](docs/02-Architecture/system-architecture.md) | System design & data flow |
+| [Development Guide](docs/04-Development/coding-standards.md) | Development standards     |
+| [Roadmap](docs/01-Project/roadmap.md)                       | Feature phases            |
 
 ### Feature Specs
 
 | Feature                                                             | Status        |
 | ------------------------------------------------------------------- | ------------- |
-| [WhatsApp Approval](docs/features/whatsapp-approval.md)             | ✅ Complete    |
-| [GitHub Actions Workflow](docs/features/github-actions-workflow.md) | 🔄 In Progress |
-| [Image Generator](docs/features/image-generator.md)                 | ✅ Complete    |
+| [WhatsApp Approval](docs/03-Features/whatsapp-approval.md)             | ✅ Complete    |
+| [GitHub Actions Workflow](docs/03-Features/github-actions-workflow.md) | 🔄 In Progress |
+| [Image Generator](docs/03-Features/image-generator.md)                 | ✅ Complete    |
 
 ## ☁️ Cloud Services
 

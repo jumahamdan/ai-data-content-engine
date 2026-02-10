@@ -361,8 +361,8 @@ COMMENT_LOOKBACK_DAYS=7
 You are helping me build the AI Comment Reply System for the AI & Data Content Engine.
 
 FIRST, read these documents:
-1. docs/claude-development-guide.md (general development instructions)
-2. docs/features/comment-replies.md (this feature's full specification)
+1. docs/04-Development/AI_AGENT_INSTRUCTIONS.md (session workflow)
+2. docs/03-Features/comment-replies.md (this feature's full specification)
 
 PROJECT CONTEXT:
 - Workspace: c:\Users\Juma Hamdan\GitHub\ai-data-content-engine
@@ -433,4 +433,4 @@ START: Verify WhatsApp system is complete, then begin with Task 1.1.
 
 ---
 
-[← Back to TODO](../../TODO.md) | [Development Guide](../claude-development-guide.md)
+[← Back to TODO](../01-Project/TODO.md) | [Development Guide](../04-Development/coding-standards.md)

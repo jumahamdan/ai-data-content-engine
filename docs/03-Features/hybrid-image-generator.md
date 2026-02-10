@@ -432,8 +432,8 @@ If DALL-E fails or rate limits:
 You are helping me rebuild the image generator for the AI & Data Content Engine.
 
 FIRST, read these documents:
-1. docs/claude-development-guide.md (general development instructions)
-2. docs/features/hybrid-image-generator.md (this feature's full specification)
+1. docs/04-Development/AI_AGENT_INSTRUCTIONS.md (session workflow)
+2. docs/03-Features/hybrid-image-generator.md (this feature's full specification)
 
 PROJECT CONTEXT:
 - Workspace: c:\Users\Juma Hamdan\GitHub\ai-data-content-engine
@@ -516,16 +516,16 @@ START: Review the architecture first. If you see improvements to the hybrid appr
 
 **New session:**
 ```
-Read docs/features/hybrid-image-generator.md and docs/claude-development-guide.md.
+Read docs/03-Features/hybrid-image-generator.md and docs/04-Development/coding-standards.md.
 Start with Task 1.1.
 ```
 
 **Resume session:**
 ```
-Read docs/features/hybrid-image-generator.md. I completed up to Task 2.2.
+Read docs/03-Features/hybrid-image-generator.md. I completed up to Task 2.2.
 Continue with Task 2.3.
 ```
 
 ---
 
-[← Back to TODO](../../TODO.md) | [Development Guide](../claude-development-guide.md)
+[← Back to TODO](../01-Project/TODO.md) | [Development Guide](../04-Development/coding-standards.md)
