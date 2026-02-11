@@ -34,7 +34,7 @@ function resolveImageType(imageType, template) {
  * @param {string} title - Image title (for context)
  * @returns {object[]} Section objects
  */
-function bulletsToSections(bullets, template, title) {
+function bulletsToSections(bullets, template, _title) {
   if (template === 'layered') {
     // Vertical layered format
     return bullets.map((bullet, i) => ({

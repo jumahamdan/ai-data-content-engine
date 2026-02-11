@@ -181,7 +181,7 @@ async function generateAllSamples() {
   // Show failed images
   if (failed.length > 0) {
     console.log('\n✗ Failed:');
-    failed.forEach((result, i) => {
+    failed.forEach((result, _i) => {
       const item = batch[results.indexOf(result)];
       console.log(`  - ${item.theme} × ${item.layout}`);
       console.log(`    Error: ${result.error}`);
