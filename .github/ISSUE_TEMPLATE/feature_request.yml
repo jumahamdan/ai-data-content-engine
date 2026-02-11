@@ -1,0 +1,44 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this solve? Why is it needed?
+      placeholder: "Currently the system can't..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this feature work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches did you consider?
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Roadmap Phase
+      description: Which phase does this belong to?
+      options:
+        - Phase 1 - MVP
+        - Phase 2 - Multi-Platform
+        - Phase 3 - Advanced Content
+        - Phase 4 - Optimization
+        - Not sure

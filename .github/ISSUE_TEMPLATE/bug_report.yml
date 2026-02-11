@@ -1,0 +1,58 @@
+name: Bug Report
+description: Report a bug in the content engine
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill out the sections below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: "When I run the content generator, it..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Run `node content-generator/index.js`
+        2. Wait for Claude API response
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Output / Logs
+      description: Paste any relevant error messages or logs
+      render: shell
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system is affected?
+      options:
+        - Content Generator
+        - Publisher
+        - WhatsApp Approval
+        - Image Generator
+        - GitHub Actions Workflow
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+      placeholder: "v20.x.x"
