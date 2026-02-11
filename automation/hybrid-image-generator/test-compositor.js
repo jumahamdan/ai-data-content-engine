@@ -72,7 +72,7 @@ const evolutionTestConfig = {
       items: ['Domain ownership', 'Data as product', 'Self-serve', 'Federated governance']
     }
   ],
-  insight: 'Each generation solved yesterday\'s problems while creating tomorrow\'s opportunities.',
+  insight: "Each generation solved yesterday's problems while creating tomorrow's opportunities.",
   outputPath: path.join(__dirname, 'test-outputs', 'compositor-evolution.png'),
   verbose: true
 };

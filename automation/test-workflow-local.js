@@ -38,27 +38,29 @@ async function fetchGitHubFile(filePath) {
       method: 'GET',
       headers: {
         'User-Agent': 'Node.js',
-        'Authorization': `token ${CONFIG.githubToken}`,
-        'Accept': 'application/vnd.github.v3+json'
+        Authorization: `token ${CONFIG.githubToken}`,
+        Accept: 'application/vnd.github.v3+json'
       }
     };
-    https.get(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          const json = JSON.parse(data);
-          let content = Buffer.from(json.content, 'base64').toString('utf8');
-          // Remove BOM if present
-          if (content.charCodeAt(0) === 0xFEFF) {
-            content = content.slice(1);
+    https
+      .get(options, res => {
+        let data = '';
+        res.on('data', chunk => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            const json = JSON.parse(data);
+            let content = Buffer.from(json.content, 'base64').toString('utf8');
+            // Remove BOM if present
+            if (content.charCodeAt(0) === 0xfeff) {
+              content = content.slice(1);
+            }
+            resolve(content);
+          } else {
+            reject(new Error(`GitHub API error: ${res.statusCode}`));
           }
-          resolve(content);
-        } else {
-          reject(new Error(`GitHub API error: ${res.statusCode}`));
-        }
-      });
-    }).on('error', reject);
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -79,13 +81,13 @@ async function callOpenAI(systemPrompt, userPrompt) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CONFIG.openaiKey}`,
+        Authorization: `Bearer ${CONFIG.openaiKey}`,
         'Content-Length': Buffer.byteLength(payload)
       }
     };
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       let data = '';
-      res.on('data', (chunk) => data += chunk);
+      res.on('data', chunk => (data += chunk));
       res.on('end', () => {
         if (res.statusCode === 200) {
           resolve(JSON.parse(data));
@@ -121,7 +123,12 @@ async function planContent() {
   return {
     template: currentTemplate,
     topic: selectedTopic,
-    promptFile: ({ 'interview_explainer': 'prompts/interview-explainer.md', 'architecture': 'prompts/architecture-comparison.md', 'optimization': 'prompts/optimization-story.md', 'layered': 'prompts/layered-mental-model.md' })[currentTemplate]
+    promptFile: {
+      interview_explainer: 'prompts/interview-explainer.md',
+      architecture: 'prompts/architecture-comparison.md',
+      optimization: 'prompts/optimization-story.md',
+      layered: 'prompts/layered-mental-model.md'
+    }[currentTemplate]
   };
 }
 
@@ -134,7 +141,8 @@ async function generateContent(plan) {
     fetchGitHubFile('content-spec/visual-rules.md')
   ]);
   console.log('Templates fetched');
-  const systemPrompt = 'You are a LinkedIn content creator for a senior data/AI engineer. Generate professional, educational content following the provided template and tone.';
+  const systemPrompt =
+    'You are a LinkedIn content creator for a senior data/AI engineer. Generate professional, educational content following the provided template and tone.';
   const userPrompt = `Template:\n${promptTemplate}\n\nTone:\n${tone}\n\nVisual Rules:\n${visualRules}\n\nTopic: ${plan.topic}\n\nGenerate a LinkedIn post with:\n1. Caption (6-12 lines, ending with a thoughtful question)\n2. Image metadata for hybrid infographic generation:\n   - imageType: "card" for simple bullet lists, "diagram" for comparisons (legacy - kept for backwards compatibility)\n   - imageLayout: "comparison" (side-by-side), "evolution" (horizontal flow), or "single" (deep dive)\n   - imageTheme: "chalkboard" (educational), "watercolor" (professional), or "tech" (technical)\n   - imageTitle: concise title (max 10 words)\n   - imageBullets: 3-5 bullet points (max 36 chars each) - legacy format\n   - imageSections: Array of structured sections with:\n     * title: Section heading\n     * type: "pros", "cons", or "neutral"\n     * items: Array of bullet points (max 36 chars each)\n   - imageInsight: Key takeaway quote (1-2 sentences)\n   - imageMood: "educational", "professional", or "technical" (used for theme selection)\n3. 5-8 relevant hashtags\n\nGuidelines for new image fields:\n- For comparison posts (A vs B, pros/cons): use imageLayout="comparison" with 2 sections\n- For evolution posts (stages, progression): use imageLayout="evolution" with 2-4 sections\n- For explanatory posts (deep dive): use imageLayout="single" with 2-3 sections\n- Match imageTheme to content mood: chalkboard=casual/educational, watercolor=professional/architectural, tech=technical/modern\n\nReturn as JSON: {"caption": "...", "imageType": "card"|"diagram", "imageLayout": "comparison"|"evolution"|"single", "imageTheme": "chalkboard"|"watercolor"|"tech", "imageTitle": "...", "imageBullets": [...], "imageSections": [{"title": "...", "type": "pros"|"cons"|"neutral", "items": [...]}], "imageInsight": "...", "imageMood": "...", "hashtags": [...]}`;
   console.log('Calling OpenAI...');
   const response = await callOpenAI(systemPrompt, userPrompt);

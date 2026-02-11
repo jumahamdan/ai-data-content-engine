@@ -26,18 +26,41 @@ const COLOR_ORDER = ['purple', 'orange', 'green', 'blue', 'cyan'];
 
 // Icon mapping for common data engineering concepts
 const TOPIC_ICONS = {
-  'medallion': 'layers', 'warehouse': 'warehouse', 'lakehouse': 'lake',
-  'data mesh': 'mesh', 'hybrid': 'network', 'bronze': 'database',
-  'silver': 'filter', 'gold': 'sparkles', 'raw': 'document',
-  'curated': 'check', 'aggregated': 'chart', 'etl': 'flow',
-  'elt': 'flow', 'streaming': 'lightning', 'batch': 'server',
-  'cdc': 'refresh', 'rag': 'brain', 'agent': 'robot',
-  'llm': 'sparkles', 'embedding': 'target', 'chunking': 'filter',
-  'optimization': 'wrench', 'performance': 'zap', 'security': 'lock',
-  'api': 'api', 'cloud': 'cloud', 'interview': 'question',
-  'tip': 'lightbulb', 'explain': 'lightbulb', 'sql': 'database',
-  'window': 'chart', 'ingestion': 'document', 'vector': 'database',
-  'retrieval': 'brain', 'generation': 'sparkles'
+  medallion: 'layers',
+  warehouse: 'warehouse',
+  lakehouse: 'lake',
+  'data mesh': 'mesh',
+  hybrid: 'network',
+  bronze: 'database',
+  silver: 'filter',
+  gold: 'sparkles',
+  raw: 'document',
+  curated: 'check',
+  aggregated: 'chart',
+  etl: 'flow',
+  elt: 'flow',
+  streaming: 'lightning',
+  batch: 'server',
+  cdc: 'refresh',
+  rag: 'brain',
+  agent: 'robot',
+  llm: 'sparkles',
+  embedding: 'target',
+  chunking: 'filter',
+  optimization: 'wrench',
+  performance: 'zap',
+  security: 'lock',
+  api: 'api',
+  cloud: 'cloud',
+  interview: 'question',
+  tip: 'lightbulb',
+  explain: 'lightbulb',
+  sql: 'database',
+  window: 'chart',
+  ingestion: 'document',
+  vector: 'database',
+  retrieval: 'brain',
+  generation: 'sparkles'
 };
 
 /**
@@ -450,12 +473,16 @@ function buildCardHtml(data) {
     ? `<div class="header-icon">${getStyledIcon(headerIcon, '#6366F1', '#6366F1')}</div>`
     : '';
 
-  const bulletsHtml = bullets.map((text, i) => `
+  const bulletsHtml = bullets
+    .map(
+      (text, i) => `
     <li class="bullet-item">
       <span class="bullet-number">${i + 1}</span>
       <span class="bullet-text">${escapeHtml(text)}</span>
     </li>
-  `).join('');
+  `
+    )
+    .join('');
 
   return `
 <!DOCTYPE html>
@@ -486,16 +513,21 @@ function buildCardHtml(data) {
 function buildDiagramHtml(data) {
   const { title, sections = [] } = data;
 
-  const sectionsHtml = sections.map((section, i) => {
-    const colorKey = COLOR_ORDER[i % COLOR_ORDER.length];
-    const colors = SECTION_COLORS[colorKey];
-    const iconHtml = getStyledIcon(section.icon || detectIcon(section.title), colors.border, colors.border);
+  const sectionsHtml = sections
+    .map((section, i) => {
+      const colorKey = COLOR_ORDER[i % COLOR_ORDER.length];
+      const colors = SECTION_COLORS[colorKey];
+      const iconHtml = getStyledIcon(section.icon || detectIcon(section.title), colors.border, colors.border);
 
-    const itemsHtml = (section.items || []).map(item => `
+      const itemsHtml = (section.items || [])
+        .map(
+          item => `
       <li class="section-item">${escapeHtml(item)}</li>
-    `).join('');
+    `
+        )
+        .join('');
 
-    return `
+      return `
       <div class="section-box" style="border-top-color: ${colors.border}; background: ${colors.bg};">
         <div class="section-header">
           <div class="section-icon" style="color: ${colors.border};">${iconHtml}</div>
@@ -506,7 +538,8 @@ function buildDiagramHtml(data) {
         </ul>
       </div>
     `;
-  }).join('');
+    })
+    .join('');
 
   return `
 <!DOCTYPE html>
@@ -535,14 +568,16 @@ function buildDiagramHtml(data) {
  */
 function buildLayeredHtml(data) {
   const { title, sections = [] } = data;
-  const arrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
+  const arrowSvg =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
 
-  const layersHtml = sections.map((section, i) => {
-    const colorKey = COLOR_ORDER[i % COLOR_ORDER.length];
-    const colors = SECTION_COLORS[colorKey];
-    const iconHtml = getStyledIcon(section.icon || detectIcon(section.title), colors.border, colors.border);
+  const layersHtml = sections
+    .map((section, i) => {
+      const colorKey = COLOR_ORDER[i % COLOR_ORDER.length];
+      const colors = SECTION_COLORS[colorKey];
+      const iconHtml = getStyledIcon(section.icon || detectIcon(section.title), colors.border, colors.border);
 
-    const layerHtml = `
+      const layerHtml = `
       <div class="layer-box" style="border-left-color: ${colors.border}; background: ${colors.bg};">
         <div class="layer-icon" style="color: ${colors.border};">${iconHtml}</div>
         <div class="layer-content">
@@ -552,12 +587,13 @@ function buildLayeredHtml(data) {
       </div>
     `;
 
-    // Add arrow between layers (except after last)
-    if (i < sections.length - 1) {
-      return layerHtml + `<div class="arrow-connector">${arrowSvg}</div>`;
-    }
-    return layerHtml;
-  }).join('');
+      // Add arrow between layers (except after last)
+      if (i < sections.length - 1) {
+        return layerHtml + `<div class="arrow-connector">${arrowSvg}</div>`;
+      }
+      return layerHtml;
+    })
+    .join('');
 
   return `
 <!DOCTYPE html>
@@ -592,45 +628,58 @@ function buildCheatsheetHtml(data) {
   let titleHtml = escapeHtml(title);
   columns.forEach((col, i) => {
     const colorClass = i === 0 ? 'highlight' : i === 1 ? 'highlight-orange' : 'highlight-green';
-    titleHtml = titleHtml.replace(new RegExp(`\\b${escapeHtml(col.title)}\\b`, 'gi'),
-      `<span class="${colorClass}">${escapeHtml(col.title)}</span>`);
+    titleHtml = titleHtml.replace(
+      new RegExp(`\\b${escapeHtml(col.title)}\\b`, 'gi'),
+      `<span class="${colorClass}">${escapeHtml(col.title)}</span>`
+    );
   });
 
   // Header cells
-  const headerCellsHtml = columns.map((col, i) => {
-    const colorClass = `col-${col.color || COLOR_ORDER[i % COLOR_ORDER.length]}`;
-    const iconHtml = col.icon ? getStyledIcon(col.icon, 'white', 'white') : '';
-    return `<div class="table-header-cell ${colorClass}">${iconHtml}${escapeHtml(col.title)}</div>`;
-  }).join('');
+  const headerCellsHtml = columns
+    .map((col, i) => {
+      const colorClass = `col-${col.color || COLOR_ORDER[i % COLOR_ORDER.length]}`;
+      const iconHtml = col.icon ? getStyledIcon(col.icon, 'white', 'white') : '';
+      return `<div class="table-header-cell ${colorClass}">${iconHtml}${escapeHtml(col.title)}</div>`;
+    })
+    .join('');
 
   // Data rows
-  const rowsHtml = rows.map(row => {
-    const cellsHtml = row.values.map(val => {
-      // Format code with syntax highlighting
-      let formatted = escapeHtml(val);
-      // Highlight strings in quotes
-      formatted = formatted.replace(/"([^"]*)"/g, '<span class="code-string">"$1"</span>');
-      formatted = formatted.replace(/'([^']*)'/g, '<span class="code-string">\'$1\'</span>');
-      return `<div class="table-cell"><code>${formatted}</code></div>`;
-    }).join('');
+  const rowsHtml = rows
+    .map(row => {
+      const cellsHtml = row.values
+        .map(val => {
+          // Format code with syntax highlighting
+          let formatted = escapeHtml(val);
+          // Highlight strings in quotes
+          formatted = formatted.replace(/"([^"]*)"/g, '<span class="code-string">"$1"</span>');
+          formatted = formatted.replace(/'([^']*)'/g, '<span class="code-string">\'$1\'</span>');
+          return `<div class="table-cell"><code>${formatted}</code></div>`;
+        })
+        .join('');
 
-    return `
+      return `
       <div class="table-row">
         <div class="table-cell label-col">${escapeHtml(row.label)}</div>
         ${cellsHtml}
       </div>
     `;
-  }).join('');
+    })
+    .join('');
 
   // Footer badges
-  const footerHtml = footerLabels.length > 0 ? `
+  const footerHtml =
+    footerLabels.length > 0
+      ? `
     <div class="table-footer">
-      ${footerLabels.map((label, i) => {
-        const color = columns[i]?.color || COLOR_ORDER[i % COLOR_ORDER.length];
-        return `<div class="footer-badge ${color}">${escapeHtml(label)}</div>`;
-      }).join('')}
+      ${footerLabels
+        .map((label, i) => {
+          const color = columns[i]?.color || COLOR_ORDER[i % COLOR_ORDER.length];
+          return `<div class="footer-badge ${color}">${escapeHtml(label)}</div>`;
+        })
+        .join('')}
     </div>
-  ` : '';
+  `
+      : '';
 
   return `
 <!DOCTYPE html>
@@ -662,11 +711,7 @@ function buildCheatsheetHtml(data) {
 
 function escapeHtml(text) {
   if (!text) return '';
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 /**
@@ -688,9 +733,7 @@ async function generateCard(input) {
 async function generateDiagram(input) {
   const { title, sections = [], isLayered = false } = input;
 
-  const html = isLayered
-    ? buildLayeredHtml({ title, sections })
-    : buildDiagramHtml({ title, sections });
+  const html = isLayered ? buildLayeredHtml({ title, sections }) : buildDiagramHtml({ title, sections });
 
   return renderToBuffer(html);
 }
@@ -720,8 +763,7 @@ async function generateImage(input) {
     template: templateName
   } = input;
 
-  const isLayered = templateName === 'layered' ||
-    imageTitle.toLowerCase().includes('layer');
+  const isLayered = templateName === 'layered' || imageTitle.toLowerCase().includes('layer');
 
   if (imageType === 'cheatsheet') {
     const buffer = await generateCheatsheet({

@@ -98,10 +98,14 @@ class DalleClient {
       const latency = Date.now() - startTime;
       this.stats.failedCalls++;
 
-      this.log('Image generation failed', {
-        error: error.message,
-        latency: `${latency}ms`
-      }, 'error');
+      this.log(
+        'Image generation failed',
+        {
+          error: error.message,
+          latency: `${latency}ms`
+        },
+        'error'
+      );
 
       throw error;
     }
@@ -117,25 +121,27 @@ class DalleClient {
     this.log(`Downloading image to ${path.basename(outputPath)}...`);
 
     return new Promise((resolve, reject) => {
-      https.get(imageUrl, (response) => {
-        if (response.statusCode !== 200) {
-          reject(new Error(`Failed to download image: HTTP ${response.statusCode}`));
-          return;
-        }
-
-        const chunks = [];
-        response.on('data', (chunk) => chunks.push(chunk));
-        response.on('end', async () => {
-          try {
-            const buffer = Buffer.concat(chunks);
-            await fs.writeFile(outputPath, buffer);
-            this.log(`Image saved: ${path.basename(outputPath)}`);
-            resolve(outputPath);
-          } catch (err) {
-            reject(err);
+      https
+        .get(imageUrl, response => {
+          if (response.statusCode !== 200) {
+            reject(new Error(`Failed to download image: HTTP ${response.statusCode}`));
+            return;
           }
-        });
-      }).on('error', reject);
+
+          const chunks = [];
+          response.on('data', chunk => chunks.push(chunk));
+          response.on('end', async () => {
+            try {
+              const buffer = Buffer.concat(chunks);
+              await fs.writeFile(outputPath, buffer);
+              this.log(`Image saved: ${path.basename(outputPath)}`);
+              resolve(outputPath);
+            } catch (err) {
+              reject(err);
+            }
+          });
+        })
+        .on('error', reject);
     });
   }
 
@@ -171,10 +177,14 @@ class DalleClient {
 
       if (shouldRetry) {
         const delay = this.retryDelays[attemptNumber];
-        this.log(`Retrying in ${delay}ms (attempt ${attemptNumber + 1}/${this.retryDelays.length})...`, {
-          reason: isRateLimitError ? 'rate_limit' : 'server_error',
-          statusCode: error.statusCode
-        }, 'warn');
+        this.log(
+          `Retrying in ${delay}ms (attempt ${attemptNumber + 1}/${this.retryDelays.length})...`,
+          {
+            reason: isRateLimitError ? 'rate_limit' : 'server_error',
+            statusCode: error.statusCode
+          },
+          'warn'
+        );
 
         await this._sleep(delay);
         return this._makeRequestWithRetry(requestData, attemptNumber + 1);
@@ -198,14 +208,14 @@ class DalleClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Length': Buffer.byteLength(payload)
         }
       };
 
-      const req = https.request(options, (res) => {
+      const req = https.request(options, res => {
         let data = '';
-        res.on('data', (chunk) => data += chunk);
+        res.on('data', chunk => (data += chunk));
         res.on('end', () => {
           if (res.statusCode === 200) {
             try {
@@ -230,7 +240,7 @@ class DalleClient {
         });
       });
 
-      req.on('error', (err) => {
+      req.on('error', err => {
         reject(new Error(`Network error: ${err.message}`));
       });
 
@@ -254,11 +264,12 @@ class DalleClient {
   log(message, data = null, level = 'info') {
     if (!this.verbose && level === 'info') return;
 
-    const prefix = {
-      'info': '[DALL-E]',
-      'warn': '[DALL-E WARNING]',
-      'error': '[DALL-E ERROR]'
-    }[level] || '[DALL-E]';
+    const prefix =
+      {
+        info: '[DALL-E]',
+        warn: '[DALL-E WARNING]',
+        error: '[DALL-E ERROR]'
+      }[level] || '[DALL-E]';
 
     if (data) {
       console.log(`${prefix} ${message}`, data);
@@ -274,12 +285,12 @@ class DalleClient {
   getStats() {
     return {
       ...this.stats,
-      averageLatency: this.stats.successfulCalls > 0
-        ? Math.round(this.stats.totalLatency / this.stats.successfulCalls)
-        : 0,
-      successRate: this.stats.totalCalls > 0
-        ? ((this.stats.successfulCalls / this.stats.totalCalls) * 100).toFixed(1) + '%'
-        : 'N/A'
+      averageLatency:
+        this.stats.successfulCalls > 0 ? Math.round(this.stats.totalLatency / this.stats.successfulCalls) : 0,
+      successRate:
+        this.stats.totalCalls > 0
+          ? ((this.stats.successfulCalls / this.stats.totalCalls) * 100).toFixed(1) + '%'
+          : 'N/A'
     };
   }
 

@@ -78,7 +78,9 @@ class IllustrationCache {
     }
 
     if (!ILLUSTRATION_STYLES[theme].categories[category]) {
-      throw new Error(`Invalid category: ${category}. Valid categories: ${Object.keys(ILLUSTRATION_STYLES[theme].categories).join(', ')}`);
+      throw new Error(
+        `Invalid category: ${category}. Valid categories: ${Object.keys(ILLUSTRATION_STYLES[theme].categories).join(', ')}`
+      );
     }
 
     this.log(`Getting illustration: ${name} (${theme}/${category})`);
@@ -97,7 +99,9 @@ class IllustrationCache {
 
     // Not in cache - cannot auto-generate without prompt
     this.stats.cacheMisses++;
-    throw new Error(`Illustration not found in cache: ${name} (${theme}/${category}). Use generateIllustration() to create it.`);
+    throw new Error(
+      `Illustration not found in cache: ${name} (${theme}/${category}). Use generateIllustration() to create it.`
+    );
   }
 
   /**
@@ -358,9 +362,8 @@ class IllustrationCache {
    * @returns {Object} - Statistics object
    */
   getStats() {
-    const hitRate = this.stats.totalRequests > 0
-      ? ((this.stats.cacheHits / this.stats.totalRequests) * 100).toFixed(1) + '%'
-      : 'N/A';
+    const hitRate =
+      this.stats.totalRequests > 0 ? ((this.stats.cacheHits / this.stats.totalRequests) * 100).toFixed(1) + '%' : 'N/A';
 
     return {
       ...this.stats,
@@ -432,11 +435,12 @@ class IllustrationCache {
   log(message, data = null, level = 'info') {
     if (!this.verbose && level === 'info') return;
 
-    const prefix = {
-      'info': '[ILLUS]',
-      'warn': '[ILLUS WARNING]',
-      'error': '[ILLUS ERROR]'
-    }[level] || '[ILLUS]';
+    const prefix =
+      {
+        info: '[ILLUS]',
+        warn: '[ILLUS WARNING]',
+        error: '[ILLUS ERROR]'
+      }[level] || '[ILLUS]';
 
     if (data) {
       console.log(`${prefix} ${message}`, data);

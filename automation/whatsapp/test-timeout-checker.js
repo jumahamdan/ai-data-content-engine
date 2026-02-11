@@ -12,8 +12,13 @@ const results = [];
 const sentMessages = [];
 
 function assert(condition, label) {
-  if (condition) { passed++; results.push(`  ✓ ${label}`); }
-  else { failed++; results.push(`  ✗ ${label}`); }
+  if (condition) {
+    passed++;
+    results.push(`  ✓ ${label}`);
+  } else {
+    failed++;
+    results.push(`  ✗ ${label}`);
+  }
 }
 
 // Mock twilio-client before requiring anything that uses it

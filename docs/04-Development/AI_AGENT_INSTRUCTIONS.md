@@ -25,11 +25,13 @@ Read the relevant feature doc in docs/03-Features/
 ### 2. Branch Setup
 
 ```bash
-# Always create a new branch for each feature
-git checkout main
-git pull origin main
+# Always create a new branch from develop
+git checkout develop
+git pull origin develop
 git checkout -b feature/<feature-name>
 ```
+
+> **Note:** PRs should target `develop` unless it is a hotfix (which targets `main`).
 
 Branch naming:
 | Type     | Pattern                       | Example                          |
@@ -46,6 +48,8 @@ Work on **one task at a time**. For each task:
 2. **Implement** the task
 3. **Test** locally — run the module, check output
 4. **Check quality:**
+   - Run `cd automation && npm run lint` (must pass with zero errors)
+   - Run `cd automation && npm run format:check` (must pass)
    - No code duplication (extract shared logic if repeated 3+ times)
    - Proper error handling at system boundaries
    - No hardcoded secrets or credentials
@@ -64,7 +68,7 @@ When all tasks for the feature are complete:
    git push -u origin feature/<feature-name>
    ```
 
-2. Create a PR with this format:
+2. Create a PR **targeting `develop`** with this format:
    ```
    ## Summary
    - What was built and why
@@ -76,7 +80,7 @@ When all tasks for the feature are complete:
    - How to verify each change works
    ```
 
-3. Watch the CI run. If SonarCloud or Copilot flags issues:
+3. Watch the CI run. If lint, format, SonarCloud, or Copilot flags issues:
    - Evaluate each finding (not all are valid)
    - Fix real issues, dismiss false positives
    - Push fixes as new commits (don't amend)
@@ -153,6 +157,18 @@ Refactor: Extract shared Firestore client from publisher
 ```bash
 # Install dependencies
 cd automation && npm install
+
+# Lint code
+cd automation && npm run lint
+
+# Auto-fix lint issues
+cd automation && npm run lint:fix
+
+# Check formatting
+cd automation && npm run format:check
+
+# Auto-format code
+cd automation && npm run format
 
 # Test content generator
 node content-generator/index.js

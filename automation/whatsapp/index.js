@@ -12,14 +12,10 @@ const { sendToOwner } = require('./twilio-client');
  * @returns {Promise<object>} Twilio message object
  */
 async function sendPreview(post, imageUrl = null) {
-  const hashtags = (post.content.hashtags || []).map(h =>
-    h.startsWith('#') ? h : `#${h}`
-  ).join(' ');
+  const hashtags = (post.content.hashtags || []).map(h => (h.startsWith('#') ? h : `#${h}`)).join(' ');
 
   const caption = post.content.caption || '';
-  const previewText = caption.length > 200
-    ? caption.substring(0, 200) + '...'
-    : caption;
+  const previewText = caption.length > 200 ? caption.substring(0, 200) + '...' : caption;
 
   const body = [
     `📋 Post #${post.id} - ${post.content.imageTitle || post.content.topic}`,

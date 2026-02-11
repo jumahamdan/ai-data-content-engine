@@ -19,7 +19,8 @@ const chalkboardTheme = {
      * DALL-E prompt for generating theme background
      * Size: 1024x1024, standard quality
      */
-    dallePrompt: 'Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024',
+    dallePrompt:
+      'Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024',
 
     /**
      * Fallback color if DALL-E generation fails
@@ -71,13 +72,7 @@ const chalkboardTheme = {
     /**
      * Example subjects that work well with this theme
      */
-    examples: [
-      'café storefront',
-      'data pipeline arrows',
-      'people icons',
-      'building sketch',
-      'server rack drawing'
-    ]
+    examples: ['café storefront', 'data pipeline arrows', 'people icons', 'building sketch', 'server rack drawing']
   },
 
   /**
@@ -92,20 +87,20 @@ const chalkboardTheme = {
     '--content-width': '960px', // 1080 - (60 * 2)
 
     // Colors
-    '--bg-primary': '#2d4a3e',      // Dark green chalkboard
+    '--bg-primary': '#2d4a3e', // Dark green chalkboard
     '--bg-overlay': 'rgba(0,0,0,0.3)', // Subtle overlay for depth
-    '--text-primary': '#ffffff',     // White chalk
-    '--text-secondary': '#e8e8e8',   // Light gray chalk
-    '--text-accent': '#f4d03f',      // Yellow chalk highlight
+    '--text-primary': '#ffffff', // White chalk
+    '--text-secondary': '#e8e8e8', // Light gray chalk
+    '--text-accent': '#f4d03f', // Yellow chalk highlight
     '--border-color': 'rgba(255,255,255,0.2)', // Subtle white borders
 
     // Typography
     '--font-title': 'Permanent Marker, cursive',
     '--font-body': 'Patrick Hand, cursive',
-    '--font-size-hero': '56px',      // Main title
-    '--font-size-title': '32px',     // Section titles
-    '--font-size-body': '20px',      // Body text
-    '--font-size-small': '16px',     // Captions, metadata
+    '--font-size-hero': '56px', // Main title
+    '--font-size-title': '32px', // Section titles
+    '--font-size-body': '20px', // Body text
+    '--font-size-small': '16px', // Captions, metadata
     '--line-height-title': '1.2',
     '--line-height-body': '1.6',
 
@@ -127,13 +122,13 @@ const chalkboardTheme = {
     '--icon-spacing': '20px',
 
     // List styles
-    '--bullet-color': '#f4d03f',     // Yellow checkmarks/bullets
+    '--bullet-color': '#f4d03f', // Yellow checkmarks/bullets
     '--bullet-size': '24px',
 
     // Comparison layout
     '--column-gap': '40px',
-    '--pros-bg': 'rgba(76, 175, 80, 0.1)',   // Subtle green tint
-    '--cons-bg': 'rgba(244, 67, 54, 0.1)',   // Subtle red tint
+    '--pros-bg': 'rgba(76, 175, 80, 0.1)', // Subtle green tint
+    '--cons-bg': 'rgba(244, 67, 54, 0.1)', // Subtle red tint
     '--pros-border': '#4caf50',
     '--cons-border': '#f44336'
   },
@@ -143,13 +138,13 @@ const chalkboardTheme = {
    * Used by compositor for dynamic styling
    */
   colors: {
-    primary: '#2d4a3e',      // Chalkboard green
-    secondary: '#1a2e25',    // Darker green
-    accent: '#f4d03f',       // Yellow chalk
-    success: '#4caf50',      // Green for pros/positive
-    warning: '#ff9800',      // Orange for neutral
-    error: '#f44336',        // Red for cons/negative
-    textPrimary: '#ffffff',  // White chalk
+    primary: '#2d4a3e', // Chalkboard green
+    secondary: '#1a2e25', // Darker green
+    accent: '#f4d03f', // Yellow chalk
+    success: '#4caf50', // Green for pros/positive
+    warning: '#ff9800', // Orange for neutral
+    error: '#f44336', // Red for cons/negative
+    textPrimary: '#ffffff', // White chalk
     textSecondary: '#e8e8e8' // Light gray chalk
   },
 
@@ -158,17 +153,14 @@ const chalkboardTheme = {
    * Hints for the compositor about which layouts work best
    */
   recommendedLayouts: [
-    'comparison',  // Side-by-side works great with chalkboard
-    'single'       // Deep dive educational content
+    'comparison', // Side-by-side works great with chalkboard
+    'single' // Deep dive educational content
   ],
 
   /**
    * Google Fonts to load in templates
    */
-  googleFonts: [
-    'Permanent+Marker',
-    'Patrick+Hand'
-  ]
+  googleFonts: ['Permanent+Marker', 'Patrick+Hand']
 };
 
 module.exports = chalkboardTheme;

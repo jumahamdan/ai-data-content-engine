@@ -30,12 +30,7 @@ async function testComparison() {
       {
         title: 'Data Mesh Features',
         type: 'pros',
-        items: [
-          'Domain ownership',
-          'Data as a product',
-          'Self-serve platform',
-          'Federated governance'
-        ]
+        items: ['Domain ownership', 'Data as a product', 'Self-serve platform', 'Federated governance']
       },
       {
         title: 'Challenges',
@@ -75,11 +70,7 @@ async function testAutoSelection() {
     sections: [
       {
         title: 'What is Kafka?',
-        items: [
-          'Distributed event streaming platform',
-          'High-throughput message broker',
-          'Fault-tolerant and scalable'
-        ]
+        items: ['Distributed event streaming platform', 'High-throughput message broker', 'Fault-tolerant and scalable']
       },
       {
         title: 'Key Components',
@@ -92,12 +83,7 @@ async function testAutoSelection() {
       },
       {
         title: 'Use Cases',
-        items: [
-          'Real-time data pipelines',
-          'Event-driven microservices',
-          'Log aggregation',
-          'Stream processing'
-        ]
+        items: ['Real-time data pipelines', 'Event-driven microservices', 'Log aggregation', 'Stream processing']
       }
     ],
     insight: 'Kafka is the backbone of modern event-driven architectures.'
@@ -241,29 +227,38 @@ async function testErrorHandling() {
 
   // Test 6a: Missing title
   console.log('Test 6a: Missing title...');
-  const result1 = await generateImage({
-    sections: [{ title: 'Test', items: [] }]
-  }, { verbose: false });
+  const result1 = await generateImage(
+    {
+      sections: [{ title: 'Test', items: [] }]
+    },
+    { verbose: false }
+  );
 
   console.log('Result:', result1.success ? '✗ Should have failed' : '✓ Correctly failed');
   console.log('Error:', result1.error);
 
   // Test 6b: Invalid theme
   console.log('\nTest 6b: Invalid theme...');
-  const result2 = await generateImage({
-    title: 'Test',
-    theme: 'invalid-theme'
-  }, { verbose: false });
+  const result2 = await generateImage(
+    {
+      title: 'Test',
+      theme: 'invalid-theme'
+    },
+    { verbose: false }
+  );
 
   console.log('Result:', result2.success ? '✗ Should have failed' : '✓ Correctly failed');
   console.log('Error:', result2.error);
 
   // Test 6c: Invalid layout
   console.log('\nTest 6c: Invalid layout...');
-  const result3 = await generateImage({
-    title: 'Test',
-    layout: 'invalid-layout'
-  }, { verbose: false });
+  const result3 = await generateImage(
+    {
+      title: 'Test',
+      layout: 'invalid-layout'
+    },
+    { verbose: false }
+  );
 
   console.log('Result:', result3.success ? '✗ Should have failed' : '✓ Correctly failed');
   console.log('Error:', result3.error);
@@ -304,7 +299,9 @@ async function runAllTests() {
     console.log('\nGeneration times:');
     results.forEach((result, index) => {
       if (result.success && result.metadata) {
-        console.log(`  Test ${index + 1}: ${result.metadata.latency.total}ms (bg: ${result.metadata.latency.background}ms)`);
+        console.log(
+          `  Test ${index + 1}: ${result.metadata.latency.total}ms (bg: ${result.metadata.latency.background}ms)`
+        );
       }
     });
 

@@ -3,8 +3,8 @@ const path = require('path');
 const queue = require('./queue-manager');
 const { sendConfirmation } = require('./index');
 
-const TIMEOUT_MS = 60 * 60 * 1000;        // 60 minutes
-const CHECK_INTERVAL_MS = 5 * 60 * 1000;  // 5 minutes
+const TIMEOUT_MS = 60 * 60 * 1000; // 60 minutes
+const CHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 let intervalHandle = null;
 
@@ -41,11 +41,7 @@ async function checkTimeouts() {
       const updated = queue.getPost(post.id);
       if (updated) {
         updated.timeoutNotifiedAt = new Date().toISOString();
-        fs.writeFileSync(
-          path.join(queue.PENDING_DIR, `${post.id}.json`),
-          JSON.stringify(updated, null, 2),
-          'utf8'
-        );
+        fs.writeFileSync(path.join(queue.PENDING_DIR, `${post.id}.json`), JSON.stringify(updated, null, 2), 'utf8');
         console.log(`Timeout: Post #${post.id} timeout notification sent`);
       }
 

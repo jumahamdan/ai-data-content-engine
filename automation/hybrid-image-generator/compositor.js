@@ -63,9 +63,7 @@ async function loadTemplate(layoutName) {
     const html = await fs.readFile(templatePath, 'utf-8');
     return html;
   } catch (err) {
-    throw new Error(
-      `Template '${layoutName}' not found at ${templatePath}: ${err.message}`
-    );
+    throw new Error(`Template '${layoutName}' not found at ${templatePath}: ${err.message}`);
   }
 }
 
@@ -95,9 +93,7 @@ async function prepareTemplateData(config) {
   if (backgroundPath) {
     backgroundUrl = await fileToDataURL(backgroundPath);
     if (!backgroundUrl) {
-      console.warn(
-        '[Compositor] Background image failed to load, using fallback color'
-      );
+      console.warn('[Compositor] Background image failed to load, using fallback color');
       backgroundUrl = ''; // Will fall back to CSS background-color
     }
   }
@@ -117,7 +113,7 @@ async function prepareTemplateData(config) {
   }
 
   // Prepare base template data
-  let templateData = {
+  const templateData = {
     title,
     subtitle,
     googleFontsUrl,
@@ -130,28 +126,22 @@ async function prepareTemplateData(config) {
     // Comparison layout: left and right sections
     templateData.leftSection = sections[0] || { title: '', items: [] };
     templateData.rightSection = sections[1] || { title: '', items: [] };
-    templateData.illustration1Url =
-      illustrationUrls['left'] || illustrationUrls['illustration1'];
-    templateData.illustration2Url =
-      illustrationUrls['right'] || illustrationUrls['illustration2'];
+    templateData.illustration1Url = illustrationUrls['left'] || illustrationUrls['illustration1'];
+    templateData.illustration2Url = illustrationUrls['right'] || illustrationUrls['illustration2'];
     templateData.leftLabel = sections[0]?.label || '';
     templateData.rightLabel = sections[1]?.label || '';
-    templateData.showIllustrations = !!(
-      templateData.illustration1Url || templateData.illustration2Url
-    );
+    templateData.showIllustrations = !!(templateData.illustration1Url || templateData.illustration2Url);
   } else if (layout === 'evolution') {
     // Evolution layout: multiple stages with progression
     templateData.stages = sections.map((section, index) => ({
       ...section,
-      illustrationUrl:
-        illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot]
+      illustrationUrl: illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot]
     }));
     templateData.showArrows = sections.length > 1;
   } else if (layout === 'single') {
     // Single layout: deep dive on one topic
     templateData.sections = sections;
-    templateData.mainIllustrationUrl =
-      illustrationUrls['main'] || illustrationUrls['center'];
+    templateData.mainIllustrationUrl = illustrationUrls['main'] || illustrationUrls['center'];
     templateData.showMainIllustration = !!templateData.mainIllustrationUrl;
   }
 
@@ -218,9 +208,7 @@ async function renderToPNG(html, options = {}) {
     });
 
     if (verbose) {
-      console.log(
-        `[Compositor] Viewport set to ${CANVAS_WIDTH}x${CANVAS_HEIGHT} @ ${SCALE_FACTOR}x scale`
-      );
+      console.log(`[Compositor] Viewport set to ${CANVAS_WIDTH}x${CANVAS_HEIGHT} @ ${SCALE_FACTOR}x scale`);
     }
 
     // Set content and wait for images to load

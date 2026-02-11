@@ -4,6 +4,21 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-09 — GitHub Best Practices + CI Pipeline
+
+**Branch:** `feature/github-best-practices`
+
+### Shipped
+- Added ESLint (`eslint:recommended`) and Prettier to `automation/`
+- Added `lint`, `lint:fix`, `format`, and `format:check` npm scripts
+- Auto-fixed all existing code to pass lint and format checks
+- Created CI workflow (`.github/workflows/ci.yml`) running lint + format on PRs
+- Added PR template and issue templates (bug report, feature request)
+- Adopted Gitflow branching: `main` + `develop` + `feature/*`
+- Updated all development docs (CLAUDE.md, AI_AGENT_INSTRUCTIONS.md, coding-standards.md)
+
+---
+
 ## 2026-02-09 — Phase 4 Testing + Docs Reorganization
 
 **Branch:** `feature/github-actions-automation`
