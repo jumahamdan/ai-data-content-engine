@@ -16,8 +16,13 @@ let passed = 0;
 let failed = 0;
 
 function assert(condition, label) {
-  if (condition) { passed++; console.log(`  ✓ ${label}`); }
-  else { failed++; console.error(`  ✗ ${label}`); }
+  if (condition) {
+    passed++;
+    console.log(`  ✓ ${label}`);
+  } else {
+    failed++;
+    console.error(`  ✗ ${label}`);
+  }
 }
 
 async function main() {
@@ -30,14 +35,11 @@ async function main() {
     createdAt: new Date().toISOString(),
     status: 'approved',
     content: {
-      caption: 'The Bronze-Silver-Gold pattern transformed how we think about data quality. Here is why Medallion Architecture matters for modern data teams...',
+      caption:
+        'The Bronze-Silver-Gold pattern transformed how we think about data quality. Here is why Medallion Architecture matters for modern data teams...',
       hashtags: ['DataEngineering', 'MedallionArchitecture', 'DataLakehouse'],
       imageTitle: 'Medallion Architecture',
-      imageBullets: [
-        'Bronze: Raw ingestion layer',
-        'Silver: Cleaned and conformed',
-        'Gold: Business-ready aggregates'
-      ],
+      imageBullets: ['Bronze: Raw ingestion layer', 'Silver: Cleaned and conformed', 'Gold: Business-ready aggregates'],
       imageType: 'diagram',
       template: 'architecture',
       topic: 'Medallion Architecture'

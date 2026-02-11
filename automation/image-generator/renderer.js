@@ -36,8 +36,8 @@ async function renderToBuffer(htmlContent, options = {}) {
       waitUntil: 'networkidle0'
     });
 
-    // Wait for fonts to load
-    await page.evaluate(() => document.fonts.ready);
+    // Wait for fonts to load (runs in browser context via Puppeteer)
+    await page.evaluate(() => document.fonts.ready); // eslint-disable-line no-undef
 
     // Take screenshot
     const buffer = await page.screenshot({

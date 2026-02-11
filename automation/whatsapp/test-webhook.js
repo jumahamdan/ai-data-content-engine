@@ -63,7 +63,7 @@ require.cache[require.resolve('./index')] = {
       sentMessages.push({ type: 'confirmation', postId, action });
       return { sid: 'MOCK_SID' };
     },
-    sendPendingList: async (posts) => {
+    sendPendingList: async posts => {
       sentMessages.push({ type: 'pendingList', posts });
       return { sid: 'MOCK_SID' };
     }
@@ -79,7 +79,7 @@ let server;
 let baseUrl;
 
 function startServer() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     server = app.listen(0, () => {
       const port = server.address().port;
       baseUrl = `http://localhost:${port}`;
@@ -89,7 +89,7 @@ function startServer() {
 }
 
 function stopServer() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     if (server) server.close(resolve);
     else resolve();
   });
@@ -114,14 +114,18 @@ function sendWebhook(body, from = 'whatsapp:+15551234567', opts = {}) {
       ...(opts.extraHeaders || {})
     };
 
-    const req = http.request(url, {
-      method: 'POST',
-      headers
-    }, (res) => {
-      let responseBody = '';
-      res.on('data', chunk => responseBody += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: responseBody }));
-    });
+    const req = http.request(
+      url,
+      {
+        method: 'POST',
+        headers
+      },
+      res => {
+        let responseBody = '';
+        res.on('data', chunk => (responseBody += chunk));
+        res.on('end', () => resolve({ status: res.statusCode, body: responseBody }));
+      }
+    );
 
     req.on('error', reject);
     req.write(data);
@@ -136,11 +140,13 @@ function sendGet(urlPath) {
   return new Promise((resolve, reject) => {
     const url = new URL(urlPath, baseUrl);
 
-    http.get(url, (res) => {
-      let responseBody = '';
-      res.on('data', chunk => responseBody += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: responseBody }));
-    }).on('error', reject);
+    http
+      .get(url, res => {
+        let responseBody = '';
+        res.on('data', chunk => (responseBody += chunk));
+        res.on('end', () => resolve({ status: res.statusCode, body: responseBody }));
+      })
+      .on('error', reject);
   });
 }
 
@@ -231,7 +237,10 @@ async function runTests() {
   await wait();
   const post100 = queue.getPost('100');
   assert(post100.status === 'approved', 'Post #100 status updated to approved');
-  assert(sentMessages.some(m => m.type === 'confirmation' && m.action === 'approved'), 'Sends approval confirmation');
+  assert(
+    sentMessages.some(m => m.type === 'confirmation' && m.action === 'approved'),
+    'Sends approval confirmation'
+  );
 
   // ── Test 6: Reject command ──
   console.log('\nTest 6: Reject command (no 101)');
@@ -240,7 +249,10 @@ async function runTests() {
   await wait();
   const post101 = queue.getPost('101');
   assert(post101.status === 'rejected', 'Post #101 status updated to rejected');
-  assert(sentMessages.some(m => m.type === 'confirmation' && m.action === 'rejected'), 'Sends rejection confirmation');
+  assert(
+    sentMessages.some(m => m.type === 'confirmation' && m.action === 'rejected'),
+    'Sends rejection confirmation'
+  );
 
   // ── Test 7: Approve non-existent post ──
   console.log('\nTest 7: Approve non-existent post');
@@ -278,7 +290,10 @@ async function runTests() {
   const p101after = queue.getPost('101');
   assert(p100.status === 'approved', 'Post #100 approved');
   assert(p101after.status === 'approved', 'Post #101 approved');
-  assert(sentMessages.some(m => m.body && m.body.includes('approved')), 'Sends batch approval message');
+  assert(
+    sentMessages.some(m => m.body && m.body.includes('approved')),
+    'Sends batch approval message'
+  );
 
   // ── Test 11: Reject all ──
   console.log('\nTest 11: Reject all (no all)');
@@ -290,7 +305,10 @@ async function runTests() {
   const p101r = queue.getPost('101');
   assert(p100r.status === 'rejected', 'Post #100 rejected');
   assert(p101r.status === 'rejected', 'Post #101 rejected');
-  assert(sentMessages.some(m => m.body && m.body.includes('rejected')), 'Sends batch rejection message');
+  assert(
+    sentMessages.some(m => m.body && m.body.includes('rejected')),
+    'Sends batch rejection message'
+  );
 
   // ── Test 12: Approve all with no pending posts ──
   console.log('\nTest 12: Approve all with no pending posts');
@@ -298,7 +316,10 @@ async function runTests() {
   sentMessages.length = 0;
   await sendWebhook('yes all');
   await wait();
-  assert(sentMessages.some(m => m.body && m.body.includes('No pending')), 'Reports no pending posts');
+  assert(
+    sentMessages.some(m => m.body && m.body.includes('No pending')),
+    'Reports no pending posts'
+  );
 
   // ── Test 13: Case insensitivity ──
   console.log('\nTest 13: Case insensitivity');

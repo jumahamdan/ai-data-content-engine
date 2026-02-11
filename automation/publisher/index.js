@@ -12,10 +12,7 @@ const platforms = [linkedin];
  * @returns {Promise<object[]>} Array of approved post documents
  */
 async function getApprovedPosts() {
-  const snapshot = await db.collection(COLLECTION)
-    .where('status', '==', 'approved')
-    .orderBy('createdAt', 'asc')
-    .get();
+  const snapshot = await db.collection(COLLECTION).where('status', '==', 'approved').orderBy('createdAt', 'asc').get();
 
   return snapshot.docs.map(doc => ({ _ref: doc.ref, ...doc.data() }));
 }

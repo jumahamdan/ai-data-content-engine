@@ -58,16 +58,12 @@ function getTheme(themeName, options = {}) {
   // Strict mode: throw error
   if (strict) {
     const availableThemes = getThemeNames().join(', ');
-    throw new Error(
-      `Theme '${themeName}' not found. Available themes: ${availableThemes}`
-    );
+    throw new Error(`Theme '${themeName}' not found. Available themes: ${availableThemes}`);
   }
 
   // Fallback mode: return default theme with warning
   if (normalizedName && !THEMES[normalizedName]) {
-    console.warn(
-      `[Theme Loader] Theme '${themeName}' not found. Falling back to '${DEFAULT_THEME}'.`
-    );
+    console.warn(`[Theme Loader] Theme '${themeName}' not found. Falling back to '${DEFAULT_THEME}'.`);
   }
 
   return THEMES[DEFAULT_THEME];
@@ -99,7 +95,7 @@ function getThemeNames() {
 function isValidTheme(themeName) {
   if (!themeName) return false;
   const normalizedName = themeName.toLowerCase().trim();
-  return THEMES.hasOwnProperty(normalizedName);
+  return Object.prototype.hasOwnProperty.call(THEMES, normalizedName);
 }
 
 /**

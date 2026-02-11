@@ -45,8 +45,7 @@ function validateTwilioSignature(req, res, next) {
 
   // Build the full URL Twilio used to sign the request.
   // WEBHOOK_URL overrides auto-detection (needed behind proxies/ngrok).
-  const webhookUrl = process.env.WEBHOOK_URL
-    || `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  const webhookUrl = process.env.WEBHOOK_URL || `${req.protocol}://${req.get('host')}${req.originalUrl}`;
 
   const isValid = twilio.validateRequest(authToken, signature, webhookUrl, req.body);
   if (!isValid) {

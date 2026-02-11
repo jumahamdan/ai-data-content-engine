@@ -2,12 +2,7 @@ const twilio = require('twilio');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const REQUIRED_VARS = [
-  'TWILIO_ACCOUNT_SID',
-  'TWILIO_AUTH_TOKEN',
-  'TWILIO_WHATSAPP_FROM',
-  'WHATSAPP_TO'
-];
+const REQUIRED_VARS = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_WHATSAPP_FROM', 'WHATSAPP_TO'];
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;

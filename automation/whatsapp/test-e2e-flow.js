@@ -66,15 +66,11 @@ async function main() {
     // ── Step 1: Generate mock post content ──────────
     log('Generate mock post content');
     const mockContent = {
-      caption: 'Data mesh decentralizes ownership while keeping governance centralized. Here are the 4 principles every platform team should know...',
+      caption:
+        'Data mesh decentralizes ownership while keeping governance centralized. Here are the 4 principles every platform team should know...',
       hashtags: ['DataMesh', 'DataEngineering', 'DataGovernance'],
       imageTitle: 'Data Mesh Principles',
-      imageBullets: [
-        'Domain ownership',
-        'Data as a product',
-        'Self-serve platform',
-        'Federated governance'
-      ],
+      imageBullets: ['Domain ownership', 'Data as a product', 'Self-serve platform', 'Federated governance'],
       imageType: 'list',
       template: 'principles',
       topic: 'Data Mesh'
@@ -163,7 +159,6 @@ async function main() {
 
     const noAllCmd = parseCommand('NO ALL');
     assert(noAllCmd.valid && noAllCmd.command === 'reject_all', '"NO ALL" parsed as reject_all');
-
   } finally {
     cleanup();
   }

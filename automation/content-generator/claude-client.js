@@ -9,13 +9,13 @@ const RETRY_DELAY_MS = 2000;
 // Map topic-bank categories to prompt template filenames
 const TEMPLATE_MAP = {
   'interview-explainer': 'interview-explainer.md',
-  'interview_explainer': 'interview-explainer.md',
+  interview_explainer: 'interview-explainer.md',
   'architecture-comparison': 'architecture-comparison.md',
-  'architecture': 'architecture-comparison.md',
+  architecture: 'architecture-comparison.md',
   'optimization-story': 'optimization-story.md',
-  'optimization': 'optimization-story.md',
+  optimization: 'optimization-story.md',
   'layered-mental-model': 'layered-mental-model.md',
-  'layered': 'layered-mental-model.md'
+  layered: 'layered-mental-model.md'
 };
 
 /**
@@ -155,7 +155,9 @@ async function generateContent(topicObj) {
       }
 
       const result = parseResponse(responseText);
-      console.log(`Claude Client: Generated ${result.caption.length} char caption with ${result.hashtags.length} hashtags`);
+      console.log(
+        `Claude Client: Generated ${result.caption.length} char caption with ${result.hashtags.length} hashtags`
+      );
       return result;
     } catch (error) {
       lastError = error;

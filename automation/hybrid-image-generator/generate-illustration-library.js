@@ -150,15 +150,11 @@ async function generateLibrary(options = {}) {
         try {
           console.log(`\n    [${results.total}/${totalCount * themes.length}] Generating: ${illus.name}...`);
 
-          const result = await cache.generateIllustration(
-            illus.name,
-            illus.description,
-            {
-              theme,
-              category,
-              size: '1024x1024'
-            }
-          );
+          const result = await cache.generateIllustration(illus.name, illus.description, {
+            theme,
+            category,
+            size: '1024x1024'
+          });
 
           if (result.source === 'existing') {
             results.skipped++;

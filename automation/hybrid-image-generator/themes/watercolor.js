@@ -19,7 +19,8 @@ const watercolorTheme = {
      * DALL-E prompt for generating theme background
      * Size: 1024x1024, standard quality
      */
-    dallePrompt: 'Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024',
+    dallePrompt:
+      'Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024',
 
     /**
      * Fallback color if DALL-E generation fails
@@ -71,13 +72,7 @@ const watercolorTheme = {
     /**
      * Example subjects that work well with this theme
      */
-    examples: [
-      'warehouse building',
-      'lake with data',
-      'modern office',
-      'cloud infrastructure',
-      'data pipeline flow'
-    ]
+    examples: ['warehouse building', 'lake with data', 'modern office', 'cloud infrastructure', 'data pipeline flow']
   },
 
   /**
@@ -92,20 +87,20 @@ const watercolorTheme = {
     '--content-width': '960px', // 1080 - (60 * 2)
 
     // Colors
-    '--bg-primary': '#faf8f5',      // Cream paper
+    '--bg-primary': '#faf8f5', // Cream paper
     '--bg-overlay': 'rgba(243,239,233,0.8)', // Subtle warm overlay
-    '--text-primary': '#2c3e50',     // Dark blue-gray
-    '--text-secondary': '#34495e',   // Medium blue-gray
-    '--text-accent': '#3498db',      // Soft blue
+    '--text-primary': '#2c3e50', // Dark blue-gray
+    '--text-secondary': '#34495e', // Medium blue-gray
+    '--text-accent': '#3498db', // Soft blue
     '--border-color': 'rgba(52,73,94,0.15)', // Light border
 
     // Typography
     '--font-title': 'Playfair Display, serif',
     '--font-body': 'Open Sans, sans-serif',
-    '--font-size-hero': '52px',      // Main title
-    '--font-size-title': '30px',     // Section titles
-    '--font-size-body': '18px',      // Body text
-    '--font-size-small': '14px',     // Captions, metadata
+    '--font-size-hero': '52px', // Main title
+    '--font-size-title': '30px', // Section titles
+    '--font-size-body': '18px', // Body text
+    '--font-size-small': '14px', // Captions, metadata
     '--line-height-title': '1.3',
     '--line-height-body': '1.7',
 
@@ -117,7 +112,7 @@ const watercolorTheme = {
     '--spacing-xl': '48px',
 
     // Shadows & Effects
-    '--text-shadow': 'none',         // Clean, no shadows for watercolor
+    '--text-shadow': 'none', // Clean, no shadows for watercolor
     '--box-shadow': '0 2px 8px rgba(0,0,0,0.08)', // Subtle paper depth
 
     // Component-specific
@@ -127,13 +122,13 @@ const watercolorTheme = {
     '--icon-spacing': '24px',
 
     // List styles
-    '--bullet-color': '#3498db',     // Blue bullets/checkmarks
+    '--bullet-color': '#3498db', // Blue bullets/checkmarks
     '--bullet-size': '20px',
 
     // Comparison layout
     '--column-gap': '48px',
-    '--pros-bg': 'rgba(46,204,113,0.08)',   // Very subtle green wash
-    '--cons-bg': 'rgba(231,76,60,0.08)',    // Very subtle red wash
+    '--pros-bg': 'rgba(46,204,113,0.08)', // Very subtle green wash
+    '--cons-bg': 'rgba(231,76,60,0.08)', // Very subtle red wash
     '--pros-border': '#2ecc71',
     '--cons-border': '#e74c3c'
   },
@@ -143,13 +138,13 @@ const watercolorTheme = {
    * Used by compositor for dynamic styling
    */
   colors: {
-    primary: '#faf8f5',      // Cream paper
-    secondary: '#f3efe9',    // Slightly darker cream
-    accent: '#3498db',       // Soft blue
-    success: '#2ecc71',      // Watercolor green for pros
-    warning: '#f39c12',      // Warm orange for neutral
-    error: '#e74c3c',        // Soft red for cons
-    textPrimary: '#2c3e50',  // Dark blue-gray
+    primary: '#faf8f5', // Cream paper
+    secondary: '#f3efe9', // Slightly darker cream
+    accent: '#3498db', // Soft blue
+    success: '#2ecc71', // Watercolor green for pros
+    warning: '#f39c12', // Warm orange for neutral
+    error: '#e74c3c', // Soft red for cons
+    textPrimary: '#2c3e50', // Dark blue-gray
     textSecondary: '#34495e' // Medium blue-gray
   },
 
@@ -158,18 +153,15 @@ const watercolorTheme = {
    * Hints for the compositor about which layouts work best
    */
   recommendedLayouts: [
-    'evolution',   // Horizontal flow works beautifully with watercolor
-    'comparison',  // Professional side-by-side
-    'single'       // Storytelling deep dives
+    'evolution', // Horizontal flow works beautifully with watercolor
+    'comparison', // Professional side-by-side
+    'single' // Storytelling deep dives
   ],
 
   /**
    * Google Fonts to load in templates
    */
-  googleFonts: [
-    'Playfair+Display:wght@400;700',
-    'Open+Sans:wght@400;600'
-  ]
+  googleFonts: ['Playfair+Display:wght@400;700', 'Open+Sans:wght@400;600']
 };
 
 module.exports = watercolorTheme;

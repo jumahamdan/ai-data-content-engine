@@ -7,10 +7,10 @@ const MAX_HISTORY = 10; // Number of recent topics to avoid repeating
 
 // Map topic-bank category keys to template names used by claude-client
 const CATEGORY_TO_TEMPLATE = {
-  'interview_explainer': 'interview-explainer',
-  'architecture': 'architecture-comparison',
-  'optimization': 'optimization-story',
-  'layered': 'layered-mental-model'
+  interview_explainer: 'interview-explainer',
+  architecture: 'architecture-comparison',
+  optimization: 'optimization-story',
+  layered: 'layered-mental-model'
 };
 
 /**

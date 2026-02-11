@@ -15,9 +15,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 async function postToLinkedIn(postData) {
   const content = postData.content || {};
   const caption = content.caption || '';
-  const hashtags = (content.hashtags || [])
-    .map(h => h.startsWith('#') ? h : `#${h}`)
-    .join(' ');
+  const hashtags = (content.hashtags || []).map(h => (h.startsWith('#') ? h : `#${h}`)).join(' ');
 
   console.log('─'.repeat(50));
   console.log(`LinkedIn Poster: Publishing post #${postData.id}`);

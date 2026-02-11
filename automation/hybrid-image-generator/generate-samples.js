@@ -31,22 +31,12 @@ const SAMPLE_CONTENT = {
       {
         title: 'Data Mesh Features',
         type: 'pros',
-        items: [
-          'Domain ownership',
-          'Data as a product',
-          'Self-serve platform',
-          'Federated governance'
-        ]
+        items: ['Domain ownership', 'Data as a product', 'Self-serve platform', 'Federated governance']
       },
       {
         title: 'Challenges',
         type: 'cons',
-        items: [
-          'Organizational change',
-          'Governance complexity',
-          'Higher upfront effort',
-          'Team coordination'
-        ]
+        items: ['Organizational change', 'Governance complexity', 'Higher upfront effort', 'Team coordination']
       }
     ],
     insight: 'Data Mesh turns data engineering from a service desk into product engineering.'
@@ -59,32 +49,17 @@ const SAMPLE_CONTENT = {
       {
         title: 'Traditional Database',
         label: 'Stage 1',
-        items: [
-          'Monolithic architecture',
-          'ACID guarantees',
-          'Limited scalability',
-          'Single point of failure'
-        ]
+        items: ['Monolithic architecture', 'ACID guarantees', 'Limited scalability', 'Single point of failure']
       },
       {
         title: 'Data Warehouse',
         label: 'Stage 2',
-        items: [
-          'Centralized analytics',
-          'ETL pipelines',
-          'Better reporting',
-          'Still complex to scale'
-        ]
+        items: ['Centralized analytics', 'ETL pipelines', 'Better reporting', 'Still complex to scale']
       },
       {
         title: 'Data Lakehouse',
         label: 'Stage 3',
-        items: [
-          'Unified storage layer',
-          'Schema flexibility',
-          'Cloud-native scale',
-          'Modern data stack'
-        ]
+        items: ['Unified storage layer', 'Schema flexibility', 'Cloud-native scale', 'Modern data stack']
       }
     ],
     insight: 'Each evolution addressed the limitations of the previous generation.'
@@ -274,13 +249,14 @@ async function generateFilteredSamples(filterTheme = null, filterLayout = null) 
 }
 
 // CLI handling
-const args = process.argv.slice(2);
+(async () => {
+  const args = process.argv.slice(2);
 
-if (args.length === 0) {
-  // Generate all samples
-  await generateAllSamples();
-} else if (args[0] === '--help' || args[0] === '-h') {
-  console.log(`
+  if (args.length === 0) {
+    // Generate all samples
+    await generateAllSamples();
+  } else if (args[0] === '--help' || args[0] === '-h') {
+    console.log(`
 Usage: node generate-samples.js [options]
 
 Options:
@@ -295,12 +271,13 @@ Examples:
   node generate-samples.js --layout comparison
   node generate-samples.js --theme watercolor --layout evolution
 `);
-} else {
-  // Parse filters using indexOf
-  const themeIdx = args.indexOf('--theme');
-  const layoutIdx = args.indexOf('--layout');
-  const filterTheme = themeIdx !== -1 && args[themeIdx + 1] ? args[themeIdx + 1] : null;
-  const filterLayout = layoutIdx !== -1 && args[layoutIdx + 1] ? args[layoutIdx + 1] : null;
+  } else {
+    // Parse filters using indexOf
+    const themeIdx = args.indexOf('--theme');
+    const layoutIdx = args.indexOf('--layout');
+    const filterTheme = themeIdx !== -1 && args[themeIdx + 1] ? args[themeIdx + 1] : null;
+    const filterLayout = layoutIdx !== -1 && args[layoutIdx + 1] ? args[layoutIdx + 1] : null;
 
-  await generateFilteredSamples(filterTheme, filterLayout);
-}
+    await generateFilteredSamples(filterTheme, filterLayout);
+  }
+})();

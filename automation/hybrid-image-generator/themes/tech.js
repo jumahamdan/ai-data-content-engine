@@ -19,7 +19,8 @@ const techTheme = {
      * DALL-E prompt for generating theme background
      * Size: 1024x1024, standard quality
      */
-    dallePrompt: 'Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024',
+    dallePrompt:
+      'Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024',
 
     /**
      * Fallback color if DALL-E generation fails
@@ -71,13 +72,7 @@ const techTheme = {
     /**
      * Example subjects that work well with this theme
      */
-    examples: [
-      'database cylinder',
-      'cloud servers',
-      'neural network',
-      'API gateway',
-      'microservices architecture'
-    ]
+    examples: ['database cylinder', 'cloud servers', 'neural network', 'API gateway', 'microservices architecture']
   },
 
   /**
@@ -92,21 +87,21 @@ const techTheme = {
     '--content-width': '960px', // 1080 - (60 * 2)
 
     // Colors
-    '--bg-primary': '#1a1a2e',      // Deep dark blue
-    '--bg-secondary': '#16213e',    // Slightly lighter dark blue
+    '--bg-primary': '#1a1a2e', // Deep dark blue
+    '--bg-secondary': '#16213e', // Slightly lighter dark blue
     '--bg-overlay': 'linear-gradient(135deg, rgba(26,26,46,0.9) 0%, rgba(46,16,78,0.9) 100%)', // Purple gradient overlay
-    '--text-primary': '#ffffff',     // Bright white
-    '--text-secondary': '#b8b8b8',   // Light gray
-    '--text-accent': '#00d4aa',      // Neon teal
+    '--text-primary': '#ffffff', // Bright white
+    '--text-secondary': '#b8b8b8', // Light gray
+    '--text-accent': '#00d4aa', // Neon teal
     '--border-color': 'rgba(0,212,170,0.3)', // Glowing teal border
 
     // Typography
     '--font-title': 'Inter, sans-serif',
     '--font-body': 'Inter, sans-serif',
-    '--font-size-hero': '54px',      // Main title
-    '--font-size-title': '32px',     // Section titles
-    '--font-size-body': '19px',      // Body text
-    '--font-size-small': '15px',     // Captions, metadata
+    '--font-size-hero': '54px', // Main title
+    '--font-size-title': '32px', // Section titles
+    '--font-size-body': '19px', // Body text
+    '--font-size-small': '15px', // Captions, metadata
     '--line-height-title': '1.2',
     '--line-height-body': '1.6',
     '--font-weight-title': '700',
@@ -131,13 +126,13 @@ const techTheme = {
     '--icon-spacing': '20px',
 
     // List styles
-    '--bullet-color': '#00d4aa',     // Neon teal bullets
+    '--bullet-color': '#00d4aa', // Neon teal bullets
     '--bullet-size': '22px',
 
     // Comparison layout
     '--column-gap': '40px',
-    '--pros-bg': 'rgba(0,212,170,0.08)',   // Subtle teal tint
-    '--cons-bg': 'rgba(255,71,87,0.08)',   // Subtle red tint
+    '--pros-bg': 'rgba(0,212,170,0.08)', // Subtle teal tint
+    '--cons-bg': 'rgba(255,71,87,0.08)', // Subtle red tint
     '--pros-border': '#00d4aa',
     '--cons-border': '#ff4757',
 
@@ -152,16 +147,16 @@ const techTheme = {
    * Used by compositor for dynamic styling
    */
   colors: {
-    primary: '#1a1a2e',      // Deep dark blue
-    secondary: '#16213e',    // Dark blue
-    accent: '#00d4aa',       // Neon teal
-    success: '#00d4aa',      // Teal for pros/success
-    warning: '#ffa502',      // Bright orange for warnings
-    error: '#ff4757',        // Neon red for cons/errors
-    textPrimary: '#ffffff',  // Bright white
+    primary: '#1a1a2e', // Deep dark blue
+    secondary: '#16213e', // Dark blue
+    accent: '#00d4aa', // Neon teal
+    success: '#00d4aa', // Teal for pros/success
+    warning: '#ffa502', // Bright orange for warnings
+    error: '#ff4757', // Neon red for cons/errors
+    textPrimary: '#ffffff', // Bright white
     textSecondary: '#b8b8b8', // Light gray
-    neonPurple: '#a537fd',   // Optional neon purple accent
-    neonBlue: '#5f27cd'      // Optional neon blue accent
+    neonPurple: '#a537fd', // Optional neon purple accent
+    neonBlue: '#5f27cd' // Optional neon blue accent
   },
 
   /**
@@ -169,17 +164,15 @@ const techTheme = {
    * Hints for the compositor about which layouts work best
    */
   recommendedLayouts: [
-    'single',      // Great for deep technical dives
-    'comparison',  // Side-by-side tech comparisons
-    'evolution'    // Technology evolution flows
+    'single', // Great for deep technical dives
+    'comparison', // Side-by-side tech comparisons
+    'evolution' // Technology evolution flows
   ],
 
   /**
    * Google Fonts to load in templates
    */
-  googleFonts: [
-    'Inter:wght@400;600;700'
-  ]
+  googleFonts: ['Inter:wght@400;600;700']
 };
 
 module.exports = techTheme;

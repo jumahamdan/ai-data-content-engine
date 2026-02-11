@@ -18,17 +18,20 @@ const { createDalleClient } = require('./dalle-client');
 const THEMES = {
   chalkboard: {
     name: 'chalkboard',
-    dallePrompt: 'Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024',
+    dallePrompt:
+      'Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024',
     fallbackColor: '#2d4a3e'
   },
   watercolor: {
     name: 'watercolor',
-    dallePrompt: 'Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024',
+    dallePrompt:
+      'Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024',
     fallbackColor: '#faf8f5'
   },
   tech: {
     name: 'tech',
-    dallePrompt: 'Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024',
+    dallePrompt:
+      'Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024',
     fallbackColor: '#1a1a2e'
   }
 };
@@ -133,7 +136,11 @@ class BackgroundGenerator {
         } catch (error) {
           results.failed++;
           results.themes[theme].failed++;
-          this.log(`Failed to generate background ${i + 1}/${countPerTheme} for ${theme}: ${error.message}`, null, 'error');
+          this.log(
+            `Failed to generate background ${i + 1}/${countPerTheme} for ${theme}: ${error.message}`,
+            null,
+            'error'
+          );
         }
       }
     }
@@ -246,9 +253,8 @@ class BackgroundGenerator {
    * @returns {Object} - Statistics object
    */
   getStats() {
-    const hitRate = this.stats.totalRequests > 0
-      ? ((this.stats.cacheHits / this.stats.totalRequests) * 100).toFixed(1) + '%'
-      : 'N/A';
+    const hitRate =
+      this.stats.totalRequests > 0 ? ((this.stats.cacheHits / this.stats.totalRequests) * 100).toFixed(1) + '%' : 'N/A';
 
     return {
       ...this.stats,
@@ -310,10 +316,7 @@ class BackgroundGenerator {
       const outputPath = path.join(themeDir, filename);
 
       // Generate via DALL-E
-      const result = await this.dalleClient.generateAndDownload(
-        themeConfig.dallePrompt,
-        outputPath
-      );
+      const result = await this.dalleClient.generateAndDownload(themeConfig.dallePrompt, outputPath);
 
       this.stats.generated++;
       const latency = Date.now() - startTime;
@@ -345,11 +348,12 @@ class BackgroundGenerator {
   log(message, data = null, level = 'info') {
     if (!this.verbose && level === 'info') return;
 
-    const prefix = {
-      'info': '[BG-GEN]',
-      'warn': '[BG-GEN WARNING]',
-      'error': '[BG-GEN ERROR]'
-    }[level] || '[BG-GEN]';
+    const prefix =
+      {
+        info: '[BG-GEN]',
+        warn: '[BG-GEN WARNING]',
+        error: '[BG-GEN ERROR]'
+      }[level] || '[BG-GEN]';
 
     if (data) {
       console.log(`${prefix} ${message}`, data);

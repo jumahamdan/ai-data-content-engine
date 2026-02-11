@@ -8,10 +8,10 @@ const { generateImageToFile, generateImage, detectIcon, SECTION_COLORS } = requi
 
 // Template to image type mapping
 const TEMPLATE_TO_IMAGE_TYPE = {
-  'interview_explainer': 'card',
-  'optimization': 'card',
-  'architecture': 'diagram',
-  'layered': 'diagram'
+  interview_explainer: 'card',
+  optimization: 'card',
+  architecture: 'diagram',
+  layered: 'diagram'
 };
 
 /**
@@ -71,13 +71,7 @@ function bulletsToSections(bullets, template, title) {
  * @returns {Promise<{imagePath: string, imageType: string, buffer: Buffer}>}
  */
 async function generateFromWorkflow(content, options = {}) {
-  const {
-    imageTitle,
-    imageBullets = [],
-    imageType: explicitType,
-    imageSections,
-    template
-  } = content;
+  const { imageTitle, imageBullets = [], imageType: explicitType, imageSections, template } = content;
 
   const {
     outputDir = path.join(__dirname, '..', 'test-outputs'),
@@ -93,7 +87,8 @@ async function generateFromWorkflow(content, options = {}) {
     imageType,
     imageTitle: imageTitle || 'Untitled',
     imageBullets,
-    imageSections: imageSections || (imageType === 'diagram' ? bulletsToSections(imageBullets, template, imageTitle) : []),
+    imageSections:
+      imageSections || (imageType === 'diagram' ? bulletsToSections(imageBullets, template, imageTitle) : []),
     template,
     theme
   };
@@ -119,13 +114,7 @@ async function generateFromWorkflow(content, options = {}) {
  * @returns {Promise<{buffer: Buffer, imageType: string}>}
  */
 async function generateBufferFromWorkflow(content, options = {}) {
-  const {
-    imageTitle,
-    imageBullets = [],
-    imageType: explicitType,
-    imageSections,
-    template
-  } = content;
+  const { imageTitle, imageBullets = [], imageType: explicitType, imageSections, template } = content;
 
   const { theme = 'light' } = options;
 
@@ -135,7 +124,8 @@ async function generateBufferFromWorkflow(content, options = {}) {
     imageType,
     imageTitle: imageTitle || 'Untitled',
     imageBullets,
-    imageSections: imageSections || (imageType === 'diagram' ? bulletsToSections(imageBullets, template, imageTitle) : []),
+    imageSections:
+      imageSections || (imageType === 'diagram' ? bulletsToSections(imageBullets, template, imageTitle) : []),
     template,
     theme
   };

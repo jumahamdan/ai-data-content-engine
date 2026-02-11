@@ -46,7 +46,10 @@ async function main() {
     validateEnv();
     pass('All required variables set');
   } catch (error) {
-    fail(error.message, 'Check automation/.env has TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM, WHATSAPP_TO');
+    fail(
+      error.message,
+      'Check automation/.env has TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM, WHATSAPP_TO'
+    );
   }
 
   // ── 2. Twilio credentials ────────────────────────
@@ -109,14 +112,19 @@ async function main() {
 
     // Hit the /health endpoint
     const health = await new Promise((resolve, reject) => {
-      http.get(`http://localhost:${TEST_PORT}/health`, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          try { resolve(JSON.parse(data)); }
-          catch (e) { reject(new Error('Invalid health response')); }
-        });
-      }).on('error', reject);
+      http
+        .get(`http://localhost:${TEST_PORT}/health`, res => {
+          let data = '';
+          res.on('data', chunk => (data += chunk));
+          res.on('end', () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (e) {
+              reject(new Error('Invalid health response'));
+            }
+          });
+        })
+        .on('error', reject);
     });
 
     if (health.status === 'ok') {
@@ -128,7 +136,10 @@ async function main() {
     server.close();
     pass('Webhook handler shut down cleanly');
   } catch (error) {
-    fail(`Webhook handler error: ${error.message}`, 'Check that express is installed and webhook-handler.js has no syntax errors.');
+    fail(
+      `Webhook handler error: ${error.message}`,
+      'Check that express is installed and webhook-handler.js has no syntax errors.'
+    );
   }
 
   // ── 6. Timeout checker ────────────────────────────

@@ -103,7 +103,10 @@ const sampleCheatsheet = {
     { label: 'Read Data', values: ['SELECT * FROM table', 'pd.read_csv("file.csv")', 'spark.read.csv("file")'] },
     { label: 'Select Cols', values: ['SELECT col1, col2', 'df[["col1", "col2"]]', 'df.select("col1", "col2")'] },
     { label: 'Filter Rows', values: ['WHERE age > 30', 'df[df.age > 30]', 'df.filter(df.age > 30)'] },
-    { label: 'Add Column', values: ['SELECT *, a+b AS total', 'df["total"] = df.a + df.b', 'df.withColumn("total", df.a+df.b)'] },
+    {
+      label: 'Add Column',
+      values: ['SELECT *, a+b AS total', 'df["total"] = df.a + df.b', 'df.withColumn("total", df.a+df.b)']
+    },
     { label: 'Group By', values: ['GROUP BY dept', 'df.groupby("dept")', 'df.groupBy("dept")'] },
     { label: 'Aggregation', values: ['COUNT(*), SUM(sal)', 'agg({"sal": "sum"})', 'agg(sum("sal"))'] },
     { label: 'Join Tables', values: ['FROM a JOIN b ON id', 'df1.merge(df2, on="id")', 'df1.join(df2, "id")'] },
@@ -116,7 +119,7 @@ const sampleCheatsheet = {
 
 async function runTests() {
   console.log('LinkedIn Image Generator - Test Suite\n');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   const tests = [
     { name: 'card-interview', data: sampleCard },

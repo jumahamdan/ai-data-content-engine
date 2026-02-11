@@ -178,15 +178,11 @@ async function testRealGeneration() {
 
   try {
     console.log('   Generating test illustration...');
-    const result = await cache.generateIllustration(
-      'test-warehouse',
-      'simple data warehouse building',
-      {
-        theme: 'watercolor',
-        category: 'building',
-        size: '1024x1024'
-      }
-    );
+    const result = await cache.generateIllustration('test-warehouse', 'simple data warehouse building', {
+      theme: 'watercolor',
+      category: 'building',
+      size: '1024x1024'
+    });
 
     console.log('✅ Real illustration generation successful');
     console.log('   Name:', result.metadata.name);

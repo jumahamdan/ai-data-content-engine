@@ -48,12 +48,12 @@ function autoSelectTheme(contentData) {
 
   // Priority 2: Mood-based mapping
   const moodMap = {
-    'educational': 'chalkboard',
-    'professional': 'watercolor',
-    'technical': 'tech',
-    'modern': 'tech',
-    'traditional': 'watercolor',
-    'casual': 'chalkboard'
+    educational: 'chalkboard',
+    professional: 'watercolor',
+    technical: 'tech',
+    modern: 'tech',
+    traditional: 'watercolor',
+    casual: 'chalkboard'
   };
 
   if (imageMood && moodMap[imageMood.toLowerCase()]) {
@@ -100,11 +100,13 @@ function autoSelectLayout(contentData) {
   }
 
   // Check if sections have comparison indicators (pros/cons)
-  const hasComparison = sections.some(s =>
-    s.type === 'pros' || s.type === 'cons' ||
-    s.title?.toLowerCase().includes('vs') ||
-    s.title?.toLowerCase().includes('features') ||
-    s.title?.toLowerCase().includes('challenges')
+  const hasComparison = sections.some(
+    s =>
+      s.type === 'pros' ||
+      s.type === 'cons' ||
+      s.title?.toLowerCase().includes('vs') ||
+      s.title?.toLowerCase().includes('features') ||
+      s.title?.toLowerCase().includes('challenges')
   );
 
   if (hasComparison && sections.length <= 2) {
@@ -112,10 +114,11 @@ function autoSelectLayout(contentData) {
   }
 
   // Check for evolution/progression indicators
-  const hasProgression = sections.some(s =>
-    s.title?.toLowerCase().includes('stage') ||
-    s.title?.toLowerCase().includes('phase') ||
-    s.title?.toLowerCase().includes('step')
+  const hasProgression = sections.some(
+    s =>
+      s.title?.toLowerCase().includes('stage') ||
+      s.title?.toLowerCase().includes('phase') ||
+      s.title?.toLowerCase().includes('step')
   );
 
   if (hasProgression && sections.length >= 2) {
@@ -202,11 +205,7 @@ async function resolveIllustrations(contentData, theme, illustrationCache) {
 
       // If name is provided, lookup in cache
       if (illus.name) {
-        const cached = await illustrationCache.getIllustration(
-          illus.name,
-          theme,
-          illus.category || 'icon'
-        );
+        const cached = await illustrationCache.getIllustration(illus.name, theme, illus.category || 'icon');
 
         resolvedIllustrations.push({
           slot: illus.slot || 'main',
@@ -390,10 +389,7 @@ async function generateImage(contentData, options = {}) {
  * );
  */
 async function quickGenerate(title, sections, outputPath) {
-  return generateImage(
-    { title, sections },
-    { outputPath, verbose: true }
-  );
+  return generateImage({ title, sections }, { outputPath, verbose: true });
 }
 
 /**
@@ -431,7 +427,7 @@ async function batchGenerate(contentDataArray, options = {}) {
     const result = await generateImage(contentData, {
       ...options,
       backgroundGenerator, // Reuse instance for caching
-      illustrationCache,   // Reuse instance for caching
+      illustrationCache, // Reuse instance for caching
       outputPath: contentData.outputPath
     });
 
