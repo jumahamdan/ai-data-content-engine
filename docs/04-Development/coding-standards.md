@@ -159,8 +159,8 @@ Fix: Handle timeout edge case in approval flow
 
 ### Before PR
 - All tasks complete and checked off
-- `npm run lint` passes with zero errors
-- `npm run format:check` passes
+- `cd automation && npm run lint` passes with zero errors
+- `cd automation && npm run format:check` passes
 - Tests passing
 - No uncommitted changes
 - Feature doc status updated to ✅ Complete
@@ -170,13 +170,13 @@ Fix: Handle timeout edge case in approval flow
 **`main`:**
 - Require PR before merging (no direct pushes)
 - Require at least 1 approval
-- Require CI status checks to pass (`lint-and-format`)
+- Require CI status checks to pass (`Lint & Format Check`)
 - Require branch to be up to date before merging
 - No force pushes, no deletions
 
 **`develop`:**
 - Require PR before merging
-- Require CI status checks to pass (`lint-and-format`)
+- Require CI status checks to pass (`Lint & Format Check`)
 
 ---
 

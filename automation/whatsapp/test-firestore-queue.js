@@ -41,6 +41,7 @@ console.log('🔥 Testing Firestore Queue...\n');
   } catch (err) {
     console.error('❌ Error:', err.message);
     console.error(err);
+    process.exit(1);
   }
 
   process.exit(0);

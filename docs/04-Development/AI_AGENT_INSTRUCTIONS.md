@@ -48,8 +48,8 @@ Work on **one task at a time**. For each task:
 2. **Implement** the task
 3. **Test** locally — run the module, check output
 4. **Check quality:**
-   - Run `npm run lint` (must pass with zero errors)
-   - Run `npm run format:check` (must pass)
+   - Run `cd automation && npm run lint` (must pass with zero errors)
+   - Run `cd automation && npm run format:check` (must pass)
    - No code duplication (extract shared logic if repeated 3+ times)
    - Proper error handling at system boundaries
    - No hardcoded secrets or credentials
