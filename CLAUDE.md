@@ -19,6 +19,9 @@ I want to [what] because [why].
 - **Notifications:** Twilio WhatsApp
 - **Images:** DALL-E 3 + Puppeteer compositor
 - **Publishing:** LinkedIn API (MVP: stub logging)
+- **Linting:** ESLint 8 (`eslint:recommended`)
+- **Formatting:** Prettier 3
+- **CI:** GitHub Actions (lint + format check on PRs)
 
 ## Project Map
 
@@ -29,12 +32,21 @@ automation/
   whatsapp/             Firestore queue + Twilio client
   whatsapp-function/    Deployed Twilio webhook (cloud function)
   image-generator/      Puppeteer-based image generation
+  .eslintrc.json        ESLint configuration
+  .prettierrc.json      Prettier configuration
+  .prettierignore       Files excluded from formatting
   .env                  Local secrets (gitignored)
   package.json          All Node.js dependencies
 
-.github/workflows/
-  generate-content.yml  Content generation workflow (cron disabled, manual dispatch)
-  publish-content.yml   Publishing workflow (cron disabled, manual dispatch)
+.github/
+  workflows/
+    generate-content.yml  Content generation workflow (cron disabled, manual dispatch)
+    publish-content.yml   Publishing workflow (cron disabled, manual dispatch)
+    ci.yml                CI checks (lint + format) on PRs
+  PULL_REQUEST_TEMPLATE.md
+  ISSUE_TEMPLATE/
+    bug_report.yml
+    feature_request.yml
 
 config/                 Firebase service account (gitignored)
 content-spec/           tone.md, post-templates.md — voice and structure rules
@@ -70,6 +82,7 @@ topics/                 topic-bank.json — topic rotation bank
 | GitHub Actions Workflows | Done (cron disabled) | `docs/03-Features/github-actions-workflow.md` |
 | WhatsApp Approval | Complete | `docs/03-Features/whatsapp-approval.md` |
 | Hybrid Image Generator | Phases 1-5 done | `docs/03-Features/hybrid-image-generator.md` |
+| CI + Linting | Done | `.github/workflows/ci.yml` |
 | Comment Replies | Planned | `docs/03-Features/comment-replies.md` |
 
 ## GitHub Secrets (CI/CD)
@@ -83,3 +96,5 @@ topics/                 topic-bank.json — topic rotation bank
 - **Prompt templates:** Mustache files in `prompts/` keyed by topic category
 - **Error handling:** Retry with exponential backoff for external APIs; log + continue for non-critical failures
 - **MVP approach:** LinkedIn posting is stubbed (console log) until OAuth is configured
+- **Branching:** Gitflow — features branch from `develop`, merge to `develop` via PR, `develop` merges to `main` for releases
+- **CI checks:** ESLint + Prettier run on all PRs to `develop` and `main`

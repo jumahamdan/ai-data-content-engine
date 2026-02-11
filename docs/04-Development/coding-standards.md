@@ -113,14 +113,39 @@ GitHub Actions → Claude API → Firestore → WhatsApp → LinkedIn
 
 ---
 
+## Linting & Formatting
+
+### ESLint
+- Config: `automation/.eslintrc.json`
+- Run: `cd automation && npm run lint`
+- Auto-fix: `cd automation && npm run lint:fix`
+- All code must pass lint with zero errors before committing
+
+### Prettier
+- Config: `automation/.prettierrc.json`
+- Run check: `cd automation && npm run format:check`
+- Auto-format: `cd automation && npm run format`
+- Style: single quotes, no trailing commas, 2-space indent, 120 char line width, semicolons
+
+---
+
 ## Git Workflow
 
-### Branch Naming
-```
-feature/<feature-name>      # New features
-fix/<issue-description>     # Bug fixes
-refactor/<area>             # Code improvements
-```
+### Branch Model (Gitflow)
+
+- `main` — production releases only. Protected branch.
+- `develop` — integration branch. All feature PRs target this.
+- `feature/<name>` — feature branches, created from `develop`
+- `fix/<name>` — bug fixes, created from `develop` (or `main` for hotfixes)
+- `refactor/<name>` — code improvements, created from `develop`
+
+### Workflow
+1. Create feature branch from `develop`
+2. Develop, commit with `Task X.X:` format
+3. Push and create PR targeting `develop`
+4. CI runs lint + format checks automatically
+5. After review and CI pass, merge to `develop`
+6. Periodically, `develop` is merged to `main` for releases
 
 ### Commit Messages
 ```
@@ -134,9 +159,24 @@ Fix: Handle timeout edge case in approval flow
 
 ### Before PR
 - All tasks complete and checked off
+- `npm run lint` passes with zero errors
+- `npm run format:check` passes
 - Tests passing
 - No uncommitted changes
 - Feature doc status updated to ✅ Complete
+
+### Branch Protection (configured in GitHub UI)
+
+**`main`:**
+- Require PR before merging (no direct pushes)
+- Require at least 1 approval
+- Require CI status checks to pass (`lint-and-format`)
+- Require branch to be up to date before merging
+- No force pushes, no deletions
+
+**`develop`:**
+- Require PR before merging
+- Require CI status checks to pass (`lint-and-format`)
 
 ---
 
