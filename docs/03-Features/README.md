@@ -4,13 +4,13 @@ Each feature in this project has its own doc in this folder. Feature docs are th
 
 ## Feature Docs
 
-| Feature | Status | Doc |
-|---------|--------|-----|
-| GitHub Actions Workflow | Done | [github-actions-workflow.md](github-actions-workflow.md) |
-| WhatsApp Approval | Complete | [whatsapp-approval.md](whatsapp-approval.md) |
-| Hybrid Image Generator | Phases 1-5 done | [hybrid-image-generator.md](hybrid-image-generator.md) |
-| Image Generator (summary) | Done | [image-generator.md](image-generator.md) |
-| Comment Replies | Planned | [comment-replies.md](comment-replies.md) |
+| Feature | Doc |
+|---------|-----|
+| GitHub Actions Workflow | [github-actions-workflow.md](github-actions-workflow.md) |
+| WhatsApp Approval | [whatsapp-approval.md](whatsapp-approval.md) |
+| Hybrid Image Generator | [hybrid-image-generator.md](hybrid-image-generator.md) |
+| Image Generator (summary) | [image-generator.md](image-generator.md) |
+| Comment Replies | [comment-replies.md](comment-replies.md) |
 
 ## Creating a New Feature Doc
 

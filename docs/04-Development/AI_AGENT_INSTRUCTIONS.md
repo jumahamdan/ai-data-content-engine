@@ -123,9 +123,9 @@ For tasks scoring 2+. Uses the GSD (Get Shit Done) workflow system with this pro
 
 ### GSD Step-by-Step
 
-#### Step 1: Map Codebase (one-time per project)
+#### Step 1: Map Codebase (one-time per local working copy)
 
-The agent runs `/gsd:map-codebase` to analyze the project structure. This only needs to happen once — results persist in `.planning/codebase/`.
+The agent runs `/gsd:map-codebase` to analyze the project structure. This only needs to happen once per local clone — results persist in `.planning/codebase/` for that working copy (fresh clones or new machines will need to re-run this).
 
 #### Step 2: Create Milestone
 
@@ -232,7 +232,7 @@ cd automation && npm run lint:fix    # auto-fix what's possible
 - Config: [automation/.eslintrc.json](../../automation/.eslintrc.json)
 - Extends `eslint:recommended`
 - Key rules: `no-var` (error), `prefer-const` (warn), `eqeqeq` (error), `no-throw-literal` (error)
-- Unused vars with `_` prefix are allowed
+- Unused function parameters with `_` prefix are allowed (via `argsIgnorePattern: '^_'`)
 
 ### Formatting (Prettier 3)
 ```bash
@@ -338,7 +338,7 @@ cd automation && npm run lint:fix
 cd automation && npm run format:check
 cd automation && npm run format
 
-# Test
+# Test (integration — requires API keys and external services, may have side effects)
 cd automation && npm test
 
 # Deploy Firestore indexes
