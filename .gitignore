@@ -34,3 +34,6 @@ automation/pending-posts/*
 
 # Claude Code
 .claude/
+
+# GSD planning artifacts (working scratchpad for complex features)
+.planning/
