@@ -21,10 +21,9 @@
  * Task 5.1: Main API & Integration - Phase 5
  */
 
-const path = require('path');
 const { createBackgroundGenerator } = require('./background-generator');
 const { compositeImage } = require('./compositor');
-const { getTheme, getThemeNames, isValidTheme } = require('./themes');
+const { getThemeNames, isValidTheme } = require('./themes');
 const { createIllustrationCache } = require('./illustration-cache');
 
 // Constants

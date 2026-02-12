@@ -10,8 +10,8 @@
 
 const path = require('path');
 const fs = require('fs');
-const { renderToBuffer, renderToFile } = require('./renderer');
-const { getIcon, getStyledIcon } = require('./icons');
+const { renderToBuffer } = require('./renderer');
+const { getStyledIcon } = require('./icons');
 
 // Color schemes for sections
 const SECTION_COLORS = {
@@ -778,7 +778,7 @@ async function generateImage(input) {
     let sections = imageSections;
     if (!sections.length && imageBullets.length) {
       // Convert bullets to sections
-      sections = imageBullets.map((bullet, i) => {
+      sections = imageBullets.map(bullet => {
         const parts = bullet.split(':');
         return {
           title: parts[0].trim(),

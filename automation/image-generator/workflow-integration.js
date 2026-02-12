@@ -31,10 +31,10 @@ function resolveImageType(imageType, template) {
  * Convert bullets to diagram sections for architecture/layered templates
  * @param {string[]} bullets - Bullet points
  * @param {string} template - Template name
- * @param {string} title - Image title (for context)
+ * @param {string} _title - Image title (reserved for future use)
  * @returns {object[]} Section objects
  */
-function bulletsToSections(bullets, template, title) {
+function bulletsToSections(bullets, template, _title) {
   if (template === 'layered') {
     // Vertical layered format
     return bullets.map((bullet, i) => ({
