@@ -10,6 +10,14 @@ Follow the workflow in docs/04-Development/AI_AGENT_INSTRUCTIONS.md
 I want to [what] because [why].
 ```
 
+### Starting a Feature Session
+
+Every feature goes through **Step 0: Task Assessment** (scored 0–5):
+- **Score 0–1 → Lightweight Workflow** — Plan, Build, PR in a single session
+- **Score 2+ → GSD Mode** — Multi-phase workflow using `/gsd:*` commands with project overrides
+
+See `docs/04-Development/AI_AGENT_INSTRUCTIONS.md` for the full routing logic and handoff templates.
+
 ## Tech Stack
 
 - **Runtime:** Node.js 20
@@ -67,7 +75,7 @@ topics/                 topic-bank.json — topic rotation bank
 | `docs/03-Features/hybrid-image-generator.md` | DALL-E + Puppeteer image pipeline (Phases 1-5 done) |
 | `docs/03-Features/image-generator.md` | Image generator status summary and next steps |
 | `docs/03-Features/comment-replies.md` | LinkedIn comment automation (PLANNED — awaiting API access) |
-| `docs/04-Development/AI_AGENT_INSTRUCTIONS.md` | Standard workflow for every Claude Code session |
+| `docs/04-Development/AI_AGENT_INSTRUCTIONS.md` | Dual-workflow agent instructions (Lightweight + GSD routing) |
 | `docs/04-Development/coding-standards.md` | Code style, error handling, git workflow, env vars |
 | `docs/05-Testing/test-plans.md` | Test strategies and QA checklists |
 | `docs/06-Operations/secrets-and-deployment.md` | GitHub Secrets setup, Firebase deploy, CI/CD |
@@ -98,3 +106,4 @@ topics/                 topic-bank.json — topic rotation bank
 - **MVP approach:** LinkedIn posting is stubbed (console log) until OAuth is configured
 - **Branching:** Gitflow — features branch from `develop`, merge to `develop` via PR, `develop` merges to `main` for releases
 - **CI checks:** ESLint + Prettier run on all PRs to `develop` and `main`
+- **GSD planning artifacts:** `.planning/` (gitignored) — used as a working scratchpad for complex features via `AI_AGENT_INSTRUCTIONS.md`
