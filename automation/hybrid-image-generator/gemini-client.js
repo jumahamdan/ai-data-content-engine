@@ -46,8 +46,8 @@ class GeminiClient {
       cacheHits: 0
     };
 
-    // Initialize the SDK client
-    this.client = new GoogleGenAI({ apiKey: this.apiKey });
+    // SDK client initialized lazily on first request
+    this.client = null;
   }
 
   /**
@@ -195,6 +195,18 @@ class GeminiClient {
   }
 
   /**
+   * Get or initialize the SDK client
+   * @private
+   * @returns {GoogleGenAI} SDK client instance
+   */
+  _getClient() {
+    if (!this.client) {
+      this.client = new GoogleGenAI({ apiKey: this.apiKey });
+    }
+    return this.client;
+  }
+
+  /**
    * Make API request with exponential backoff retry logic
    * @private
    * @param {Object} requestConfig - Request configuration
@@ -203,7 +215,8 @@ class GeminiClient {
    */
   async _makeRequestWithRetry(requestConfig, attemptNumber = 0) {
     try {
-      return await this.client.models.generateContent(requestConfig);
+      const client = this._getClient();
+      return await client.models.generateContent(requestConfig);
     } catch (error) {
       const isRateLimitError = error.status === 429;
       const isServerError = error.status >= 500;
