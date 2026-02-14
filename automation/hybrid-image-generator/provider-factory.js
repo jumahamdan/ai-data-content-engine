@@ -21,9 +21,7 @@ function getImageProviderConfig() {
   const validValues = ['gemini', 'dalle', 'none', 'auto'];
 
   if (!validValues.includes(provider)) {
-    throw new Error(
-      `Invalid IMAGE_PROVIDER: ${provider}. Valid values: gemini, dalle, none, auto`
-    );
+    throw new Error(`Invalid IMAGE_PROVIDER: ${provider}. Valid values: gemini, dalle, none, auto`);
   }
 
   return { provider };
