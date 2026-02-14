@@ -310,17 +310,14 @@ class GeminiClient {
 /**
  * Factory function to create a configured Gemini client
  * Reads configuration from environment variables
+ * Note: No longer reads GEMINI_ENABLED - provider enablement is now controlled by IMAGE_PROVIDER
  * @param {Object} customConfig - Optional config overrides
  * @returns {GeminiClient} Configured Gemini client instance
  */
 function createGeminiClient(customConfig = {}) {
   const apiKey = customConfig.apiKey || process.env.GEMINI_API_KEY;
 
-  // Check GEMINI_ENABLED flag (default true)
-  const enabled = process.env.GEMINI_ENABLED !== 'false';
-
   const config = {
-    enabled: enabled,
     model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-image',
     aspectRatio: process.env.GEMINI_ASPECT_RATIO || '1:1',
     imageSize: process.env.GEMINI_IMAGE_SIZE || '1K',
