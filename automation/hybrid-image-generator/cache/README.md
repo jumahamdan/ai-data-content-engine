@@ -78,17 +78,17 @@ Clear cache programmatically:
 const { createBackgroundGenerator } = require('./background-generator');
 const bgGen = createBackgroundGenerator();
 
-await bgGen.clearCache('chalkboard');  // Clear specific theme
-await bgGen.clearCache();              // Clear all themes
+await bgGen.clearCache('chalkboard'); // Clear specific theme
+await bgGen.clearCache(); // Clear all themes
 
 // Illustrations
 const { createIllustrationCache } = require('./illustration-cache');
 const cache = createIllustrationCache();
 
-await cache.deleteIllustration('warehouse', 'watercolor', 'building');  // Delete specific
-await cache.clearCache('watercolor', 'building');  // Clear category
-await cache.clearCache('watercolor');              // Clear theme
-await cache.clearCache();                          // Clear all
+await cache.deleteIllustration('warehouse', 'watercolor', 'building'); // Delete specific
+await cache.clearCache('watercolor', 'building'); // Clear category
+await cache.clearCache('watercolor'); // Clear theme
+await cache.clearCache(); // Clear all
 ```
 
 Or manually delete files:
