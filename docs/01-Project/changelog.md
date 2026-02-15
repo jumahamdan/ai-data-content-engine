@@ -4,6 +4,25 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-14 -- Gemini Image Generator Integration
+
+**Branch:** `feature/gemini-image-generator`
+
+### Shipped
+- Added Google Gemini as image generation provider (`gemini-client.js`, `provider-factory.js`)
+- Created IMAGE_PROVIDER env var replacing DALLE_ENABLED/GEMINI_ENABLED flags
+- Provider routing: gemini, dalle, auto, none modes with 4-tier fallback chain
+- Provider-separated cache structure with automatic one-time migration
+- Cross-provider cache lookup optimization (reuse DALL-E cache from Gemini mode)
+- BackgroundGenerator and IllustrationCache refactored for multi-provider support
+- Orchestrator handles IMAGE_PROVIDER=none gracefully with CSS fallback
+- Integration test suite (5 offline + 1 live test)
+- Complete feature documentation at docs/03-Features/gemini-image-generator.md
+- Updated .env.example, secrets docs, and generate-content.yml workflow
+- Cost savings: ~51% per image ($0.039 Gemini Flash vs $0.08 DALL-E)
+
+---
+
 ## 2026-02-09 — GitHub Best Practices + CI Pipeline
 
 **Branch:** `feature/github-best-practices`

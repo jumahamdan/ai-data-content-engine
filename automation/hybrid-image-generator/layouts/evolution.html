@@ -1,296 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=1080, height=1080">
-  <title>Evolution Layout</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1080" />
+    <title>Evolution Layout</title>
 
-  <!-- Google Fonts (dynamically injected based on theme) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- {{googleFontsUrl}} will be replaced by compositor -->
-  <link href="{{googleFontsUrl}}" rel="stylesheet">
+    <!-- Google Fonts (dynamically injected based on theme) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- {{googleFontsUrl}} will be replaced by compositor -->
+    <link href="{{googleFontsUrl}}" rel="stylesheet" />
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      width: 1080px;
-      height: 1080px;
-      overflow: hidden;
-      position: relative;
-      font-family: var(--body-font, 'Arial', sans-serif);
-      color: var(--body-color, '#333');
-    }
+      body {
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        position: relative;
+        font-family: var(--body-font, 'Arial', sans-serif);
+        color: var(--body-color, '#333');
+      }
 
-    /* Background layer - DALL-E generated image */
-    .background-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      background-color: var(--bg-color, '#f5f5f5');
-      background-image: url('{{backgroundUrl}}');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
+      /* Background layer - DALL-E generated image */
+      .background-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        background-color: var(--bg-color, '#f5f5f5');
+        background-image: url('{{backgroundUrl}}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
 
-    /* Subtle overlay to ensure text readability */
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      background: rgba(0, 0, 0, 0.1);
-    }
+      /* Subtle overlay to ensure text readability */
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.1);
+      }
 
-    /* Content container */
-    .content {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 50px;
-    }
+      /* Content container */
+      .content {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 50px;
+      }
 
-    /* Title section */
-    .title-section {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+      /* Title section */
+      .title-section {
+        text-align: center;
+        margin-bottom: 30px;
+      }
 
-    .title {
-      font-family: var(--title-font, 'Arial', sans-serif);
-      font-size: 48px;
-      font-weight: bold;
-      color: var(--title-color, '#fff');
-      line-height: 1.2;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
+      .title {
+        font-family: var(--title-font, 'Arial', sans-serif);
+        font-size: 48px;
+        font-weight: bold;
+        color: var(--title-color, '#fff');
+        line-height: 1.2;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-    .subtitle {
-      font-family: var(--body-font, 'Arial', sans-serif);
-      font-size: 22px;
-      color: var(--title-color, '#fff');
-      opacity: 0.9;
-      font-style: italic;
-    }
+      .subtitle {
+        font-family: var(--body-font, 'Arial', sans-serif);
+        font-size: 22px;
+        color: var(--title-color, '#fff');
+        opacity: 0.9;
+        font-style: italic;
+      }
 
-    /* Evolution flow section (horizontal with arrows) */
-    .evolution-flow {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 30px;
-      padding: 0 20px;
-    }
+      /* Evolution flow section (horizontal with arrows) */
+      .evolution-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding: 0 20px;
+      }
 
-    .stage {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
+      .stage {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
 
-    .stage-illustration {
-      width: 140px;
-      height: 140px;
-      object-fit: contain;
-      margin-bottom: 12px;
-      filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.2));
-    }
+      .stage-illustration {
+        width: 140px;
+        height: 140px;
+        object-fit: contain;
+        margin-bottom: 12px;
+        filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.2));
+      }
 
-    .stage-label {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--title-color, '#fff');
-      background: rgba(0, 0, 0, 0.3);
-      padding: 8px 16px;
-      border-radius: 8px;
-      backdrop-filter: blur(4px);
-    }
+      .stage-label {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--title-color, '#fff');
+        background: rgba(0, 0, 0, 0.3);
+        padding: 8px 16px;
+        border-radius: 8px;
+        backdrop-filter: blur(4px);
+      }
 
-    .arrow {
-      font-size: 48px;
-      color: var(--accent-color, '#4CAF50');
-      margin: 0 20px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      flex-shrink: 0;
-    }
+      .arrow {
+        font-size: 48px;
+        color: var(--accent-color, '#4CAF50');
+        margin: 0 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        flex-shrink: 0;
+      }
 
-    /* Stages comparison section (three columns) */
-    .stages-section {
-      display: flex;
-      gap: 20px;
-      flex: 1;
-      margin-bottom: 30px;
-    }
+      /* Stages comparison section (three columns) */
+      .stages-section {
+        display: flex;
+        gap: 20px;
+        flex: 1;
+        margin-bottom: 30px;
+      }
 
-    .stage-column {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      padding: 24px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .stage-column-title {
-      font-family: var(--title-font, 'Arial', sans-serif);
-      font-size: 24px;
-      font-weight: bold;
-      color: var(--body-color, '#333');
-      margin-bottom: 16px;
-      text-align: center;
-      border-bottom: 3px solid var(--accent-color, '#4CAF50');
-      padding-bottom: 8px;
-    }
-
-    .stage-items {
-      list-style: none;
-      flex: 1;
-    }
-
-    .stage-item {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 12px;
-      font-size: 17px;
-      line-height: 1.4;
-      color: var(--body-color, '#333');
-    }
-
-    .stage-item-icon {
-      font-size: 20px;
-      margin-right: 8px;
-      flex-shrink: 0;
-      line-height: 1.4;
-    }
-
-    .stage-item-icon.check {
-      color: var(--accent-color, '#4CAF50');
-    }
-
-    .stage-item-icon.cross {
-      color: #FF5722;
-    }
-
-    .stage-item-text {
-      flex: 1;
-    }
-
-    /* Summary section */
-    .summary-section {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
-      border-radius: 12px;
-      padding: 24px 32px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .summary-icon {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-
-    .summary-text {
-      font-family: var(--body-font, 'Arial', sans-serif);
-      font-size: 20px;
-      font-style: italic;
-      color: var(--body-color, '#333');
-      line-height: 1.4;
-      font-weight: 500;
-    }
-
-    /* Responsive adjustments for tight spacing */
-    @media (max-width: 1080px) {
       .stage-column {
-        padding: 20px 16px;
+        flex: 1;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 24px 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .stage-column-title {
+        font-family: var(--title-font, 'Arial', sans-serif);
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--body-color, '#333');
+        margin-bottom: 16px;
+        text-align: center;
+        border-bottom: 3px solid var(--accent-color, '#4CAF50');
+        padding-bottom: 8px;
+      }
+
+      .stage-items {
+        list-style: none;
+        flex: 1;
       }
 
       .stage-item {
-        font-size: 16px;
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        font-size: 17px;
+        line-height: 1.4;
+        color: var(--body-color, '#333');
+      }
+
+      .stage-item-icon {
+        font-size: 20px;
+        margin-right: 8px;
+        flex-shrink: 0;
+        line-height: 1.4;
+      }
+
+      .stage-item-icon.check {
+        color: var(--accent-color, '#4CAF50');
+      }
+
+      .stage-item-icon.cross {
+        color: #ff5722;
+      }
+
+      .stage-item-text {
+        flex: 1;
+      }
+
+      /* Summary section */
+      .summary-section {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+        border-radius: 12px;
+        padding: 24px 32px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .summary-icon {
+        font-size: 32px;
         margin-bottom: 10px;
       }
-    }
-  </style>
-</head>
-<body>
-  <!-- Background image layer -->
-  <div class="background-layer"></div>
 
-  <!-- Optional overlay for readability -->
-  <div class="overlay"></div>
+      .summary-text {
+        font-family: var(--body-font, 'Arial', sans-serif);
+        font-size: 20px;
+        font-style: italic;
+        color: var(--body-color, '#333');
+        line-height: 1.4;
+        font-weight: 500;
+      }
 
-  <!-- Main content -->
-  <div class="content">
-    <!-- Title section -->
-    <div class="title-section">
-      <h1 class="title">{{title}}</h1>
-      {{#subtitle}}
-      <p class="subtitle">{{subtitle}}</p>
-      {{/subtitle}}
-    </div>
+      /* Responsive adjustments for tight spacing */
+      @media (max-width: 1080px) {
+        .stage-column {
+          padding: 20px 16px;
+        }
 
-    <!-- Evolution flow with arrows -->
-    <div class="evolution-flow">
-      {{#stages}}
-      {{#illustration}}
-      <div class="stage">
-        <img src="{{illustration}}" alt="{{label}}" class="stage-illustration">
-        <div class="stage-label">{{label}}</div>
+        .stage-item {
+          font-size: 16px;
+          margin-bottom: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background image layer -->
+    <div class="background-layer"></div>
+
+    <!-- Optional overlay for readability -->
+    <div class="overlay"></div>
+
+    <!-- Main content -->
+    <div class="content">
+      <!-- Title section -->
+      <div class="title-section">
+        <h1 class="title">{{title}}</h1>
+        {{#subtitle}}
+        <p class="subtitle">{{subtitle}}</p>
+        {{/subtitle}}
       </div>
-      {{/illustration}}
-      {{^illustration}}
-      <div class="stage">
-        <div class="stage-label">{{label}}</div>
+
+      <!-- Evolution flow with arrows -->
+      <div class="evolution-flow">
+        {{#stages}} {{#illustration}}
+        <div class="stage">
+          <img src="{{illustration}}" alt="{{label}}" class="stage-illustration" />
+          <div class="stage-label">{{label}}</div>
+        </div>
+        {{/illustration}} {{^illustration}}
+        <div class="stage">
+          <div class="stage-label">{{label}}</div>
+        </div>
+        {{/illustration}} {{^isLast}}
+        <div class="arrow">→</div>
+        {{/isLast}} {{/stages}}
       </div>
-      {{/illustration}}
 
-      {{^isLast}}
-      <div class="arrow">→</div>
-      {{/isLast}}
-      {{/stages}}
-    </div>
-
-    <!-- Three-column comparison section -->
-    <div class="stages-section">
-      {{#stages}}
-      <div class="stage-column">
-        <h2 class="stage-column-title">{{label}}</h2>
-        <ul class="stage-items">
-          {{#items}}
-          <li class="stage-item">
-            <span class="stage-item-icon {{iconType}}">{{icon}}</span>
-            <span class="stage-item-text">{{text}}</span>
-          </li>
-          {{/items}}
-        </ul>
+      <!-- Three-column comparison section -->
+      <div class="stages-section">
+        {{#stages}}
+        <div class="stage-column">
+          <h2 class="stage-column-title">{{label}}</h2>
+          <ul class="stage-items">
+            {{#items}}
+            <li class="stage-item">
+              <span class="stage-item-icon {{iconType}}">{{icon}}</span>
+              <span class="stage-item-text">{{text}}</span>
+            </li>
+            {{/items}}
+          </ul>
+        </div>
+        {{/stages}}
       </div>
-      {{/stages}}
-    </div>
 
-    <!-- Summary insight section -->
-    {{#summary}}
-    <div class="summary-section">
-      <div class="summary-icon">📌</div>
-      <p class="summary-text">"{{summary}}"</p>
+      <!-- Summary insight section -->
+      {{#summary}}
+      <div class="summary-section">
+        <div class="summary-icon">📌</div>
+        <p class="summary-text">"{{summary}}"</p>
+      </div>
+      {{/summary}}
     </div>
-    {{/summary}}
-  </div>
-</body>
+  </body>
 </html>

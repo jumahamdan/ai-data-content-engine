@@ -12,7 +12,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const { createDalleClient } = require('./dalle-client');
+const { resolveProviders, createProviderClient } = require('./provider-factory');
 
 // Illustration categories and their style modifiers per theme
 const ILLUSTRATION_STYLES = {
@@ -48,9 +48,21 @@ const ILLUSTRATION_STYLES = {
 class IllustrationCache {
   constructor(options = {}) {
     this.cacheDir = options.cacheDir || path.join(__dirname, 'cache', 'illustrations');
-    this.dalleClient = options.dalleClient || createDalleClient();
     this.verbose = options.verbose !== false;
     this.defaultSize = options.defaultSize || '1024x1024';
+
+    // Provider configuration
+    this.imageProvider = options.imageProvider || process.env.IMAGE_PROVIDER || 'auto';
+    const { primary, fallback } = resolveProviders(this.imageProvider);
+    this.primaryProvider = primary;
+    this.fallbackProvider = fallback;
+
+    // Create provider clients
+    this.primaryClient = createProviderClient(this.primaryProvider, { verbose: this.verbose });
+    this.fallbackClient = createProviderClient(this.fallbackProvider, { verbose: this.verbose });
+
+    // Migration tracking
+    this._migrationChecked = false;
 
     // Statistics
     this.stats = {
@@ -70,7 +82,18 @@ class IllustrationCache {
    * @returns {Promise<Object>} - {imagePath, metadata, source}
    */
   async getIllustration(name, theme, category = 'icon') {
+    // Run migration check on first call
+    if (!this._migrationChecked) {
+      await this._migrateCacheIfNeeded();
+      this._migrationChecked = true;
+    }
+
     this.stats.totalRequests++;
+
+    // Check if IMAGE_PROVIDER=none
+    if (this.imageProvider === 'none') {
+      throw new Error('IMAGE_PROVIDER=none: AI illustration generation is disabled');
+    }
 
     // Validate inputs
     if (!ILLUSTRATION_STYLES[theme]) {
@@ -85,15 +108,27 @@ class IllustrationCache {
 
     this.log(`Getting illustration: ${name} (${theme}/${category})`);
 
-    // Check cache first
-    const cached = await this._getCachedIllustration(name, theme, category);
-    if (cached) {
+    // Check primary provider cache first
+    const cachedPrimary = await this._getCachedIllustration(name, theme, category, this.primaryProvider);
+    if (cachedPrimary) {
       this.stats.cacheHits++;
-      this.log(`Using cached illustration: ${name}`, { theme, category });
+      this.log(`Using cached illustration from ${this.primaryProvider}: ${name}`, { theme, category });
       return {
-        imagePath: cached.imagePath,
-        metadata: cached.metadata,
-        source: 'cache'
+        imagePath: cachedPrimary.imagePath,
+        metadata: cachedPrimary.metadata,
+        source: `cache-${this.primaryProvider}`
+      };
+    }
+
+    // Check fallback provider cache
+    const cachedFallback = await this._getCachedIllustration(name, theme, category, this.fallbackProvider);
+    if (cachedFallback) {
+      this.stats.cacheHits++;
+      this.log(`Using cached illustration from ${this.fallbackProvider}: ${name}`, { theme, category });
+      return {
+        imagePath: cachedFallback.imagePath,
+        metadata: cachedFallback.metadata,
+        source: `cache-${this.fallbackProvider}`
       };
     }
 
@@ -112,9 +147,20 @@ class IllustrationCache {
    * @returns {Promise<Object>} - {imagePath, metadata, latency}
    */
   async generateIllustration(name, description, options = {}) {
+    // Run migration check on first call
+    if (!this._migrationChecked) {
+      await this._migrateCacheIfNeeded();
+      this._migrationChecked = true;
+    }
+
     const theme = options.theme || 'watercolor';
     const category = options.category || 'icon';
     const size = options.size || this.defaultSize;
+
+    // Check if IMAGE_PROVIDER=none
+    if (this.imageProvider === 'none') {
+      throw new Error('IMAGE_PROVIDER=none: AI illustration generation is disabled');
+    }
 
     // Validate inputs
     if (!ILLUSTRATION_STYLES[theme]) {
@@ -129,18 +175,27 @@ class IllustrationCache {
 
     const startTime = Date.now();
 
+    // Determine which provider to use (primary if available, else fallback)
+    const provider = this.primaryClient ? this.primaryProvider : this.fallbackProvider;
+    const client = this.primaryClient || this.fallbackClient;
+
+    if (!client) {
+      throw new Error('No image generation provider available (IMAGE_PROVIDER=none or no API keys configured)');
+    }
+
     try {
-      // Build DALL-E prompt
+      // Build prompt
       const stylePrefix = ILLUSTRATION_STYLES[theme].categories[category];
       const baseStyle = ILLUSTRATION_STYLES[theme].baseStyle;
       const prompt = `${stylePrefix} ${description}, ${baseStyle}, isolated, no text, ${size}`;
 
       if (this.verbose) {
         console.log(`[ILLUS] Prompt: "${prompt}"`);
+        console.log(`[ILLUS] Using provider: ${provider}`);
       }
 
-      // Ensure cache directory exists
-      const categoryDir = path.join(this.cacheDir, theme, category);
+      // Ensure cache directory exists (provider-separated)
+      const categoryDir = path.join(this.cacheDir, provider, theme, category);
       await fs.mkdir(categoryDir, { recursive: true });
 
       // Generate filename
@@ -166,6 +221,7 @@ class IllustrationCache {
             theme,
             category,
             size,
+            generatedBy: provider,
             createdAt: new Date().toISOString()
           };
           await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
@@ -181,8 +237,50 @@ class IllustrationCache {
         // File doesn't exist, proceed with generation
       }
 
-      // Generate via DALL-E
-      const result = await this.dalleClient.generateAndDownload(prompt, imagePath, { size });
+      // Try primary provider
+      let result = null;
+      let usedProvider = provider;
+
+      try {
+        if (provider === 'gemini') {
+          // Gemini: generateAndSave returns { imagePath, mimeType, textResponse, latency }
+          result = await client.generateAndSave(prompt, imagePath);
+        } else if (provider === 'dalle') {
+          // DALL-E: generateAndDownload returns { imagePath, revisedPrompt, latency }
+          result = await client.generateAndDownload(prompt, imagePath, { size });
+        }
+      } catch (primaryError) {
+        this.log(`Primary provider ${provider} failed: ${primaryError.message}`, null, 'warn');
+
+        // Try fallback provider if available
+        if (this.fallbackClient && this.fallbackProvider !== provider) {
+          this.log(`Trying fallback provider: ${this.fallbackProvider}`, null, 'warn');
+          usedProvider = this.fallbackProvider;
+
+          const fallbackCategoryDir = path.join(this.cacheDir, this.fallbackProvider, theme, category);
+          await fs.mkdir(fallbackCategoryDir, { recursive: true });
+          const fallbackImagePath = path.join(fallbackCategoryDir, filename);
+
+          try {
+            if (this.fallbackProvider === 'gemini') {
+              result = await this.fallbackClient.generateAndSave(prompt, fallbackImagePath);
+            } else if (this.fallbackProvider === 'dalle') {
+              result = await this.fallbackClient.generateAndDownload(prompt, fallbackImagePath, { size });
+            }
+            // Update imagePath to fallback location
+            result.imagePath = fallbackImagePath;
+          } catch (fallbackError) {
+            this.log(`Fallback provider ${this.fallbackProvider} also failed: ${fallbackError.message}`, null, 'error');
+            throw primaryError; // Throw original error
+          }
+        } else {
+          throw primaryError;
+        }
+      }
+
+      if (!result) {
+        throw new Error('Failed to generate illustration with any provider');
+      }
 
       // Save metadata
       const metadata = {
@@ -191,12 +289,12 @@ class IllustrationCache {
         theme,
         category,
         size,
-        prompt: result.revisedPrompt,
+        prompt: result.revisedPrompt || prompt,
         createdAt: new Date().toISOString(),
-        generatedBy: 'dalle-3'
+        generatedBy: usedProvider
       };
 
-      const metadataPath = imagePath.replace('.png', '.json');
+      const metadataPath = result.imagePath.replace('.png', '.json');
       await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 
       this.stats.generated++;
@@ -206,13 +304,15 @@ class IllustrationCache {
         name,
         theme,
         category,
+        provider: usedProvider,
         latency: `${latency}ms`
       });
 
       return {
-        imagePath,
+        imagePath: result.imagePath,
         metadata,
         source: 'generated',
+        provider: usedProvider,
         latency
       };
     } catch (error) {
@@ -226,57 +326,61 @@ class IllustrationCache {
    * List all cached illustrations
    * @param {string} theme - Optional theme filter
    * @param {string} category - Optional category filter
-   * @returns {Promise<Array>} - Array of {name, theme, category, metadata, imagePath}
+   * @returns {Promise<Array>} - Array of {name, theme, category, provider, metadata, imagePath}
    */
   async listIllustrations(theme = null, category = null) {
     const illustrations = [];
 
     const themes = theme ? [theme] : Object.keys(ILLUSTRATION_STYLES);
+    const providers = ['dalle', 'gemini']; // Known providers
 
-    for (const themeName of themes) {
-      const themeDir = path.join(this.cacheDir, themeName);
-
-      try {
-        await fs.access(themeDir);
-      } catch (error) {
-        continue; // Theme directory doesn't exist
-      }
-
-      const categories = category ? [category] : Object.keys(ILLUSTRATION_STYLES[themeName].categories);
-
-      for (const categoryName of categories) {
-        const categoryDir = path.join(themeDir, categoryName);
+    for (const provider of providers) {
+      for (const themeName of themes) {
+        const themeDir = path.join(this.cacheDir, provider, themeName);
 
         try {
-          await fs.access(categoryDir);
-          const files = await fs.readdir(categoryDir);
-          const pngFiles = files.filter(f => f.endsWith('.png'));
-
-          for (const file of pngFiles) {
-            const imagePath = path.join(categoryDir, file);
-            const metadataPath = imagePath.replace('.png', '.json');
-            const name = file.replace('.png', '');
-
-            let metadata = {};
-            try {
-              const metadataContent = await fs.readFile(metadataPath, 'utf-8');
-              metadata = JSON.parse(metadataContent);
-            } catch (e) {
-              // No metadata file
-              metadata = { name };
-            }
-
-            illustrations.push({
-              name,
-              theme: themeName,
-              category: categoryName,
-              imagePath,
-              metadata
-            });
-          }
+          await fs.access(themeDir);
         } catch (error) {
-          // Category directory doesn't exist
-          continue;
+          continue; // Provider/theme directory doesn't exist
+        }
+
+        const categories = category ? [category] : Object.keys(ILLUSTRATION_STYLES[themeName].categories);
+
+        for (const categoryName of categories) {
+          const categoryDir = path.join(themeDir, categoryName);
+
+          try {
+            await fs.access(categoryDir);
+            const files = await fs.readdir(categoryDir);
+            const pngFiles = files.filter(f => f.endsWith('.png'));
+
+            for (const file of pngFiles) {
+              const imagePath = path.join(categoryDir, file);
+              const metadataPath = imagePath.replace('.png', '.json');
+              const name = file.replace('.png', '');
+
+              let metadata = {};
+              try {
+                const metadataContent = await fs.readFile(metadataPath, 'utf-8');
+                metadata = JSON.parse(metadataContent);
+              } catch (e) {
+                // No metadata file
+                metadata = { name };
+              }
+
+              illustrations.push({
+                name,
+                theme: themeName,
+                category: categoryName,
+                provider,
+                imagePath,
+                metadata
+              });
+            }
+          } catch (error) {
+            // Category directory doesn't exist
+            continue;
+          }
         }
       }
     }
@@ -285,26 +389,49 @@ class IllustrationCache {
   }
 
   /**
-   * Get cache statistics grouped by theme and category
+   * Get cache statistics grouped by provider, theme, and category
    * @returns {Promise<Object>} - Cache statistics
    */
   async getCacheStats() {
     const stats = {
       total: 0,
+      byProvider: {},
       byTheme: {}
     };
 
+    const providers = ['dalle', 'gemini'];
+
+    // Get stats by provider
+    for (const provider of providers) {
+      stats.byProvider[provider] = 0;
+    }
+
+    // Get stats by theme
     for (const theme of Object.keys(ILLUSTRATION_STYLES)) {
       stats.byTheme[theme] = {
         total: 0,
-        byCategory: {}
+        byCategory: {},
+        byProvider: {}
       };
+
+      for (const provider of providers) {
+        stats.byTheme[theme].byProvider[provider] = 0;
+      }
 
       for (const category of Object.keys(ILLUSTRATION_STYLES[theme].categories)) {
         const illustrations = await this.listIllustrations(theme, category);
         stats.byTheme[theme].byCategory[category] = illustrations.length;
         stats.byTheme[theme].total += illustrations.length;
         stats.total += illustrations.length;
+
+        // Count by provider
+        for (const illus of illustrations) {
+          if (illus.provider) {
+            stats.byProvider[illus.provider] = (stats.byProvider[illus.provider] || 0) + 1;
+            stats.byTheme[theme].byProvider[illus.provider] =
+              (stats.byTheme[theme].byProvider[illus.provider] || 0) + 1;
+          }
+        }
       }
     }
 
@@ -316,25 +443,33 @@ class IllustrationCache {
    * @param {string} name - Illustration name
    * @param {string} theme - Theme name
    * @param {string} category - Category name
+   * @param {string} provider - Optional provider (searches all if not specified)
    * @returns {Promise<boolean>} - True if deleted
    */
-  async deleteIllustration(name, theme, category) {
-    const categoryDir = path.join(this.cacheDir, theme, category);
+  async deleteIllustration(name, theme, category, provider = null) {
+    const providers = provider ? [provider] : ['dalle', 'gemini'];
     const filename = `${this._sanitizeName(name)}.png`;
-    const imagePath = path.join(categoryDir, filename);
-    const metadataPath = imagePath.replace('.png', '.json');
+    let deleted = false;
 
-    try {
-      await fs.unlink(imagePath);
-      await fs.unlink(metadataPath).catch(() => {}); // Ignore if metadata doesn't exist
-      this.log(`Deleted illustration: ${name} (${theme}/${category})`);
-      return true;
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        return false; // Doesn't exist
+    for (const prov of providers) {
+      const categoryDir = path.join(this.cacheDir, prov, theme, category);
+      const imagePath = path.join(categoryDir, filename);
+      const metadataPath = imagePath.replace('.png', '.json');
+
+      try {
+        await fs.unlink(imagePath);
+        await fs.unlink(metadataPath).catch(() => {}); // Ignore if metadata doesn't exist
+        this.log(`Deleted illustration: ${name} (${prov}/${theme}/${category})`);
+        deleted = true;
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          continue; // Doesn't exist in this provider
+        }
+        throw error;
       }
-      throw error;
     }
+
+    return deleted;
   }
 
   /**
@@ -365,11 +500,25 @@ class IllustrationCache {
     const hitRate =
       this.stats.totalRequests > 0 ? ((this.stats.cacheHits / this.stats.totalRequests) * 100).toFixed(1) + '%' : 'N/A';
 
-    return {
+    const stats = {
       ...this.stats,
       cacheHitRate: hitRate,
-      dalleStats: this.dalleClient.getStats()
+      provider: {
+        imageProvider: this.imageProvider,
+        primary: this.primaryProvider,
+        fallback: this.fallbackProvider
+      }
     };
+
+    // Add client stats if available
+    if (this.primaryClient && typeof this.primaryClient.getStats === 'function') {
+      stats.primaryClientStats = this.primaryClient.getStats();
+    }
+    if (this.fallbackClient && typeof this.fallbackClient.getStats === 'function') {
+      stats.fallbackClientStats = this.fallbackClient.getStats();
+    }
+
+    return stats;
   }
 
   /**
@@ -383,17 +532,112 @@ class IllustrationCache {
       generated: 0,
       failed: 0
     };
-    this.dalleClient.resetStats();
+
+    // Reset client stats if available
+    if (this.primaryClient && typeof this.primaryClient.resetStats === 'function') {
+      this.primaryClient.resetStats();
+    }
+    if (this.fallbackClient && typeof this.fallbackClient.resetStats === 'function') {
+      this.fallbackClient.resetStats();
+    }
   }
 
   // ========== PRIVATE METHODS ==========
 
   /**
+   * Migrate cache from old flat structure to provider-separated structure
+   * @private
+   */
+  async _migrateCacheIfNeeded() {
+    const flagPath = path.join(this.cacheDir, '.provider-migration-complete');
+
+    // Check if migration already done
+    try {
+      await fs.access(flagPath);
+      this.log('Cache migration already completed, skipping...');
+      return;
+    } catch (error) {
+      // Flag doesn't exist, proceed with migration
+    }
+
+    this.log('Starting cache migration to provider-separated structure...');
+    let totalMoved = 0;
+
+    for (const theme of Object.keys(ILLUSTRATION_STYLES)) {
+      const categories = Object.keys(ILLUSTRATION_STYLES[theme].categories);
+
+      for (const category of categories) {
+        const oldPath = path.join(this.cacheDir, theme, category);
+        const newPath = path.join(this.cacheDir, 'dalle', theme, category);
+
+        try {
+          // Check if old directory exists
+          await fs.access(oldPath);
+
+          // Read files in old directory
+          const files = await fs.readdir(oldPath);
+          const relevantFiles = files.filter(f => f.endsWith('.png') || f.endsWith('.json'));
+
+          if (relevantFiles.length === 0) {
+            continue; // Nothing to migrate
+          }
+
+          // Create new directory
+          await fs.mkdir(newPath, { recursive: true });
+
+          // Move each file
+          let movedCount = 0;
+          for (const file of relevantFiles) {
+            try {
+              const oldFilePath = path.join(oldPath, file);
+              const newFilePath = path.join(newPath, file);
+
+              // Check if target already exists (idempotent)
+              try {
+                await fs.access(newFilePath);
+                // Already exists, skip
+                continue;
+              } catch (e) {
+                // Doesn't exist, proceed with move
+              }
+
+              await fs.rename(oldFilePath, newFilePath);
+              movedCount++;
+            } catch (fileError) {
+              this.log(`Failed to move file ${file}: ${fileError.message}`, null, 'warn');
+            }
+          }
+
+          if (movedCount > 0) {
+            totalMoved += movedCount;
+            this.log(`Migrated ${movedCount} files from ${theme}/${category} to dalle/${theme}/${category}`);
+          }
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            // Old directory doesn't exist, nothing to migrate
+            continue;
+          }
+          this.log(`Error migrating ${theme}/${category}: ${error.message}`, null, 'warn');
+        }
+      }
+    }
+
+    // Write flag file
+    await fs.writeFile(flagPath, new Date().toISOString());
+    this.log(`Cache migration complete. Migrated ${totalMoved} files total.`);
+  }
+
+  /**
    * Get a cached illustration
    * @private
    */
-  async _getCachedIllustration(name, theme, category) {
-    const categoryDir = path.join(this.cacheDir, theme, category);
+  async _getCachedIllustration(name, theme, category, provider) {
+    // If provider is null, return null
+    if (!provider) {
+      return null;
+    }
+
+    const categoryDir = path.join(this.cacheDir, provider, theme, category);
     const filename = `${this._sanitizeName(name)}.png`;
     const imagePath = path.join(categoryDir, filename);
     const metadataPath = imagePath.replace('.png', '.json');
@@ -408,7 +652,7 @@ class IllustrationCache {
         metadata = JSON.parse(metadataContent);
       } catch (e) {
         // No metadata file, create basic metadata
-        metadata = { name, theme, category };
+        metadata = { name, theme, category, provider };
       }
 
       return { imagePath, metadata };

@@ -311,15 +311,14 @@ class DalleClient {
 /**
  * Factory function to create a configured DALL-E client
  * Reads configuration from environment variables
+ * Note: No longer reads DALLE_ENABLED - provider enablement is now controlled by IMAGE_PROVIDER
+ * @param {Object} customConfig - Optional config overrides
+ * @returns {DalleClient} Configured DALL-E client instance
  */
 function createDalleClient(customConfig = {}) {
   const apiKey = customConfig.apiKey || process.env.OPENAI_API_KEY;
 
-  // Check DALLE_ENABLED flag (default true)
-  const enabled = process.env.DALLE_ENABLED !== 'false';
-
   const config = {
-    enabled: enabled,
     model: process.env.DALLE_MODEL || 'dall-e-3',
     quality: process.env.DALLE_QUALITY || 'standard',
     size: process.env.DALLE_SIZE || '1024x1024',

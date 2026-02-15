@@ -25,18 +25,14 @@ const { generateImageToFile } = require('./image-generator');
 
 // Generate from OpenAI workflow output
 const content = {
-  imageType: 'card',  // or 'diagram'
+  imageType: 'card', // or 'diagram'
   imageTitle: 'Medallion Architecture',
-  imageBullets: [
-    'Bronze: Raw data landing',
-    'Silver: Cleansed data',
-    'Gold: Business-ready'
-  ],
+  imageBullets: ['Bronze: Raw data landing', 'Silver: Cleansed data', 'Gold: Business-ready'],
   template: 'interview_explainer'
 };
 
 const result = await generateImageToFile(content, 'output.png');
-console.log(result.path);  // Path to generated PNG
+console.log(result.path); // Path to generated PNG
 ```
 
 ### With Workflow Integration
@@ -65,11 +61,11 @@ const result = await generateFromWorkflow(content, {
 
 ## Image Types
 
-| Type | Template | Layout |
-|------|----------|--------|
-| `card` | interview_explainer, optimization | Title + numbered bullet list |
-| `diagram` | architecture | Side-by-side comparison boxes |
-| `diagram` | layered | Vertical stacked layers |
+| Type      | Template                          | Layout                        |
+| --------- | --------------------------------- | ----------------------------- |
+| `card`    | interview_explainer, optimization | Title + numbered bullet list  |
+| `diagram` | architecture                      | Side-by-side comparison boxes |
+| `diagram` | layered                           | Vertical stacked layers       |
 
 ## Available Icons
 
@@ -96,6 +92,7 @@ Icons are auto-detected from text content or can be specified explicitly.
 ### Modify Layouts
 
 Edit the HTML builder functions in `index.js`:
+
 - `buildCardHtml()` - Card layout with numbered bullets
 - `buildDiagramHtml()` - Horizontal comparison boxes
 - `buildLayeredHtml()` - Vertical stacked layers

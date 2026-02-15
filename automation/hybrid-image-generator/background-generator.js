@@ -12,7 +12,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const { createDalleClient } = require('./dalle-client');
+const { resolveProviders, createProviderClient } = require('./provider-factory');
 
 // Theme definitions with DALL-E prompts
 const THEMES = {
@@ -39,8 +39,23 @@ const THEMES = {
 class BackgroundGenerator {
   constructor(options = {}) {
     this.cacheDir = options.cacheDir || path.join(__dirname, 'cache', 'backgrounds');
-    this.dalleClient = options.dalleClient || createDalleClient();
     this.verbose = options.verbose !== false;
+
+    // Provider configuration
+    this.imageProvider = options.imageProvider || process.env.IMAGE_PROVIDER || 'auto';
+    const providers = resolveProviders(this.imageProvider);
+    this.primaryProvider = providers.primary;
+    this.fallbackProvider = providers.fallback;
+
+    // Create provider clients
+    this.primaryClient = this.primaryProvider ? createProviderClient(this.primaryProvider, options) : null;
+    this.fallbackClient = this.fallbackProvider ? createProviderClient(this.fallbackProvider, options) : null;
+
+    // Backward-compatible alias (deprecated - use primaryClient/fallbackClient)
+    this.dalleClient = this.primaryClient || this.fallbackClient;
+
+    // Migration flag
+    this._migrationChecked = false;
 
     // Statistics
     this.stats = {
@@ -57,11 +72,17 @@ class BackgroundGenerator {
    * @param {string} theme - Theme name (chalkboard, watercolor, tech)
    * @param {Object} options - Options
    * @param {boolean} options.force - Force generation even if cache exists
-   * @returns {Promise<Object>} - {imagePath, theme, source, latency}
+   * @returns {Promise<Object>} - {imagePath, theme, source, latency} or {success: false, theme, source}
    */
   async getBackground(theme, options = {}) {
     const startTime = Date.now();
     this.stats.totalRequests++;
+
+    // Run migration check on first call only
+    if (!this._migrationChecked) {
+      await this._migrateCacheIfNeeded();
+      this._migrationChecked = true;
+    }
 
     // Validate theme
     if (!THEMES[theme]) {
@@ -69,37 +90,106 @@ class BackgroundGenerator {
       throw new Error(`Invalid theme: ${theme}. Valid themes: ${Object.keys(THEMES).join(', ')}`);
     }
 
-    this.log(`Getting background for theme: ${theme}`);
+    this.log(`Getting background for theme: ${theme} (provider: ${this.imageProvider})`);
+
+    // If IMAGE_PROVIDER=none, return immediately
+    if (this.imageProvider === 'none') {
+      this.stats.failed++;
+      return {
+        success: false,
+        theme,
+        source: 'none'
+      };
+    }
 
     // Try cache first unless force=true
     if (!options.force) {
-      try {
-        const cachedBackground = await this._getCachedBackground(theme);
-        if (cachedBackground) {
-          this.stats.cacheHits++;
-          const latency = Date.now() - startTime;
+      // Check primary provider cache
+      if (this.primaryProvider) {
+        try {
+          const cachedBackground = await this._getCachedBackground(theme, this.primaryProvider);
+          if (cachedBackground) {
+            this.stats.cacheHits++;
+            const latency = Date.now() - startTime;
 
-          this.log(`Using cached background`, {
-            theme,
-            file: path.basename(cachedBackground),
-            latency: `${latency}ms`
-          });
+            this.log(`Using cached background from ${this.primaryProvider}`, {
+              theme,
+              file: path.basename(cachedBackground),
+              latency: `${latency}ms`
+            });
 
-          return {
-            imagePath: cachedBackground,
-            theme,
-            source: 'cache',
-            latency
-          };
+            return {
+              imagePath: cachedBackground,
+              theme,
+              source: `cache-${this.primaryProvider}`,
+              latency
+            };
+          }
+        } catch (error) {
+          this.log(`Primary cache lookup failed: ${error.message}`, null, 'warn');
         }
-      } catch (error) {
-        this.log(`Cache lookup failed: ${error.message}`, null, 'warn');
+      }
+
+      // Check fallback provider cache (cross-cache lookup)
+      if (this.fallbackProvider) {
+        try {
+          const cachedBackground = await this._getCachedBackground(theme, this.fallbackProvider);
+          if (cachedBackground) {
+            this.stats.cacheHits++;
+            const latency = Date.now() - startTime;
+
+            this.log(`Using cached background from ${this.fallbackProvider} (fallback cache)`, {
+              theme,
+              file: path.basename(cachedBackground),
+              latency: `${latency}ms`
+            });
+
+            return {
+              imagePath: cachedBackground,
+              theme,
+              source: `cache-${this.fallbackProvider}`,
+              latency
+            };
+          }
+        } catch (error) {
+          this.log(`Fallback cache lookup failed: ${error.message}`, null, 'warn');
+        }
       }
     }
 
-    // Generate new background
+    // Cache miss - try primary API
     this.stats.cacheMisses++;
-    return this._generateBackground(theme);
+
+    if (this.primaryClient) {
+      this.log(`Trying primary provider API: ${this.primaryProvider}`);
+      const result = await this._generateBackground(theme, this.primaryProvider, this.primaryClient);
+      if (result.success !== false) {
+        return result;
+      }
+      this.log(`Primary provider ${this.primaryProvider} failed, trying fallback...`, null, 'warn');
+    } else {
+      this.log(`Primary provider ${this.primaryProvider} has no client (missing API key)`, null, 'warn');
+    }
+
+    // Try fallback API
+    if (this.fallbackClient) {
+      this.log(`Trying fallback provider API: ${this.fallbackProvider}`);
+      const result = await this._generateBackground(theme, this.fallbackProvider, this.fallbackClient);
+      if (result.success !== false) {
+        return result;
+      }
+      this.log(`Fallback provider ${this.fallbackProvider} also failed`, null, 'error');
+    } else {
+      this.log(`Fallback provider ${this.fallbackProvider} has no client (missing API key)`, null, 'warn');
+    }
+
+    // Both failed
+    this.stats.failed++;
+    return {
+      success: false,
+      theme,
+      source: 'all-failed'
+    };
   }
 
   /**
@@ -108,7 +198,18 @@ class BackgroundGenerator {
    * @returns {Promise<Object>} - Summary of generation results
    */
   async warmup(countPerTheme = 3) {
-    this.log(`Starting warmup: generating ${countPerTheme} backgrounds per theme...`);
+    if (!this.primaryClient) {
+      this.log('Warmup skipped: no primary client available (missing API key)', null, 'warn');
+      return {
+        total: 0,
+        success: 0,
+        failed: 0,
+        themes: {},
+        skipped: true
+      };
+    }
+
+    this.log(`Starting warmup: generating ${countPerTheme} backgrounds per theme using ${this.primaryProvider}...`);
     const startTime = Date.now();
 
     const results = {
@@ -128,11 +229,16 @@ class BackgroundGenerator {
       for (let i = 0; i < countPerTheme; i++) {
         try {
           results.total++;
-          await this._generateBackground(theme);
-          results.success++;
-          results.themes[theme].generated++;
-
-          this.log(`Generated ${i + 1}/${countPerTheme} for ${theme}`);
+          const result = await this._generateBackground(theme, this.primaryProvider, this.primaryClient);
+          if (result.success !== false) {
+            results.success++;
+            results.themes[theme].generated++;
+            this.log(`Generated ${i + 1}/${countPerTheme} for ${theme}`);
+          } else {
+            results.failed++;
+            results.themes[theme].failed++;
+            this.log(`Failed to generate background ${i + 1}/${countPerTheme} for ${theme}`, null, 'error');
+          }
         } catch (error) {
           results.failed++;
           results.themes[theme].failed++;
@@ -161,25 +267,47 @@ class BackgroundGenerator {
   /**
    * Get all cached backgrounds for a theme
    * @param {string} theme - Theme name
+   * @param {string} provider - Optional provider name (gemini, dalle). If not specified, aggregates across all providers.
    * @returns {Promise<Array<string>>} - Array of file paths
    */
-  async getCachedBackgrounds(theme) {
+  async getCachedBackgrounds(theme, provider = null) {
     if (!THEMES[theme]) {
       throw new Error(`Invalid theme: ${theme}`);
     }
 
-    const themeDir = path.join(this.cacheDir, theme);
+    if (provider) {
+      // Provider-specific lookup
+      const themeDir = path.join(this.cacheDir, provider, theme);
 
-    try {
-      await fs.access(themeDir);
-      const files = await fs.readdir(themeDir);
-      const pngFiles = files.filter(f => f.endsWith('.png'));
-      return pngFiles.map(f => path.join(themeDir, f));
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        return [];
+      try {
+        await fs.access(themeDir);
+        const files = await fs.readdir(themeDir);
+        const pngFiles = files.filter(f => f.endsWith('.png'));
+        return pngFiles.map(f => path.join(themeDir, f));
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          return [];
+        }
+        throw error;
       }
-      throw error;
+    } else {
+      // Aggregate across all providers (backward compatibility)
+      const allFiles = [];
+      const providers = ['gemini', 'dalle'];
+
+      for (const prov of providers) {
+        const themeDir = path.join(this.cacheDir, prov, theme);
+        try {
+          await fs.access(themeDir);
+          const files = await fs.readdir(themeDir);
+          const pngFiles = files.filter(f => f.endsWith('.png'));
+          allFiles.push(...pngFiles.map(f => path.join(themeDir, f)));
+        } catch (error) {
+          if (error.code !== 'ENOENT') throw error;
+        }
+      }
+
+      return allFiles;
     }
   }
 
@@ -190,28 +318,16 @@ class BackgroundGenerator {
    */
   async clearCache(theme = null) {
     let deletedCount = 0;
+    const providers = ['gemini', 'dalle'];
 
     if (theme) {
-      // Clear specific theme
+      // Clear specific theme across all providers
       if (!THEMES[theme]) {
         throw new Error(`Invalid theme: ${theme}`);
       }
 
-      const themeDir = path.join(this.cacheDir, theme);
-      try {
-        const files = await fs.readdir(themeDir);
-        for (const file of files) {
-          await fs.unlink(path.join(themeDir, file));
-          deletedCount++;
-        }
-        this.log(`Cleared cache for theme: ${theme} (${deletedCount} files)`);
-      } catch (error) {
-        if (error.code !== 'ENOENT') throw error;
-      }
-    } else {
-      // Clear all themes
-      for (const themeName of Object.keys(THEMES)) {
-        const themeDir = path.join(this.cacheDir, themeName);
+      for (const provider of providers) {
+        const themeDir = path.join(this.cacheDir, provider, theme);
         try {
           const files = await fs.readdir(themeDir);
           for (const file of files) {
@@ -222,6 +338,23 @@ class BackgroundGenerator {
           if (error.code !== 'ENOENT') throw error;
         }
       }
+      this.log(`Cleared cache for theme: ${theme} (${deletedCount} files)`);
+    } else {
+      // Clear all themes across all providers
+      for (const provider of providers) {
+        for (const themeName of Object.keys(THEMES)) {
+          const themeDir = path.join(this.cacheDir, provider, themeName);
+          try {
+            const files = await fs.readdir(themeDir);
+            for (const file of files) {
+              await fs.unlink(path.join(themeDir, file));
+              deletedCount++;
+            }
+          } catch (error) {
+            if (error.code !== 'ENOENT') throw error;
+          }
+        }
+      }
       this.log(`Cleared all caches (${deletedCount} files)`);
     }
 
@@ -230,19 +363,28 @@ class BackgroundGenerator {
 
   /**
    * Get cache statistics
-   * @returns {Promise<Object>} - Cache statistics per theme
+   * @returns {Promise<Object>} - Cache statistics per theme and provider
    */
   async getCacheStats() {
     const stats = {
       themes: {}
     };
+    const providers = ['gemini', 'dalle'];
 
     for (const theme of Object.keys(THEMES)) {
-      const cached = await this.getCachedBackgrounds(theme);
       stats.themes[theme] = {
-        count: cached.length,
-        files: cached.map(p => path.basename(p))
+        total: 0,
+        providers: {}
       };
+
+      for (const provider of providers) {
+        const cached = await this.getCachedBackgrounds(theme, provider);
+        stats.themes[theme].providers[provider] = {
+          count: cached.length,
+          files: cached.map(p => path.basename(p))
+        };
+        stats.themes[theme].total += cached.length;
+      }
     }
 
     return stats;
@@ -256,11 +398,25 @@ class BackgroundGenerator {
     const hitRate =
       this.stats.totalRequests > 0 ? ((this.stats.cacheHits / this.stats.totalRequests) * 100).toFixed(1) + '%' : 'N/A';
 
-    return {
+    const stats = {
       ...this.stats,
       cacheHitRate: hitRate,
-      dalleStats: this.dalleClient.getStats()
+      imageProvider: this.imageProvider,
+      primaryProvider: this.primaryProvider,
+      fallbackProvider: this.fallbackProvider
     };
+
+    // Add primary client stats
+    if (this.primaryClient && this.primaryClient.getStats) {
+      stats.primaryClientStats = this.primaryClient.getStats();
+    }
+
+    // Add fallback client stats
+    if (this.fallbackClient && this.fallbackClient.getStats) {
+      stats.fallbackClientStats = this.fallbackClient.getStats();
+    }
+
+    return stats;
   }
 
   /**
@@ -274,17 +430,97 @@ class BackgroundGenerator {
       generated: 0,
       failed: 0
     };
-    this.dalleClient.resetStats();
+    if (this.primaryClient && this.primaryClient.resetStats) {
+      this.primaryClient.resetStats();
+    }
+    if (this.fallbackClient && this.fallbackClient.resetStats) {
+      this.fallbackClient.resetStats();
+    }
   }
 
   // ========== PRIVATE METHODS ==========
 
   /**
-   * Get a random cached background for the theme
+   * Migrate cache from old flat structure to provider-separated structure
+   * One-time migration: cache/backgrounds/{theme}/ -> cache/backgrounds/dalle/{theme}/
    * @private
    */
-  async _getCachedBackground(theme) {
-    const cached = await this.getCachedBackgrounds(theme);
+  async _migrateCacheIfNeeded() {
+    const flagPath = path.join(this.cacheDir, '.provider-migration-complete');
+
+    // Check flag file - if exists, migration already done
+    try {
+      await fs.access(flagPath);
+      this.log('Cache migration already complete (flag file exists)', null, 'info');
+      return;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+      // Flag doesn't exist, proceed with migration
+    }
+
+    this.log('Starting cache migration from flat structure to provider-separated structure...');
+    let totalMoved = 0;
+
+    for (const theme of Object.keys(THEMES)) {
+      const oldDir = path.join(this.cacheDir, theme);
+      const newDir = path.join(this.cacheDir, 'dalle', theme);
+
+      try {
+        // Check if old directory exists
+        await fs.access(oldDir);
+
+        // Read files from old directory
+        const files = await fs.readdir(oldDir);
+        const pngFiles = files.filter(f => f.endsWith('.png'));
+
+        if (pngFiles.length === 0) {
+          this.log(`Theme ${theme}: no PNG files to migrate`);
+          continue;
+        }
+
+        // Create new directory
+        await fs.mkdir(newDir, { recursive: true });
+
+        // Move each PNG file
+        let movedCount = 0;
+        for (const file of pngFiles) {
+          const oldPath = path.join(oldDir, file);
+          const newPath = path.join(newDir, file);
+
+          try {
+            await fs.rename(oldPath, newPath);
+            movedCount++;
+          } catch (error) {
+            this.log(`Warning: Failed to move ${file} for theme ${theme}: ${error.message}`, null, 'warn');
+          }
+        }
+
+        totalMoved += movedCount;
+        this.log(`Theme ${theme}: migrated ${movedCount} files`);
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          // Old directory doesn't exist - nothing to migrate for this theme
+          this.log(`Theme ${theme}: no old directory found, skipping`);
+        } else {
+          this.log(`Warning: Error migrating theme ${theme}: ${error.message}`, null, 'warn');
+        }
+      }
+    }
+
+    // Write flag file
+    await fs.writeFile(flagPath, new Date().toISOString());
+    this.log(`Cache migration complete: ${totalMoved} files moved to dalle/ subdirectory`);
+  }
+
+  /**
+   * Get a random cached background for the theme
+   * @private
+   * @param {string} theme - Theme name
+   * @param {string} provider - Provider name (gemini, dalle)
+   * @returns {Promise<string|null>} - Path to cached image or null
+   */
+  async _getCachedBackground(theme, provider) {
+    const cached = await this.getCachedBackgrounds(theme, provider);
 
     if (cached.length === 0) {
       return null;
@@ -296,18 +532,22 @@ class BackgroundGenerator {
   }
 
   /**
-   * Generate a new background using DALL-E
+   * Generate a new background using specified provider
    * @private
+   * @param {string} theme - Theme name
+   * @param {string} providerName - Provider name (gemini, dalle)
+   * @param {Object} client - Provider client instance
+   * @returns {Promise<Object>} - {imagePath, theme, source, latency, provider} or {success: false}
    */
-  async _generateBackground(theme) {
+  async _generateBackground(theme, providerName, client) {
     const startTime = Date.now();
     const themeConfig = THEMES[theme];
 
-    this.log(`Generating new background for theme: ${theme}...`);
+    this.log(`Generating new background for theme: ${theme} using ${providerName}...`);
 
     try {
-      // Ensure cache directory exists
-      const themeDir = path.join(this.cacheDir, theme);
+      // Ensure cache directory exists (provider-separated)
+      const themeDir = path.join(this.cacheDir, providerName, theme);
       await fs.mkdir(themeDir, { recursive: true });
 
       // Generate filename with timestamp
@@ -315,13 +555,22 @@ class BackgroundGenerator {
       const filename = `${theme}_${timestamp}.png`;
       const outputPath = path.join(themeDir, filename);
 
-      // Generate via DALL-E
-      const result = await this.dalleClient.generateAndDownload(themeConfig.dallePrompt, outputPath);
+      // Generate via provider
+      let result;
+      if (providerName === 'gemini') {
+        // Gemini: generateAndSave returns { imagePath, mimeType, textResponse, latency }
+        result = await client.generateAndSave(themeConfig.dallePrompt, outputPath);
+      } else if (providerName === 'dalle') {
+        // DALL-E: generateAndDownload returns { imagePath, revisedPrompt, latency }
+        result = await client.generateAndDownload(themeConfig.dallePrompt, outputPath);
+      } else {
+        throw new Error(`Unknown provider: ${providerName}`);
+      }
 
       this.stats.generated++;
       const latency = Date.now() - startTime;
 
-      this.log(`Background generated successfully`, {
+      this.log(`Background generated successfully via ${providerName}`, {
         theme,
         file: filename,
         latency: `${latency}ms`
@@ -330,14 +579,13 @@ class BackgroundGenerator {
       return {
         imagePath: result.imagePath,
         theme,
-        source: 'generated',
-        revisedPrompt: result.revisedPrompt,
-        latency
+        source: `generated-${providerName}`,
+        latency,
+        provider: providerName
       };
     } catch (error) {
-      this.stats.failed++;
-      this.log(`Failed to generate background for ${theme}: ${error.message}`, null, 'error');
-      throw error;
+      this.log(`Failed to generate background for ${theme} via ${providerName}: ${error.message}`, null, 'error');
+      return { success: false };
     }
   }
 
