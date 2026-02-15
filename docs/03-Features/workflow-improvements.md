@@ -10,16 +10,16 @@ Consolidate 3 GitHub Actions workflows into 2, add SonarCloud static analysis, m
 
 ## Acceptance Criteria
 
-- [x] 3 workflow files consolidated into 2 (ci.yml + automation.yml)
+- [x] 3 workflow files consolidated into 2 (`ci.yml` + `automation.yml`)
 - [x] SonarCloud analysis runs on every PR (informational, not blocking)
-- [x] sonar-project.properties configured for automation/ source directory
-- [x] All workflows use npm ci + npm cache for deterministic, fast builds
+- [x] `sonar-project.properties` configured for automation/ source directory
+- [x] All workflows use `npm ci` + `npm cache` for deterministic, fast builds
 - [x] Concurrency groups prevent stale/duplicate CI runs
-- [x] Automation jobs (generate/publish) have cancel-in-progress: false
-- [x] workflow_dispatch dropdown allows generate, publish, or both
-- [x] Branch protection on develop: require PR + passing CI, no force push
-- [x] Branch protection on main: require PR + passing CI, no force push
-- [x] SONAR_TOKEN added as GitHub secret
+- [x] Automation jobs (generate/publish) have `cancel-in-progress: false`
+- [x] `workflow_dispatch` dropdown allows generate, publish, or both
+- [x] Branch protection on `develop`: require PR + passing CI, no force push
+- [x] Branch protection on `main`: require PR + passing CI, no force push
+- [x] `SONAR_TOKEN` added as GitHub secret
 
 ## Tasks
 
