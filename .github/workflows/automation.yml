@@ -47,6 +47,7 @@ jobs:
 
       - name: Decode Firebase credentials
         run: |
+          mkdir -p config
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > config/firebase-service-account.json
 
       - name: Generate content
@@ -90,6 +91,7 @@ jobs:
 
       - name: Decode Firebase credentials
         run: |
+          mkdir -p config
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > config/firebase-service-account.json
 
       - name: Publish approved posts
