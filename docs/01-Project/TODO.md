@@ -1,86 +1,56 @@
 # TODO
 
-## MVP (Phase 1) - IN PROGRESS
+## MVP (Phase 1) - NEARLY COMPLETE
 
-### ✅ Complete
+### Complete
+
 - [x] WhatsApp approval workflow (Twilio Functions)
 - [x] Firestore queue (cloud-based, replaces n8n)
-- [x] Image generation system (`automation/image-generator/`)
-- [x] WhatsApp commands: list, status, approve, reject
+- [x] Image generation system (Puppeteer + Gemini AI + DALL-E hybrid)
+- [x] WhatsApp commands: list, status, view, approve, reject
+- [x] Content generator (Claude API + topic rotation + prompt templates)
+- [x] Publisher module (Firestore query → platform adapters → status update)
+- [x] GitHub Actions workflows (automation.yml: generate + publish jobs)
+- [x] CI pipeline (ESLint + Prettier + SonarCloud)
+- [x] Branch protection on develop and main
+- [x] Gemini AI image generation integrated into pipeline
+- [x] Firebase Storage upload for post images
 
-### 🔄 In Progress
-- [ ] GitHub Actions: Content generation workflow
-- [ ] GitHub Actions: Publisher workflow
-- [ ] Claude API integration (replaces OpenAI)
+### Remaining
 
-### ⏳ Remaining
-- [ ] LinkedIn OAuth & real posting
-- [ ] End-to-end testing
+- [ ] LinkedIn OAuth & real posting (currently MVP stub — logs to console)
+- [ ] End-to-end testing (generate → approve → publish cycle)
 - [ ] Expand topic bank
 
-**Schedule:** 2 posts/day (8am + 4pm CT)
+**Schedule:** 2 posts/day (8am + 4pm CT) — cron disabled, manual dispatch only
 
 ---
 
-## Current Focus: GitHub Actions Workflow
+## Backlog
 
-See [GitHub Actions Workflow](../03-Features/github-actions-workflow.md) for detailed tasks.
-
-### Content Generator
-- [ ] Task 1.1: Create `content-generator/index.js`
-- [ ] Task 1.2: Create `content-generator/claude-client.js`
-- [ ] Task 1.3: Create `content-generator/topic-selector.js`
-- [ ] Task 1.4: Test locally
-
-### Publisher
-- [ ] Task 2.1: Create `publisher/index.js`
-- [ ] Task 2.2: Create `publisher/platforms/linkedin.js`
-- [ ] Task 2.3: Test locally
-
-### GitHub Actions
-- [ ] Task 3.1: Create `generate-content.yml`
-- [ ] Task 3.2: Create `publish-content.yml`
-- [ ] Task 3.3: Add GitHub Secrets
-- [ ] Task 3.4: Test workflows
+- [ ] Error alerting (Slack/email on failures)
+- [ ] Dashboard for monitoring posts
+- [ ] Backup/archive of generated content
+- [ ] Comment reply automation (awaiting LinkedIn API access)
+- [ ] Example-based image generation (use reference images for AI style matching)
 
 ---
 
-## ✅ Completed Features
+## Phase 2 - Multi-Platform
 
-### Image Generation System
-> **Location**: `automation/image-generator/`
->
-> **Run tests**: `cd automation && npm run test-images`
-
-- Cards: Title + numbered bullets
-- Diagrams: Horizontal comparison OR vertical layered flows
-- Auto-detection of template type from content
-- 30+ SVG icons for data engineering concepts
-
-### WhatsApp Approval System
-> **Location**: `automation/whatsapp/` + `automation/whatsapp-function/`
-
-- Cloud-based queue in Firestore
-- Twilio Functions webhook (deployed)
-- Commands: list, status, view, approve, reject
-- Automatic notifications when posts are added
-
----
-
-## Future Phases
-
-### Phase 2 - Multi-Platform
 - [ ] Instagram posting (Meta Graph API)
 - [ ] Facebook posting (Meta Graph API)
 - [ ] Platform-specific formatting
 - [ ] Carousel/multi-image support
 
-### Phase 3 - Advanced Content
+## Phase 3 - Advanced Content
+
 - [ ] TikTok integration
 - [ ] Video/animation generation
-- [ ] AI image generation (DALL-E)
+- [ ] Enhanced image styles
 
-### Phase 4 - Optimization
+## Phase 4 - Optimization
+
 - [ ] Analytics collection
 - [ ] Topic refinement based on engagement
 - [ ] A/B testing for post formats
@@ -88,8 +58,4 @@ See [GitHub Actions Workflow](../03-Features/github-actions-workflow.md) for det
 
 ---
 
-## Backlog
-- [ ] Error alerting (Slack/email on failures)
-- [ ] Dashboard for monitoring posts
-- [ ] Backup/archive of generated content
-- [ ] Comment reply automation
+[← Back to README](../../README.md)
