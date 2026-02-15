@@ -43,9 +43,10 @@ app.get('/callback', async (req, res) => {
   }
 
   if (!code) {
-    res.send('<h2>No authorization code received</h2>');
-    console.error('No authorization code in callback');
-    process.exit(1);
+    // Ignore stale browser requests (favicon, history autocomplete, etc.)
+    res.send('<h2>Waiting for authorization...</h2><p>Please use the URL in the terminal to authorize.</p>');
+    console.log('Callback hit without code — ignoring (likely stale browser request)');
+    return;
   }
 
   console.log('Authorization code received. Exchanging for tokens...');
