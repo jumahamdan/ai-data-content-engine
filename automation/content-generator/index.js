@@ -44,22 +44,29 @@ Make it eye-catching for a LinkedIn feed. No stock photo look — make it inform
   const bucket = admin.storage().bucket(STORAGE_BUCKET);
   const destination = `post-images/${fileName}`;
 
-  await bucket.upload(localPath, {
-    destination,
-    metadata: {
-      contentType: 'image/png',
-      metadata: { topic, generatedAt: new Date().toISOString() }
-    }
-  });
+  try {
+    await bucket.upload(localPath, {
+      destination,
+      metadata: {
+        contentType: 'image/png',
+        metadata: { topic, generatedAt: new Date().toISOString() }
+      }
+    });
 
-  // Make publicly readable
-  const file = bucket.file(destination);
-  await file.makePublic();
+    // Make publicly readable
+    const file = bucket.file(destination);
+    await file.makePublic();
 
-  const publicUrl = `https://storage.googleapis.com/${STORAGE_BUCKET}/${destination}`;
-  console.log(`Content Generator: Image uploaded → ${publicUrl}`);
+    const publicUrl = `https://storage.googleapis.com/${STORAGE_BUCKET}/${destination}`;
+    console.log(`Content Generator: Image uploaded → ${publicUrl}`);
 
-  return publicUrl;
+    return publicUrl;
+  } finally {
+    // Clean up local file after upload to avoid accumulating images on disk
+    fs.promises.unlink(localPath).catch(err => {
+      console.warn(`Content Generator: Failed to delete local image: ${err.message}`);
+    });
+  }
 }
 
 /**

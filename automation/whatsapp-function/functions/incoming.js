@@ -105,7 +105,7 @@ async function handleView(postsRef, postId) {
   const caption = post.content?.caption || post.caption || 'No caption';
   const hashtags = post.content?.hashtags || post.hashtags || '';
   const status = post.status || 'unknown';
-  const imageUrl = post.imagePath && post.imagePath.startsWith('http') ? post.imagePath : null;
+  const imageUrl = post.imagePath && post.imagePath.startsWith('https') ? post.imagePath : null;
 
   let msg = `📝 Post #${postId}\n━━━━━━━━━━━━━━━━\nStatus: ${status.toUpperCase()}\n\n${caption}\n\n`;
   if (hashtags) msg += `${hashtags}\n\n`;
