@@ -75,6 +75,7 @@ topics/                 topic-bank.json — topic rotation bank
 | `docs/03-Features/whatsapp-approval.md` | WhatsApp approval system (COMPLETE) |
 | `docs/03-Features/hybrid-image-generator.md` | DALL-E + Puppeteer image pipeline (Phases 1-5 done) |
 | `docs/03-Features/gemini-image-generator.md` | Gemini image provider: architecture, cost comparison, provider routing |
+| `docs/03-Features/pipeline-image-integration.md` | Gemini images in content pipeline + Firebase Storage upload |
 | `docs/03-Features/image-generator.md` | Image generator status summary and next steps |
 | `docs/03-Features/comment-replies.md` | LinkedIn comment automation (PLANNED — awaiting API access) |
 | `docs/04-Development/AI_AGENT_INSTRUCTIONS.md` | Dual-workflow agent instructions (Lightweight + GSD routing) |
@@ -93,6 +94,7 @@ topics/                 topic-bank.json — topic rotation bank
 | WhatsApp Approval | Complete | `docs/03-Features/whatsapp-approval.md` |
 | Hybrid Image Generator | Phases 1-5 done, multi-provider support | `docs/03-Features/hybrid-image-generator.md` |
 | Gemini Image Generator | Complete | `docs/03-Features/gemini-image-generator.md` |
+| Pipeline Image Integration | In Progress | `docs/03-Features/pipeline-image-integration.md` |
 | CI + Linting | Done | `.github/workflows/ci.yml` |
 | Comment Replies | Planned | `docs/03-Features/comment-replies.md` |
 

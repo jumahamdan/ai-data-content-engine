@@ -4,6 +4,20 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-14 — Pipeline Image Integration
+
+**Branch:** `feature/pipeline-image-integration`
+
+### Shipped
+- Content generator now creates Gemini AI images for each post (full AI visuals, not Puppeteer composites)
+- Images uploaded to Firebase Storage with public URLs
+- WhatsApp notification sends image as MMS media alongside the text preview
+- WhatsApp view command (`<id>`) now returns full caption + attached image (was truncated at 1200 chars, no image)
+- `firestore-queue.js` only passes `mediaUrl` to Twilio when it's an https URL
+- IMAGE_PROVIDER=none disables image generation; failures are non-blocking
+
+---
+
 ## 2026-02-14 -- Gemini Image Generator Integration
 
 **Branch:** `feature/gemini-image-generator`
