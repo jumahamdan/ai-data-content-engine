@@ -1,7 +1,7 @@
 # Feature: GitHub Actions Workflow
 
-> **Status:** 🔄 In Progress  
-> **Priority:** High (Core MVP)  
+> **Status:** Complete (LinkedIn posting is MVP stub)
+> **Priority:** High (Core MVP)
 > **Branch:** `feature/github-actions-workflow`
 
 ---
@@ -57,11 +57,7 @@ Replace local n8n workflow with GitHub Actions for fully serverless content gene
   - Tracks recently used topics (avoid repeats)
   - Returns topic with template name
 
-- [ ] **Task 1.4:** Test content generator locally
-  ```bash
-  cd automation
-  node content-generator/index.js
-  ```
+- [x] **Task 1.4:** Test content generator locally
 
 ### Phase 2: Publisher Module
 
@@ -75,32 +71,13 @@ Replace local n8n workflow with GitHub Actions for fully serverless content gene
   - MVP: Log post (no actual posting)
   - Future: OAuth + real posting
 
-- [ ] **Task 2.3:** Test publisher locally
-  ```bash
-  cd automation
-  node publisher/index.js
-  ```
+- [x] **Task 2.3:** Test publisher locally
 
 ### Phase 3: GitHub Actions Workflows
 
-- [x] **Task 3.1:** Create `.github/workflows/generate-content.yml`
-  ```yaml
-  name: Generate Content
-  on:
-    schedule:
-      - cron: '0 14 * * *'  # 8am CT (14:00 UTC)
-      - cron: '0 22 * * *'  # 4pm CT (22:00 UTC)
-    workflow_dispatch:       # Manual trigger for testing
-  ```
+- [x] **Task 3.1:** Create `.github/workflows/automation.yml` (consolidated generate + publish)
 
-- [x] **Task 3.2:** Create `.github/workflows/publish-content.yml`
-  ```yaml
-  name: Publish Content
-  on:
-    schedule:
-      - cron: '*/15 * * * *'  # Every 15 minutes
-    workflow_dispatch:
-  ```
+- [x] **Task 3.2:** Workflow dispatch dropdown (generate / publish / both)
 
 - [x] **Task 3.3:** Add GitHub Secrets
   - `ANTHROPIC_API_KEY`
@@ -110,7 +87,7 @@ Replace local n8n workflow with GitHub Actions for fully serverless content gene
   - `TWILIO_WHATSAPP_FROM`
   - `WHATSAPP_TO`
 
-- [ ] **Task 3.4:** Test workflows manually via workflow_dispatch
+- [x] **Task 3.4:** Test workflows manually via workflow_dispatch
 
 ### Phase 4: Integration Testing
 
@@ -249,7 +226,8 @@ node publisher/index.js
 
 ## Future Enhancements
 
-- [ ] Image generation with DALL-E or hybrid generator
+- [x] ~~Image generation with DALL-E or hybrid generator~~ (done — Gemini + DALL-E hybrid pipeline)
+- [ ] LinkedIn OAuth & real posting (replace MVP stub)
 - [ ] Multi-platform support (Instagram, Facebook)
 - [ ] Analytics tracking
 - [ ] A/B testing different content styles
