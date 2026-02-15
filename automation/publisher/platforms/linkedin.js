@@ -10,7 +10,7 @@
 
 const name = 'linkedin';
 
-const LINKEDIN_API_VERSION = '202401';
+const LINKEDIN_API_VERSION = '202601';
 
 // ---------------------------------------------------------------------------
 // LinkedIn API helpers
