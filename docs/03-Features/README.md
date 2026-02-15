@@ -9,6 +9,7 @@ Each feature in this project has its own doc in this folder. Feature docs are th
 | GitHub Actions Workflow | [github-actions-workflow.md](github-actions-workflow.md) |
 | WhatsApp Approval | [whatsapp-approval.md](whatsapp-approval.md) |
 | Hybrid Image Generator | [hybrid-image-generator.md](hybrid-image-generator.md) |
+| Gemini Image Generator | [gemini-image-generator.md](gemini-image-generator.md) |
 | Image Generator (summary) | [image-generator.md](image-generator.md) |
 | Comment Replies | [comment-replies.md](comment-replies.md) |
 

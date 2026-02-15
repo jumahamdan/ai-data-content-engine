@@ -1,9 +1,11 @@
 # Feature: Hybrid Image Generator (DALL-E + Puppeteer)
 
-> **Status:** 🔄 Not Started  
-> **Branch:** `feature/hybrid-image-generator`  
-> **Replaces:** Current `automation/image-generator/` (keep as fallback)  
+> **Status:** 🔄 Not Started
+> **Branch:** `feature/hybrid-image-generator`
+> **Replaces:** Current `automation/image-generator/` (keep as fallback)
 > **Priority:** MVP Enhancement
+>
+> **See also:** [Gemini Image Generator](gemini-image-generator.md) -- Gemini provider integration for cost-optimized image generation
 
 ---
 
