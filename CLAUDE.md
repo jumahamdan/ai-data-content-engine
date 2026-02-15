@@ -29,7 +29,8 @@ See `docs/04-Development/AI_AGENT_INSTRUCTIONS.md` for the full routing logic an
 - **Publishing:** LinkedIn API (MVP: stub logging)
 - **Linting:** ESLint 8 (`eslint:recommended`)
 - **Formatting:** Prettier 3
-- **CI:** GitHub Actions (lint + format check on PRs)
+- **CI:** GitHub Actions (lint + format + SonarCloud on PRs)
+- **Code Quality:** SonarCloud (static analysis, informational)
 
 ## Project Map
 
@@ -49,9 +50,8 @@ automation/
 
 .github/
   workflows/
-    generate-content.yml  Content generation workflow (cron disabled, manual dispatch)
-    publish-content.yml   Publishing workflow (cron disabled, manual dispatch)
-    ci.yml                CI checks (lint + format) on PRs
+    ci.yml                CI checks (lint + format + SonarCloud) on PRs
+    automation.yml        Content generation + publishing (cron disabled, manual dispatch)
   PULL_REQUEST_TEMPLATE.md
   ISSUE_TEMPLATE/
     bug_report.yml
@@ -95,12 +95,13 @@ topics/                 topic-bank.json — topic rotation bank
 | Hybrid Image Generator | Phases 1-5 done, multi-provider support | `docs/03-Features/hybrid-image-generator.md` |
 | Gemini Image Generator | Complete | `docs/03-Features/gemini-image-generator.md` |
 | Pipeline Image Integration | Complete | `docs/03-Features/pipeline-image-integration.md` |
-| CI + Linting | Done | `.github/workflows/ci.yml` |
+| CI + Linting + SonarCloud | Done | `.github/workflows/ci.yml` |
+| Workflow Improvements | Done | `docs/03-Features/workflow-improvements.md` |
 | Comment Replies | Planned | `docs/03-Features/comment-replies.md` |
 
 ## GitHub Secrets (CI/CD)
 
-`ANTHROPIC_API_KEY`, `FIREBASE_SERVICE_ACCOUNT`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`, `OPENAI_API_KEY`, `GEMINI_API_KEY`
+`ANTHROPIC_API_KEY`, `FIREBASE_SERVICE_ACCOUNT`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `SONAR_TOKEN`
 
 ## Key Patterns
 
@@ -110,5 +111,6 @@ topics/                 topic-bank.json — topic rotation bank
 - **Error handling:** Retry with exponential backoff for external APIs; log + continue for non-critical failures
 - **MVP approach:** LinkedIn posting is stubbed (console log) until OAuth is configured
 - **Branching:** Gitflow — features branch from `develop`, merge to `develop` via PR, `develop` merges to `main` for releases
-- **CI checks:** ESLint + Prettier run on all PRs to `develop` and `main`
+- **CI checks:** ESLint + Prettier + SonarCloud run on all PRs to `develop` and `main`
+- **Branch protection:** `develop` and `main` require PRs with passing CI; no direct pushes, no force pushes
 - **GSD planning artifacts:** `.planning/` (gitignored) — used as a working scratchpad for complex features via `AI_AGENT_INSTRUCTIONS.md`

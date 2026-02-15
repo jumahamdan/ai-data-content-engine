@@ -24,7 +24,7 @@ Replace local n8n workflow with GitHub Actions for fully serverless content gene
 │                    GITHUB ACTIONS WORKFLOWS                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  generate-content.yml              publish-content.yml           │
+│  automation.yml (generate job)     automation.yml (publish job)  │
 │  ┌─────────────────────┐          ┌─────────────────────┐       │
 │  │ Trigger: cron       │          │ Trigger: cron       │       │
 │  │ 8:00 AM CT (14:00 Z)│          │ Every 15 minutes    │       │
@@ -150,8 +150,8 @@ automation/
 
 .github/
 └── workflows/
-    ├── generate-content.yml
-    └── publish-content.yml
+    ├── ci.yml              # Lint + format + SonarCloud on PRs
+    └── automation.yml      # Generate + publish (cron/manual dispatch)
 ```
 
 ---
