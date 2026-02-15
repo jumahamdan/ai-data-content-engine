@@ -98,11 +98,12 @@ topics/                 topic-bank.json — topic rotation bank
 | Pipeline Image Integration | Complete | `docs/03-Features/pipeline-image-integration.md` |
 | CI + Linting + SonarCloud | Done | `.github/workflows/ci.yml` |
 | Workflow Improvements | Done | `docs/03-Features/workflow-improvements.md` |
+| LinkedIn OAuth & Real Posting | In Progress | `docs/03-Features/linkedin-oauth.md` |
 | Comment Replies | Planned | `docs/03-Features/comment-replies.md` |
 
 ## GitHub Secrets (CI/CD)
 
-`ANTHROPIC_API_KEY`, `FIREBASE_SERVICE_ACCOUNT`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `SONAR_TOKEN`
+`ANTHROPIC_API_KEY`, `FIREBASE_SERVICE_ACCOUNT`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `SONAR_TOKEN`, `LINKEDIN_ACCESS_TOKEN`
 
 ## Key Patterns
 

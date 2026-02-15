@@ -4,6 +4,20 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-15 — LinkedIn OAuth & Real Posting
+
+**Branch:** `feature/linkedin-oauth`
+
+### Shipped
+- OAuth 2.0 token acquisition script (`automation/linkedin-auth/get-token.js`) — Express callback server, auto-saves tokens to .env
+- Replaced MVP stub LinkedIn adapter with real Posts API integration (versioned, 202401)
+- Image upload flow: initializeUpload → download from Firebase Storage → PUT to LinkedIn → attach URN
+- MVP fallback preserved when no LINKEDIN_ACCESS_TOKEN is set
+- GitHub Actions `automation.yml` updated with LINKEDIN_ACCESS_TOKEN for publish job
+- `.env.example` updated with LinkedIn OAuth variables
+
+---
+
 ## 2026-02-15 — Workflow Improvements + SonarCloud + Branch Protection
 
 **Branch:** `feature/workflow-improvements`
