@@ -4,6 +4,22 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-15 — Workflow Improvements + SonarCloud + Branch Protection
+
+**Branch:** `feature/workflow-improvements`
+
+### Shipped
+- Consolidated 3 workflow files into 2: `ci.yml` (lint + format + SonarCloud) and `automation.yml` (generate + publish)
+- Added SonarCloud static analysis to CI pipeline (informational, runs after lint passes)
+- Added `sonar-project.properties` targeting `automation/` source directory
+- All workflows now use `npm ci` + npm cache for deterministic, fast builds
+- Added concurrency groups: CI cancels stale runs, automation queues without canceling
+- `automation.yml` has `workflow_dispatch` dropdown: generate, publish, or both
+- Branch protection on `develop` and `main`: require PRs with passing CI, enforce for admins, no force push
+- Deleted `generate-content.yml` and `publish-content.yml` (replaced by `automation.yml`)
+
+---
+
 ## 2026-02-15 — Deploy + WhatsApp Fix
 
 **Branch:** `develop`
