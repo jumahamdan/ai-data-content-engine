@@ -2,7 +2,7 @@
 
 **Status:** In Progress
 **Branch:** feature/pipeline-image-integration
-**PR:** TBD
+**PR:** #8
 
 ## Overview
 
@@ -25,7 +25,7 @@ Integrates Gemini AI image generation directly into the content pipeline. When a
 | 1.0 | Create feature doc and acceptance criteria | Complete |
 | 1.1 | Fix handleView in incoming.js — attach image + full caption | Complete |
 | 1.2 | Lint/format all changes | Complete |
-| 1.3 | Commit, push, and create PR to develop | Pending |
+| 1.3 | Commit, push, and create PR to develop | Complete |
 
 ## Technical Notes
 
