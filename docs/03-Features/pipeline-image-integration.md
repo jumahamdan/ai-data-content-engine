@@ -1,6 +1,6 @@
 # Pipeline Image Integration
 
-**Status:** In Progress
+**Status:** Complete
 **Branch:** feature/pipeline-image-integration
 **PR:** #8
 

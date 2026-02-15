@@ -107,9 +107,16 @@ async function handleView(postsRef, postId) {
   const status = post.status || 'unknown';
   const imageUrl = post.imagePath && post.imagePath.startsWith('https') ? post.imagePath : null;
 
-  let msg = `📝 Post #${postId}\n━━━━━━━━━━━━━━━━\nStatus: ${status.toUpperCase()}\n\n${caption}\n\n`;
-  if (hashtags) msg += `${hashtags}\n\n`;
-  if (status === 'pending') msg += `Reply: YES ${postId} or NO ${postId}`;
+  const footer = status === 'pending' ? `\n\nReply: YES ${postId} or NO ${postId}` : '';
+  const header = `📝 Post #${postId}\n━━━━━━━━━━━━━━━━\nStatus: ${status.toUpperCase()}\n\n`;
+  const hashtagBlock = hashtags ? `\n\n${hashtags}` : '';
+
+  // Twilio WhatsApp enforces a 1600-char limit (error 21617).
+  // Budget 1400 to account for multi-byte emoji/unicode overhead.
+  const maxCaption = 1400 - header.length - hashtagBlock.length - footer.length;
+  const trimmedCaption = caption.length > maxCaption ? caption.substring(0, maxCaption - 3) + '...' : caption;
+
+  const msg = header + trimmedCaption + hashtagBlock + footer;
   return { text: msg, mediaUrl: imageUrl };
 }
 

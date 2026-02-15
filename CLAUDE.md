@@ -94,7 +94,7 @@ topics/                 topic-bank.json — topic rotation bank
 | WhatsApp Approval | Complete | `docs/03-Features/whatsapp-approval.md` |
 | Hybrid Image Generator | Phases 1-5 done, multi-provider support | `docs/03-Features/hybrid-image-generator.md` |
 | Gemini Image Generator | Complete | `docs/03-Features/gemini-image-generator.md` |
-| Pipeline Image Integration | In Progress | `docs/03-Features/pipeline-image-integration.md` |
+| Pipeline Image Integration | Complete | `docs/03-Features/pipeline-image-integration.md` |
 | CI + Linting | Done | `.github/workflows/ci.yml` |
 | Comment Replies | Planned | `docs/03-Features/comment-replies.md` |
 

@@ -4,6 +4,19 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-15 — Deploy + WhatsApp Fix
+
+**Branch:** `develop`
+
+### Shipped
+- Deployed updated `incoming.js` to Twilio via CLI (`npm run deploy`)
+- Fixed Twilio error 21617: view command exceeded WhatsApp's 1600-char message limit
+- Caption now smart-trimmed to fit within 1400-char budget (accounts for emoji/unicode overhead)
+- Image attachment confirmed working on WhatsApp sandbox
+- Feature doc status updated to Complete
+
+---
+
 ## 2026-02-14 — Pipeline Image Integration
 
 **Branch:** `feature/pipeline-image-integration`
