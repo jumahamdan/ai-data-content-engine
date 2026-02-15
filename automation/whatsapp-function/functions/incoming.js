@@ -99,23 +99,18 @@ async function handleList(postsRef) {
 
 async function handleView(postsRef, postId) {
   const doc = await postsRef.doc(postId).get();
-  if (!doc.exists) return `⚠️ Post #${postId} not found.`;
+  if (!doc.exists) return { text: `⚠️ Post #${postId} not found.` };
 
   const post = doc.data();
-  let caption = post.content?.caption || post.caption || 'No caption';
+  const caption = post.content?.caption || post.caption || 'No caption';
   const hashtags = post.content?.hashtags || post.hashtags || '';
   const status = post.status || 'unknown';
-
-  // Truncate caption if too long (WhatsApp limit ~1600 chars)
-  const maxCaptionLen = 1200;
-  if (caption.length > maxCaptionLen) {
-    caption = caption.substring(0, maxCaptionLen) + '...\n\n[Truncated for WhatsApp]';
-  }
+  const imageUrl = post.imagePath && post.imagePath.startsWith('https') ? post.imagePath : null;
 
   let msg = `📝 Post #${postId}\n━━━━━━━━━━━━━━━━\nStatus: ${status.toUpperCase()}\n\n${caption}\n\n`;
   if (hashtags) msg += `${hashtags}\n\n`;
   if (status === 'pending') msg += `Reply: YES ${postId} or NO ${postId}`;
-  return msg;
+  return { text: msg, mediaUrl: imageUrl };
 }
 
 async function handleApprove(postsRef, postId) {
@@ -186,8 +181,18 @@ exports.handler = async function (context, event, callback) {
     console.log(`[WhatsApp] Command: ${parsed.command}, PostId: ${parsed.postId}`);
     const handler = handlers[parsed.command];
     const response = handler ? await handler() : 'Unknown command. Try: status, list, yes <id>, no <id>';
-    console.log(`[WhatsApp] Response length: ${response.length}`);
-    twiml.message(response);
+
+    // Handlers return a string or { text, mediaUrl } for image attachments
+    if (typeof response === 'object' && response.text) {
+      console.log(`[WhatsApp] Response length: ${response.text.length}, media: ${!!response.mediaUrl}`);
+      const msg = twiml.message(response.text);
+      if (response.mediaUrl) {
+        msg.media(response.mediaUrl);
+      }
+    } else {
+      console.log(`[WhatsApp] Response length: ${response.length}`);
+      twiml.message(response);
+    }
   } catch (error) {
     console.error('Error:', error);
     twiml.message(`❌ Error: ${error.message}\n\nPlease try again.`);
