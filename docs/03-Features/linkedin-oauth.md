@@ -36,7 +36,7 @@ Replace the MVP stub LinkedIn adapter (console log) with real LinkedIn posting v
 ## Technical Notes
 
 ### LinkedIn API
-- **API version:** 202401 (versioned header)
+- **API version:** 202601 (versioned header, updated from sunset 202401)
 - **Endpoint:** `POST https://api.linkedin.com/rest/posts`
 - **Auth:** Bearer token via OAuth 2.0 Authorization Code flow
 - **Scopes:** `w_member_social`, `openid`, `profile`
@@ -46,8 +46,8 @@ Replace the MVP stub LinkedIn adapter (console log) with real LinkedIn posting v
 - Script at `automation/linkedin-auth/get-token.js`
 - Starts Express server on port 3000, builds auth URL, waits for callback
 - Exchanges authorization code for access + refresh tokens
-- Appends tokens to `automation/.env` automatically
-- **Token TTL:** ~2 months (manual rotation required)
+- Saves tokens to `automation/.env` (replaces existing entries on re-run)
+- **Token TTL:** 60 days (manual rotation required)
 
 ### LinkedIn App
 - App name: "n8n Content Automation"
@@ -62,6 +62,6 @@ Replace the MVP stub LinkedIn adapter (console log) with real LinkedIn posting v
 
 ## Security Notes
 
-- Access token expires in ~2 months — needs manual rotation
+- Access token expires in 60 days — needs manual rotation
 - Refresh token (if provided) should also be stored as a GitHub secret
 - All secrets exposed during development sessions must be rotated

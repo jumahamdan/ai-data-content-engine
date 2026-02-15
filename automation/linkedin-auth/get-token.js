@@ -39,7 +39,11 @@ app.get('/callback', async (req, res) => {
   if (error) {
     res.send(`<h2>Authorization failed</h2><p>${error}: ${error_description}</p>`);
     console.error(`Authorization failed: ${error} — ${error_description}`);
-    process.exit(1);
+    setTimeout(() => {
+      server.close();
+      process.exit(1);
+    }, 500);
+    return;
   }
 
   if (!code) {
@@ -76,25 +80,38 @@ app.get('/callback', async (req, res) => {
     const refreshExpiresDate = refresh_token_expires_in ? new Date(Date.now() + refresh_token_expires_in * 1000) : null;
 
     console.log('\n=== LinkedIn OAuth Tokens ===');
-    console.log(`Access Token:  ${access_token}`);
+    console.log('Access Token:  [saved to .env]');
     console.log(`Expires:       ${expiresDate.toLocaleDateString()} (${Math.round(expires_in / 86400)} days)`);
     if (refresh_token) {
-      console.log(`Refresh Token: ${refresh_token}`);
+      console.log('Refresh Token: [saved to .env]');
       console.log(`Refresh Exp:   ${refreshExpiresDate?.toLocaleDateString()}`);
     }
 
-    // Append to .env
+    // Update tokens in .env (replace existing LinkedIn token entries if present)
     const fs = require('fs');
     const envPath = path.join(__dirname, '..', '.env');
-    const envLines = [
-      `\n# LinkedIn OAuth (acquired ${new Date().toISOString().split('T')[0]}, expires ${expiresDate.toISOString().split('T')[0]})`,
-      `LINKEDIN_ACCESS_TOKEN=${access_token}`
-    ];
+    const tokenComment = `# LinkedIn OAuth (acquired ${new Date().toISOString().split('T')[0]}, expires ${expiresDate.toISOString().split('T')[0]})`;
+    const tokenLines = [`LINKEDIN_ACCESS_TOKEN=${access_token}`];
     if (refresh_token) {
-      envLines.push(`LINKEDIN_REFRESH_TOKEN=${refresh_token}`);
+      tokenLines.push(`LINKEDIN_REFRESH_TOKEN=${refresh_token}`);
     }
-    fs.appendFileSync(envPath, envLines.join('\n') + '\n');
-    console.log(`\nTokens appended to ${envPath}`);
+
+    let envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+    // Remove old LinkedIn token lines and their comment
+    envContent = envContent
+      .split(/\r?\n/)
+      .filter(
+        line =>
+          !line.startsWith('LINKEDIN_ACCESS_TOKEN=') &&
+          !line.startsWith('LINKEDIN_REFRESH_TOKEN=') &&
+          !line.startsWith('# LinkedIn OAuth (acquired')
+      )
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n');
+
+    const newContent = envContent.trimEnd() + '\n\n' + tokenComment + '\n' + tokenLines.join('\n') + '\n';
+    fs.writeFileSync(envPath, newContent, 'utf8');
+    console.log(`\nTokens saved to ${envPath}`);
 
     console.log('\nNext steps:');
     console.log('  1. Add LINKEDIN_ACCESS_TOKEN as a GitHub secret');
@@ -107,11 +124,17 @@ app.get('/callback', async (req, res) => {
     res.send('<h2>Success!</h2><p>Tokens saved. You can close this tab and return to the terminal.</p>');
 
     // Give the response time to send, then exit
-    setTimeout(() => process.exit(0), 500);
+    setTimeout(() => {
+      server.close();
+      process.exit(0);
+    }, 500);
   } catch (err) {
     res.send(`<h2>Token exchange failed</h2><p>${err.message}</p>`);
     console.error(`Token exchange failed: ${err.message}`);
-    process.exit(1);
+    setTimeout(() => {
+      server.close();
+      process.exit(1);
+    }, 500);
   }
 });
 
