@@ -74,7 +74,9 @@ async function addToQueue(postData, notify = true) {
 
       const message = `📝 New Post Ready for Review!\n━━━━━━━━━━━━━━━━\n#${id} - ${topic}\n\n${preview}\n\nReply: ${id} to preview\nYES ${id} to approve\nNO ${id} to reject`;
 
-      await twilio.sendToOwner(message, postData.imagePath);
+      // Only pass imagePath as media if it's a public URL (Twilio requires https)
+      const mediaUrl = postData.imagePath && postData.imagePath.startsWith('http') ? postData.imagePath : null;
+      await twilio.sendToOwner(message, mediaUrl);
 
       // Mark as notified
       await db
