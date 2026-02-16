@@ -45,18 +45,14 @@ const PILLAR_THEME_MAP = {
  */
 function getThemeForPillar(category) {
   if (!category || typeof category !== 'string') {
-    console.warn(
-      `[PillarThemeMap] Invalid category: ${category}. Falling back to default (chalkboard/single).`
-    );
+    console.warn(`[PillarThemeMap] Invalid category: ${category}. Falling back to default (chalkboard/single).`);
     return { theme: 'chalkboard', layout: 'single' };
   }
 
   const mapping = PILLAR_THEME_MAP[category];
 
   if (!mapping) {
-    console.warn(
-      `[PillarThemeMap] Unknown category: ${category}. Falling back to default (chalkboard/single).`
-    );
+    console.warn(`[PillarThemeMap] Unknown category: ${category}. Falling back to default (chalkboard/single).`);
     return { theme: 'chalkboard', layout: 'single' };
   }
 
