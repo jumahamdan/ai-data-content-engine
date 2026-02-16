@@ -10,10 +10,10 @@
  */
 
 const path = require('path');
-const { generateImage, quickGenerate, autoSelectTheme, autoSelectLayout } = require('./index');
+const { generateImage, quickGenerate, autoSelectTheme, autoSelectLayout } = require('../index');
 
 // Test output directory
-const OUTPUT_DIR = path.join(__dirname, 'test-outputs');
+const OUTPUT_DIR = path.join(__dirname, '..', 'test-outputs');
 
 /**
  * Test 1: Basic comparison layout

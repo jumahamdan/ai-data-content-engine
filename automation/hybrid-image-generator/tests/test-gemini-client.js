@@ -8,9 +8,9 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 const fs = require('fs').promises;
-const { createGeminiClient, GeminiClient } = require('./gemini-client');
+const { createGeminiClient, GeminiClient } = require('../gemini-client');
 
 /**
  * Main test suite runner
@@ -166,7 +166,7 @@ async function main() {
       console.log('[Gemini Test] Created client with real API key');
       console.log('[Gemini Test] Attempting live image generation...');
 
-      const outputDir = path.join(__dirname, 'test-outputs');
+      const outputDir = path.join(__dirname, '..', 'test-outputs');
       const outputPath = path.join(outputDir, 'gemini-test-' + Date.now() + '.png');
 
       const result = await client.generateAndSave(

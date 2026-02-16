@@ -6,9 +6,9 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
-const { createDalleClient } = require('./dalle-client');
+const { createDalleClient } = require('../dalle-client');
 
 async function testDisabledClient() {
   console.log('\n=== Test 1: DALL-E Disabled Mode ===');
@@ -100,7 +100,7 @@ async function testRealApiCall() {
   }
 
   const client = createDalleClient();
-  const outputDir = path.join(__dirname, 'cache', 'test');
+  const outputDir = path.join(__dirname, '..', 'cache', 'test');
 
   try {
     // Create output directory
