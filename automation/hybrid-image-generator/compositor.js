@@ -143,6 +143,54 @@ async function prepareTemplateData(config) {
     templateData.sections = sections;
     templateData.mainIllustrationUrl = illustrationUrls['main'] || illustrationUrls['center'];
     templateData.showMainIllustration = !!templateData.mainIllustrationUrl;
+  } else if (layout === 'notebook') {
+    // Notebook layout: sections displayed as cards in a grid
+    // Cards get alternating accent colors for visual variety
+    const sectionColors = ['#3a7bd5', '#e67e22', '#27ae60', '#8e44ad', '#e74c3c', '#f39c12'];
+    templateData.sections = sections.map((section, index) => ({
+      ...section,
+      sectionColor: sectionColors[index % sectionColors.length]
+    }));
+  } else if (layout === 'whiteboard') {
+    // Whiteboard layout: two-column comparison with bordered boxes
+    // Map sections into leftColumn and rightColumn structures
+    if (sections.length >= 2) {
+      // First section becomes left column, second becomes right column
+      templateData.leftColumn = {
+        header: sections[0].title || '',
+        description: sections[0].description || '',
+        items: sections[0].items || [],
+        boxes: sections[0].subsections || sections.filter((_, i) => i % 2 === 0).map(s => ({
+          title: s.title,
+          items: s.items || []
+        }))
+      };
+      templateData.rightColumn = {
+        header: sections[1].title || '',
+        description: sections[1].description || '',
+        items: sections[1].items || [],
+        boxes: sections[1].subsections || sections.filter((_, i) => i % 2 === 1).map(s => ({
+          title: s.title,
+          items: s.items || []
+        }))
+      };
+    } else {
+      // Fallback: single column uses all sections as boxes
+      templateData.leftColumn = {
+        header: '',
+        description: '',
+        boxes: sections.map(s => ({ title: s.title, items: s.items || [] }))
+      };
+      templateData.rightColumn = { header: '', description: '', boxes: [] };
+    }
+  } else if (layout === 'dense-infographic') {
+    // Dense infographic: numbered color-coded sections in grid
+    const categoryColors = ['#27ae60', '#2980b9', '#e67e22', '#8e44ad', '#e17055', '#f39c12', '#1abc9c'];
+    templateData.sections = sections.map((section, index) => ({
+      ...section,
+      sectionNumber: index + 1,
+      categoryColor: categoryColors[index % categoryColors.length]
+    }));
   }
 
   return { templateData, theme };

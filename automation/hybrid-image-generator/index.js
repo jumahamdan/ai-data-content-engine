@@ -29,7 +29,7 @@ const { createIllustrationCache } = require('./illustration-cache');
 // Constants
 const DEFAULT_THEME = 'chalkboard';
 const DEFAULT_LAYOUT = 'single';
-const VALID_LAYOUTS = ['comparison', 'evolution', 'single'];
+const VALID_LAYOUTS = ['comparison', 'evolution', 'single', 'notebook', 'whiteboard', 'dense-infographic'];
 
 /**
  * Auto-select theme based on content metadata
