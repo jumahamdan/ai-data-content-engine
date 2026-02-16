@@ -131,7 +131,15 @@ const denseInfographicTheme = {
     '--pros-bg': 'rgba(39, 174, 96, 0.1)', // Green tint
     '--cons-bg': 'rgba(231, 76, 60, 0.1)', // Red tint
     '--pros-border': '#27ae60',
-    '--cons-border': '#e74c3c'
+    '--cons-border': '#e74c3c',
+
+    // Legacy template variable aliases (for backward compatibility)
+    '--title-color': '#2d3436', // Alias for --text-primary
+    '--body-color': '#5d6166', // Alias for --text-secondary
+    '--accent-color': '#e17055', // Alias for --text-accent
+    '--bg-color': '#faf6ef', // Alias for --bg-primary
+    '--title-font': 'Poppins, sans-serif', // Alias for --font-title
+    '--body-font': 'Roboto, sans-serif' // Alias for --font-body
   },
 
   /**

@@ -130,7 +130,15 @@ const chalkboardTheme = {
     '--pros-bg': 'rgba(76, 175, 80, 0.1)', // Subtle green tint
     '--cons-bg': 'rgba(244, 67, 54, 0.1)', // Subtle red tint
     '--pros-border': '#4caf50',
-    '--cons-border': '#f44336'
+    '--cons-border': '#f44336',
+
+    // Legacy template variable aliases (for backward compatibility)
+    '--title-color': '#ffffff', // Alias for --text-primary
+    '--body-color': '#e8e8e8', // Alias for --text-secondary
+    '--accent-color': '#f4d03f', // Alias for --text-accent
+    '--bg-color': '#2d4a3e', // Alias for --bg-primary
+    '--title-font': 'Permanent Marker, cursive', // Alias for --font-title
+    '--body-font': 'Patrick Hand, cursive' // Alias for --font-body
   },
 
   /**

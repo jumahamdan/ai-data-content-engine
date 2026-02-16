@@ -133,11 +133,24 @@ async function prepareTemplateData(config) {
     templateData.showIllustrations = !!(templateData.illustration1Url || templateData.illustration2Url);
   } else if (layout === 'evolution') {
     // Evolution layout: multiple stages with progression
-    templateData.stages = sections.map((section, index) => ({
-      ...section,
-      illustrationUrl: illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot]
-    }));
+    templateData.stages = sections.map((section, index) => {
+      // Transform string items to objects with text and icon properties
+      const transformedItems = (section.items || []).map(item => {
+        if (typeof item === 'string') {
+          return { text: item, icon: '✓', iconType: 'check' };
+        }
+        return item;
+      });
+
+      return {
+        ...section,
+        items: transformedItems,
+        illustrationUrl: illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot],
+        isLast: index === sections.length - 1
+      };
+    });
     templateData.showArrows = sections.length > 1;
+    templateData.summary = insight;
   } else if (layout === 'single') {
     // Single layout: deep dive on one topic
     templateData.sections = sections;

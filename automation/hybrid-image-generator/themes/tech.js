@@ -139,7 +139,15 @@ const techTheme = {
     // Tech-specific effects
     '--grid-color': 'rgba(0,212,170,0.1)', // Circuit board grid
     '--gradient-start': '#1a1a2e',
-    '--gradient-end': '#2e104e'
+    '--gradient-end': '#2e104e',
+
+    // Legacy template variable aliases (for backward compatibility)
+    '--title-color': '#ffffff', // Alias for --text-primary
+    '--body-color': '#b8b8b8', // Alias for --text-secondary
+    '--accent-color': '#00d4aa', // Alias for --text-accent
+    '--bg-color': '#1a1a2e', // Alias for --bg-primary
+    '--title-font': 'Inter, sans-serif', // Alias for --font-title
+    '--body-font': 'Inter, sans-serif' // Alias for --font-body
   },
 
   /**

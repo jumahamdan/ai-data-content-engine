@@ -131,7 +131,15 @@ const whiteboardTheme = {
     '--pros-bg': 'rgba(41, 128, 185, 0.05)', // Very subtle blue tint
     '--cons-bg': 'rgba(230, 126, 34, 0.05)', // Very subtle orange tint
     '--pros-border': '#2980b9', // Blue marker
-    '--cons-border': '#e67e22' // Orange marker
+    '--cons-border': '#e67e22', // Orange marker
+
+    // Legacy template variable aliases (for backward compatibility)
+    '--title-color': '#1a1a1a', // Alias for --text-primary
+    '--body-color': '#333333', // Alias for --text-secondary
+    '--accent-color': '#e67e22', // Alias for --text-accent
+    '--bg-color': '#f8f8f8', // Alias for --bg-primary
+    '--title-font': 'Nunito, sans-serif', // Alias for --font-title
+    '--body-font': 'Open Sans, sans-serif' // Alias for --font-body
   },
 
   /**

@@ -131,7 +131,15 @@ const notebookTheme = {
     '--pros-bg': 'rgba(76, 175, 80, 0.08)', // Very subtle green tint
     '--cons-bg': 'rgba(244, 67, 54, 0.08)', // Very subtle red tint
     '--pros-border': '#4caf50',
-    '--cons-border': '#f44336'
+    '--cons-border': '#f44336',
+
+    // Legacy template variable aliases (for backward compatibility)
+    '--title-color': '#2d2d2d', // Alias for --text-primary
+    '--body-color': '#4a4a4a', // Alias for --text-secondary
+    '--accent-color': '#3a7bd5', // Alias for --text-accent
+    '--bg-color': '#f5f0e8', // Alias for --bg-primary
+    '--title-font': 'Caveat, cursive', // Alias for --font-title
+    '--body-font': 'Handlee, cursive' // Alias for --font-body
   },
 
   /**

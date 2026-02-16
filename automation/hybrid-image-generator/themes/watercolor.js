@@ -130,7 +130,15 @@ const watercolorTheme = {
     '--pros-bg': 'rgba(46,204,113,0.08)', // Very subtle green wash
     '--cons-bg': 'rgba(231,76,60,0.08)', // Very subtle red wash
     '--pros-border': '#2ecc71',
-    '--cons-border': '#e74c3c'
+    '--cons-border': '#e74c3c',
+
+    // Legacy template variable aliases (for backward compatibility)
+    '--title-color': '#34495e', // Alias for --text-primary
+    '--body-color': '#5d6d7e', // Alias for --text-secondary
+    '--accent-color': '#3498db', // Alias for --text-accent
+    '--bg-color': '#faf8f5', // Alias for --bg-primary
+    '--title-font': 'Playfair Display, serif', // Alias for --font-title
+    '--body-font': 'Lora, serif' // Alias for --font-body
   },
 
   /**
