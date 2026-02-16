@@ -31,8 +31,7 @@ function loadPromptTemplate(templateName, topic) {
   const promptPath = path.join(__dirname, '..', '..', 'prompts', filename);
   let template = fs.readFileSync(promptPath, 'utf-8');
 
-  // Replace placeholder tokens with the actual topic
-  template = template.replace(/\{\{concept\}\}/g, topic);
+  // Replace placeholder token with the actual topic
   template = template.replace(/\{\{topic\}\}/g, topic);
 
   return template;
