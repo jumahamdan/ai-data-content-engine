@@ -6,21 +6,19 @@ const MODEL = 'claude-sonnet-4-20250514';
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
 
-// Map topic-bank categories to prompt template filenames
+// Map template names to prompt template filenames
 const TEMPLATE_MAP = {
-  'interview-explainer': 'interview-explainer.md',
-  interview_explainer: 'interview-explainer.md',
+  'concept-breakdown': 'concept-breakdown.md',
   'architecture-comparison': 'architecture-comparison.md',
-  architecture: 'architecture-comparison.md',
   'optimization-story': 'optimization-story.md',
-  optimization: 'optimization-story.md',
   'layered-mental-model': 'layered-mental-model.md',
-  layered: 'layered-mental-model.md'
+  'automation-guide': 'automation-guide.md',
+  'practitioner-lesson': 'practitioner-lesson.md'
 };
 
 /**
  * Load a prompt template from the prompts/ folder and inject the topic.
- * @param {string} templateName - Template key (e.g. "interview-explainer")
+ * @param {string} templateName - Template key (e.g. "concept-breakdown")
  * @param {string} topic - The topic to inject into the template
  * @returns {string} The filled prompt
  */
@@ -33,8 +31,7 @@ function loadPromptTemplate(templateName, topic) {
   const promptPath = path.join(__dirname, '..', '..', 'prompts', filename);
   let template = fs.readFileSync(promptPath, 'utf-8');
 
-  // Replace placeholder tokens with the actual topic
-  template = template.replace(/\{\{concept\}\}/g, topic);
+  // Replace placeholder token with the actual topic
   template = template.replace(/\{\{topic\}\}/g, topic);
 
   return template;
