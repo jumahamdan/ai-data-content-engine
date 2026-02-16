@@ -18,7 +18,7 @@ const TEMPLATE_MAP = {
 
 /**
  * Load a prompt template from the prompts/ folder and inject the topic.
- * @param {string} templateName - Template key (e.g. "interview-explainer")
+ * @param {string} templateName - Template key (e.g. "concept-breakdown")
  * @param {string} topic - The topic to inject into the template
  * @returns {string} The filled prompt
  */
