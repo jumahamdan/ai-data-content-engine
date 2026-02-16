@@ -102,6 +102,188 @@ const SAMPLE_CONTENT = {
   }
 };
 
+// Pillar-specific content matching pillar-theme-map.js combinations
+const PILLAR_SAMPLES = {
+  pipelines_architecture: {
+    title: 'ETL to ELT Pipeline Evolution',
+    subtitle: 'The Modern Data Pipeline Journey',
+    theme: 'whiteboard',
+    layout: 'evolution',
+    sections: [
+      {
+        title: 'Batch ETL Era',
+        label: 'Stage 1',
+        items: ['Nightly batch jobs', 'Transform before load', 'Heavy preprocessing', 'Long latency windows']
+      },
+      {
+        title: 'Streaming ETL',
+        label: 'Stage 2',
+        items: ['Real-time ingestion', 'Micro-batch processing', 'Reduced latency', 'Complex orchestration']
+      },
+      {
+        title: 'ELT Lakehouse',
+        label: 'Stage 3',
+        items: ['Raw data first', 'Transform at query time', 'Schema on read', 'Unified analytics layer']
+      }
+    ],
+    insight: 'Modern pipelines load raw data first, transform later for flexibility.'
+  },
+
+  cloud_lakehouse: {
+    title: 'Data Lake vs Data Lakehouse',
+    subtitle: 'Choosing the Right Architecture',
+    theme: 'whiteboard',
+    layout: 'comparison',
+    sections: [
+      {
+        title: 'Data Lake',
+        type: 'pros',
+        items: ['Schema on read flexibility', 'Low-cost storage', 'Handles all data types'],
+        subsections: [
+          {
+            title: 'Challenges',
+            items: ['No ACID transactions', 'Schema evolution pain', 'Performance issues at scale']
+          },
+          {
+            title: 'Best For',
+            items: ['Exploration workloads', 'ML training data', 'Cost-sensitive projects']
+          }
+        ]
+      },
+      {
+        title: 'Data Lakehouse',
+        type: 'cons',
+        items: ['ACID guarantees', 'BI performance', 'Unified governance'],
+        subsections: [
+          {
+            title: 'Tradeoffs',
+            items: ['More complex setup', 'Requires Delta/Iceberg', 'Higher learning curve']
+          },
+          {
+            title: 'Best For',
+            items: ['Production analytics', 'Regulated industries', 'Hybrid workloads']
+          }
+        ]
+      }
+    ],
+    insight: 'Lakehouses add structure and reliability to data lake flexibility.'
+  },
+
+  ai_data_workflows: {
+    title: 'ML Pipeline Automation',
+    subtitle: 'End-to-End ML Operations',
+    theme: 'tech',
+    layout: 'dense-infographic',
+    sections: [
+      {
+        title: 'Data Ingestion',
+        items: ['CDC pipelines', 'Event streaming', 'Batch imports']
+      },
+      {
+        title: 'Feature Engineering',
+        items: ['Feature store', 'Transformations', 'Validation rules']
+      },
+      {
+        title: 'Model Training',
+        items: ['Experiment tracking', 'Hyperparameter tuning', 'Distributed training']
+      },
+      {
+        title: 'Deployment',
+        items: ['Model registry', 'A/B testing', 'Canary rollouts']
+      },
+      {
+        title: 'Monitoring',
+        items: ['Drift detection', 'Performance metrics', 'Alerting']
+      }
+    ],
+    insight: 'Modern ML requires automation across the entire lifecycle, not just training.'
+  },
+
+  automation_reliability: {
+    title: 'Incident Response Playbook',
+    subtitle: 'Your 3AM Guide to Production Fires',
+    theme: 'notebook',
+    layout: 'notebook',
+    sections: [
+      {
+        title: 'Detection',
+        items: ['Check monitoring dashboards', 'Review recent deploys', 'Scan error logs']
+      },
+      {
+        title: 'Triage',
+        items: ['Assess impact radius', 'Identify root cause', 'Estimate time to fix']
+      },
+      {
+        title: 'Resolution',
+        items: ['Apply hotfix or rollback', 'Verify fix in staging', 'Monitor production metrics']
+      },
+      {
+        title: 'Post-Mortem',
+        items: ['Document timeline', 'Identify prevention steps', 'Update runbooks']
+      }
+    ],
+    insight: "Great teams don't avoid incidents—they respond systematically and learn."
+  },
+
+  governance_trust: {
+    title: 'Data Governance Framework',
+    subtitle: 'Building Trust Through Structure',
+    theme: 'dense-infographic',
+    layout: 'dense-infographic',
+    sections: [
+      {
+        title: 'Policy',
+        items: ['Data classification', 'Access policies', 'Retention rules']
+      },
+      {
+        title: 'Standards',
+        items: ['Naming conventions', 'Data models', 'Quality metrics']
+      },
+      {
+        title: 'Stewardship',
+        items: ['Domain ownership', 'Metadata management', 'Lineage tracking']
+      },
+      {
+        title: 'Quality',
+        items: ['Validation rules', 'Anomaly detection', 'SLA monitoring']
+      },
+      {
+        title: 'Privacy',
+        items: ['PII detection', 'Access logging', 'Compliance reporting']
+      }
+    ],
+    insight: "Governance isn't red tape—it's the foundation of data you can trust."
+  },
+
+  real_world_lessons: {
+    title: 'Why Our Data Migration Failed',
+    subtitle: 'A Postmortem on Overconfidence',
+    theme: 'chalkboard',
+    layout: 'single',
+    sections: [
+      {
+        title: 'What Went Wrong',
+        items: [
+          'Underestimated schema complexity',
+          'No rollback plan',
+          'Skipped load testing',
+          'Migrated over a weekend (bad idea)'
+        ]
+      },
+      {
+        title: 'Lessons Learned',
+        items: [
+          'Always migrate iteratively',
+          'Test with production-scale data',
+          'Have a working rollback script',
+          'Blue-green deployments save lives'
+        ]
+      }
+    ],
+    insight: 'Every failed migration teaches you something no course can.'
+  }
+};
+
 /**
  * Generate all 9 combinations of theme × layout
  */
@@ -248,12 +430,116 @@ async function generateFilteredSamples(filterTheme = null, filterLayout = null) 
   console.log(`\n✓ Generated ${successful}/${results.length} images`);
 }
 
+/**
+ * Generate samples for all 6 pillar combinations
+ */
+async function generatePillarSamples(filterPillar = null) {
+  const pillars = filterPillar ? [filterPillar] : Object.keys(PILLAR_SAMPLES);
+
+  console.log('╔════════════════════════════════════════════════════════════╗');
+  console.log('║  Pillar Content Samples Generation                        ║');
+  console.log(`║  Generating ${pillars.length} pillar-specific images                      ║`);
+  console.log('╚════════════════════════════════════════════════════════════╝\n');
+
+  // Ensure output directory exists
+  await fs.mkdir(OUTPUT_DIR, { recursive: true });
+
+  // Build batch of pillar samples
+  const batch = [];
+
+  for (const pillar of pillars) {
+    const sample = PILLAR_SAMPLES[pillar];
+    if (!sample) {
+      console.warn(`⚠ Unknown pillar: ${pillar}. Skipping.`);
+      continue;
+    }
+
+    const contentData = {
+      ...sample,
+      outputPath: path.join(OUTPUT_DIR, `pillar-${pillar}.png`)
+    };
+
+    batch.push(contentData);
+  }
+
+  console.log(`Prepared ${batch.length} pillar images for generation\n`);
+  console.log('Pillar samples:');
+  batch.forEach((item, i) => {
+    const pillarName = pillars[i];
+    console.log(`  ${i + 1}. ${pillarName} → ${item.theme} × ${item.layout}`);
+    console.log(`     Output: ${path.basename(item.outputPath)}`);
+  });
+
+  console.log('\n' + '='.repeat(60));
+  console.log('Starting batch generation...\n');
+
+  const startTime = Date.now();
+
+  // Generate all images in batch
+  const results = await batchGenerate(batch, { verbose: true });
+
+  const totalTime = Date.now() - startTime;
+
+  // Analyze results
+  console.log('\n' + '='.repeat(60));
+  console.log('Generation Summary');
+  console.log('='.repeat(60) + '\n');
+
+  const successful = results.filter(r => r.success);
+  const failed = results.filter(r => !r.success);
+
+  console.log(`Total images: ${results.length}`);
+  console.log(`Successful: ${successful.length}`);
+  console.log(`Failed: ${failed.length}`);
+  console.log(`Total time: ${(totalTime / 1000).toFixed(1)}s`);
+
+  if (successful.length > 0) {
+    const avgTime = Math.round(totalTime / successful.length);
+    console.log(`Average time per image: ${avgTime}ms`);
+  }
+
+  // Show successful images
+  if (successful.length > 0) {
+    console.log('\n✓ Successfully Generated:');
+    successful.forEach((result, idx) => {
+      const pillarName = pillars[idx];
+      console.log(`  - ${pillarName}`);
+      console.log(`    Theme: ${result.metadata.theme} × Layout: ${result.metadata.layout}`);
+      console.log(`    Path: ${result.imagePath}`);
+      console.log(`    Time: ${result.metadata.latency.total}ms`);
+      console.log(`    Background: ${result.metadata.backgroundSource}`);
+    });
+  }
+
+  // Show failed images
+  if (failed.length > 0) {
+    console.log('\n✗ Failed:');
+    failed.forEach(result => {
+      const pillarName = pillars[results.indexOf(result)];
+      const item = batch[results.indexOf(result)];
+      console.log(`  - ${pillarName} (${item.theme} × ${item.layout})`);
+      console.log(`    Error: ${result.error}`);
+    });
+  }
+
+  console.log('\n' + '='.repeat(60));
+  console.log(`Output directory: ${OUTPUT_DIR}`);
+  console.log('='.repeat(60) + '\n');
+
+  if (failed.length > 0) {
+    console.error('✗ Some pillar images failed to generate. See errors above.');
+    process.exit(1);
+  } else {
+    console.log('✓ All pillar sample images generated successfully!');
+  }
+}
+
 // CLI handling
 (async () => {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    // Generate all samples
+    // Generate all samples (original 9 theme x layout combinations)
     await generateAllSamples();
   } else if (args[0] === '--help' || args[0] === '-h') {
     console.log(`
@@ -263,16 +549,33 @@ Options:
   (no args)             Generate all 9 samples (3 themes × 3 layouts)
   --theme <name>        Generate only for specific theme (chalkboard, watercolor, tech)
   --layout <name>       Generate only for specific layout (comparison, evolution, single)
+  --pillar [name]       Generate all 6 pillar samples, or specific pillar if name provided
+                        Pillars: pipelines_architecture, cloud_lakehouse, ai_data_workflows,
+                                 automation_reliability, governance_trust, real_world_lessons
+  --all                 Generate both original 9 samples + 6 pillar samples (15 total)
   --help, -h            Show this help message
 
 Examples:
-  node generate-samples.js
-  node generate-samples.js --theme chalkboard
-  node generate-samples.js --layout comparison
-  node generate-samples.js --theme watercolor --layout evolution
+  node generate-samples.js                                # Original 9 samples
+  node generate-samples.js --theme chalkboard             # Only chalkboard theme
+  node generate-samples.js --layout comparison            # Only comparison layout
+  node generate-samples.js --pillar                       # All 6 pillar samples
+  node generate-samples.js --pillar pipelines_architecture  # Single pillar sample
+  node generate-samples.js --all                          # All 15 samples (9 + 6)
 `);
+  } else if (args.includes('--all')) {
+    // Generate both original 9 + pillar 6
+    console.log('Generating all samples: 9 original + 6 pillar = 15 total\n');
+    await generateAllSamples();
+    console.log('\n');
+    await generatePillarSamples();
+  } else if (args.includes('--pillar')) {
+    // Generate pillar samples
+    const pillarIdx = args.indexOf('--pillar');
+    const filterPillar = args[pillarIdx + 1] && !args[pillarIdx + 1].startsWith('--') ? args[pillarIdx + 1] : null;
+    await generatePillarSamples(filterPillar);
   } else {
-    // Parse filters using indexOf
+    // Parse filters using indexOf (original theme/layout filtering)
     const themeIdx = args.indexOf('--theme');
     const layoutIdx = args.indexOf('--layout');
     const filterTheme = themeIdx !== -1 && args[themeIdx + 1] ? args[themeIdx + 1] : null;
