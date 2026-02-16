@@ -5,8 +5,6 @@
   "main": "test-workflow-local.js",
   "scripts": {
     "test": "node test-workflow-local.js",
-    "test-images": "node image-generator/test.js",
-    "generate-samples": "node image-generator/test.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.js\"",
