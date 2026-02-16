@@ -3,14 +3,16 @@ const path = require('path');
 
 const TOPIC_BANK_PATH = path.join(__dirname, '..', '..', 'topics', 'topic-bank.json');
 const HISTORY_PATH = path.join(__dirname, '..', '.topic-history.json');
-const MAX_HISTORY = 10; // Number of recent topics to avoid repeating
+const MAX_HISTORY = 20; // Number of recent topics to avoid repeating
 
 // Map topic-bank category keys to template names used by claude-client
 const CATEGORY_TO_TEMPLATE = {
-  interview_explainer: 'interview-explainer',
-  architecture: 'architecture-comparison',
-  optimization: 'optimization-story',
-  layered: 'layered-mental-model'
+  pipelines_architecture: 'concept-breakdown',
+  cloud_lakehouse: 'architecture-comparison',
+  ai_data_workflows: 'optimization-story',
+  automation_reliability: 'automation-guide',
+  governance_trust: 'layered-mental-model',
+  real_world_lessons: 'practitioner-lesson'
 };
 
 /**
