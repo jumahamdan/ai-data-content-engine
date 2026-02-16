@@ -1,10 +1,10 @@
 name: Content Automation
 
 on:
-  # schedule:                        # Disabled until Anthropic billing is resolved
-  #   - cron: '0 14 * * *'          # Generate: 8:00 AM CT (UTC-6)
-  #   - cron: '0 22 * * *'          # Generate: 4:00 PM CT (UTC-6)
-  #   - cron: '*/15 * * * *'        # Publish: every 15 minutes
+  schedule:
+    - cron: '0 14 * * *'            # Generate: 8:00 AM CT (UTC-6)
+    - cron: '0 22 * * *'            # Generate: 4:00 PM CT (UTC-6)
+    - cron: '*/15 * * * *'          # Publish: every 15 minutes
   workflow_dispatch:
     inputs:
       action:
