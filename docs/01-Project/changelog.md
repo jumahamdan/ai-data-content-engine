@@ -4,11 +4,39 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-16 -- v2.0 Image Quality Overhaul
+
+**Branch:** `feature/image-quality-overhaul`
+
+### Shipped
+
+- Phase 5: Deleted legacy image-generator module, reorganized tests and scripts into subfolders
+- Phase 6: Created 3 new themes (notebook, whiteboard, dense-infographic) with HTML layout templates and CSS styling
+- Phase 6: Built notebook (grid paper + cards), whiteboard (bordered boxes + arrows), and dense-infographic (packed multi-section) layouts
+- Phase 7: Created pillar-to-theme/layout mapping (pillar-theme-map.js) for automatic theme selection by content category
+- Phase 7: Rewired content pipeline to use hybrid compositor instead of raw Gemini
+- Phase 7: Updated all 6 Claude prompt templates with IMAGE_DATA structured metadata instructions
+- Phase 7: Claude now generates title, subtitle, sections, and insight metadata for rich infographics
+- Phase 7: IMAGE_DATA extracted from Claude response and stripped from LinkedIn post caption
+- Phase 8: Updated generate-samples.js for all 6 pillar/theme/layout combinations
+- Phase 8: Updated feature documentation (hybrid-image-generator.md, pipeline-image-integration.md, CLAUDE.md)
+
+### Architecture
+
+- 6 visual themes: chalkboard, watercolor, tech, notebook, whiteboard, dense-infographic
+- 6 layout templates: comparison, evolution, single, notebook, whiteboard, dense-infographic
+- 6 content pillars auto-mapped to default theme/layout pairings
+- Gemini abstract backgrounds (no AI text) + Puppeteer HTML/CSS crisp text overlays
+- IMAGE_PROVIDER env var: gemini (default), dalle, auto, none
+
+---
+
 ## 2026-02-16 — Content Strategy Reframe
 
 **Branch:** `feature/content-strategy-reframe`
 
 ### Shipped
+
 - Replaced 4-category / 15-topic bank with 6-pillar / 30-topic bank
 - New pillars: pipelines_architecture, cloud_lakehouse, ai_data_workflows, automation_reliability, governance_trust, real_world_lessons
 - Each pillar includes 1 contrarian hot take for engagement
@@ -26,6 +54,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/linkedin-oauth`
 
 ### Shipped
+
 - OAuth 2.0 token acquisition script (`automation/linkedin-auth/get-token.js`) — Express callback server, auto-saves tokens to .env
 - Replaced MVP stub LinkedIn adapter with real Posts API integration (versioned, 202401)
 - Image upload flow: initializeUpload → download from Firebase Storage → PUT to LinkedIn → attach URN
@@ -40,6 +69,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/workflow-improvements`
 
 ### Shipped
+
 - Consolidated 3 workflow files into 2: `ci.yml` (lint + format + SonarCloud) and `automation.yml` (generate + publish)
 - Added SonarCloud static analysis to CI pipeline (informational, runs after lint passes)
 - Added `sonar-project.properties` targeting `automation/` source directory
@@ -56,6 +86,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `develop`
 
 ### Shipped
+
 - Deployed updated `incoming.js` to Twilio via CLI (`npm run deploy`)
 - Fixed Twilio error 21617: view command exceeded WhatsApp's 1600-char message limit
 - Caption now smart-trimmed to fit within 1400-char budget (accounts for emoji/unicode overhead)
@@ -69,6 +100,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/pipeline-image-integration`
 
 ### Shipped
+
 - Content generator now creates Gemini AI images for each post (full AI visuals, not Puppeteer composites)
 - Images uploaded to Firebase Storage with public URLs
 - WhatsApp notification sends image as MMS media alongside the text preview
@@ -83,6 +115,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/gemini-image-generator`
 
 ### Shipped
+
 - Added Google Gemini as image generation provider (`gemini-client.js`, `provider-factory.js`)
 - Created IMAGE_PROVIDER env var replacing DALLE_ENABLED/GEMINI_ENABLED flags
 - Provider routing: gemini, dalle, auto, none modes with 4-tier fallback chain
@@ -102,6 +135,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/github-best-practices`
 
 ### Shipped
+
 - Added ESLint (`eslint:recommended`) and Prettier to `automation/`
 - Added `lint`, `lint:fix`, `format`, and `format:check` npm scripts
 - Auto-fixed all existing code to pass lint and format checks
@@ -117,6 +151,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/github-actions-automation`
 
 ### Shipped
+
 - Publisher module tested end-to-end (Firestore query → MVP LinkedIn log → status update)
 - Content generator validated (topic selection → prompt loading → Claude API call with retries)
 - Fixed `hashtags.join` crash in LinkedIn adapter (non-array hashtags from old Firestore data)
@@ -127,6 +162,7 @@ Session-by-session record of shipped work. Most recent first.
 - Created `CLAUDE.md`, `AI_AGENT_INSTRUCTIONS.md`
 
 ### Blocked
+
 - Content generator cannot complete: Anthropic API account needs credits
 
 ---
@@ -136,6 +172,7 @@ Session-by-session record of shipped work. Most recent first.
 **Branch:** `feature/github-actions-automation`
 
 ### Shipped
+
 - Content generator module (`content-generator/index.js`, `claude-client.js`, `topic-selector.js`)
 - Publisher module (`publisher/index.js`, `platforms/linkedin.js`)
 - GitHub Actions workflows (`generate-content.yml`, `publish-content.yml`)
