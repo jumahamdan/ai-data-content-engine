@@ -4,6 +4,23 @@ Session-by-session record of shipped work. Most recent first.
 
 ---
 
+## 2026-02-16 — Content Strategy Reframe
+
+**Branch:** `feature/content-strategy-reframe`
+
+### Shipped
+- Replaced 4-category / 15-topic bank with 6-pillar / 30-topic bank
+- New pillars: pipelines_architecture, cloud_lakehouse, ai_data_workflows, automation_reliability, governance_trust, real_world_lessons
+- Each pillar includes 1 contrarian hot take for engagement
+- Renamed `interview-explainer.md` to `concept-breakdown.md` — removed all interview framing
+- Created `automation-guide.md` and `practitioner-lesson.md` prompt templates
+- Updated topic-selector.js and claude-client.js mappings for 6 pillars
+- Expanded `tone.md` with practitioner guardrails and banned phrases (no "top 10", no vendor names, no interview framing)
+- Expanded `post-templates.md` from 4 to 6 content formats
+- Increased MAX_HISTORY from 10 to 20
+
+---
+
 ## 2026-02-15 — LinkedIn OAuth & Real Posting
 
 **Branch:** `feature/linkedin-oauth`

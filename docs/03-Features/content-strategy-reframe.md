@@ -1,8 +1,8 @@
 # Content Strategy Reframe
 
-**Status:** In Progress
+**Status:** Complete
 **Branch:** feature/content-strategy-reframe
-**PR:** TBD
+**PR:** #15
 
 ## Overview
 
@@ -10,28 +10,28 @@ Reframe the content engine from "interview prep" positioning to "practitioner sh
 
 ## Acceptance Criteria
 
-- [ ] Topic bank has 6 categories with 5 topics each (30 total)
-- [ ] No "interview" framing in any prompt template or content spec
-- [ ] Each pillar maps to a prompt template via topic-selector.js and claude-client.js
-- [ ] `concept-breakdown.md` replaces `interview-explainer.md`
-- [ ] Two new prompt templates: `automation-guide.md` and `practitioner-lesson.md`
-- [ ] `tone.md` includes practitioner guardrails and banned phrases
-- [ ] `post-templates.md` documents all 6 content formats
-- [ ] MAX_HISTORY increased to 20
-- [ ] Lint + format pass with zero errors
+- [x] Topic bank has 6 categories with 5 topics each (30 total)
+- [x] No "interview" framing in any prompt template or content spec
+- [x] Each pillar maps to a prompt template via topic-selector.js and claude-client.js
+- [x] `concept-breakdown.md` replaces `interview-explainer.md`
+- [x] Two new prompt templates: `automation-guide.md` and `practitioner-lesson.md`
+- [x] `tone.md` includes practitioner guardrails and banned phrases
+- [x] `post-templates.md` documents all 6 content formats
+- [x] MAX_HISTORY increased to 20
+- [x] Lint + format pass with zero errors
 
 ## Tasks
 
 | Task | Description | Status |
 |------|-------------|--------|
 | 1.0 | Create feature doc and acceptance criteria | Complete |
-| 1.1 | Replace topic-bank.json with 6 categories / 30 topics | Pending |
-| 1.2 | Rename interview-explainer.md to concept-breakdown.md, rewrite | Pending |
-| 1.3 | Create automation-guide.md and practitioner-lesson.md | Pending |
-| 1.4 | Update topic-selector.js mappings and MAX_HISTORY | Pending |
-| 1.5 | Update claude-client.js TEMPLATE_MAP | Pending |
-| 1.6 | Update tone.md with guardrails | Pending |
-| 1.7 | Update post-templates.md with 6 formats | Pending |
+| 1.1 | Replace topic-bank.json with 6 categories / 30 topics | Complete |
+| 1.2 | Rename interview-explainer.md to concept-breakdown.md, rewrite | Complete |
+| 1.3 | Create automation-guide.md and practitioner-lesson.md | Complete |
+| 1.4 | Update topic-selector.js mappings and MAX_HISTORY | Complete |
+| 1.5 | Update claude-client.js TEMPLATE_MAP | Complete |
+| 1.6 | Update tone.md with guardrails | Complete |
+| 1.7 | Update post-templates.md with 6 formats | Complete |
 
 ## Technical Notes
 
