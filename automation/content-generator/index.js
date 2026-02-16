@@ -18,23 +18,38 @@ const STORAGE_BUCKET = `${FIREBASE_PROJECT_ID}.firebasestorage.app`;
  * @param {string} topic - The post topic
  * @param {string} caption - The post caption (for context)
  * @param {string} category - Content pillar category for theme/layout mapping
+ * @param {object|null} imageMetadata - Optional structured metadata from Claude (title, subtitle, sections, insight)
  * @returns {Promise<string|null>} Public URL of the uploaded image, or null on failure
  */
-async function generatePostImage(topic, caption, category) {
+async function generatePostImage(topic, caption, category, imageMetadata) {
   // 1. Look up theme + layout for this content pillar
   const { theme, layout } = getThemeForPillar(category);
 
-  // 2. Build contentData for hybrid compositor
-  //    For now, derive a basic structure from topic + caption
-  //    (Phase 7 Plan 02 will enhance this with Claude-generated metadata)
-  const contentData = {
-    title: topic,
-    subtitle: '',
-    sections: [],
-    insight: '',
-    theme,
-    layout
-  };
+  // 2. Build contentData from imageMetadata when available, falling back to basic structure
+  let contentData;
+  if (imageMetadata && imageMetadata.title && Array.isArray(imageMetadata.sections)) {
+    // Rich metadata from Claude — use it
+    contentData = {
+      title: imageMetadata.title,
+      subtitle: imageMetadata.subtitle || '',
+      sections: imageMetadata.sections,
+      insight: imageMetadata.insight || '',
+      theme,
+      layout
+    };
+    console.log(`Content Generator: Using Claude metadata (${imageMetadata.sections.length} sections)`);
+  } else {
+    // Fallback: basic structure from topic
+    contentData = {
+      title: topic,
+      subtitle: '',
+      sections: [],
+      insight: '',
+      theme,
+      layout
+    };
+    console.log('Content Generator: No image metadata, using basic title-only layout');
+  }
 
   console.log(`Content Generator: Generating composite image (theme: ${theme}, layout: ${layout})...`);
 
@@ -115,7 +130,7 @@ async function generatePost() {
   let imagePath = null;
   if (process.env.IMAGE_PROVIDER !== 'none') {
     try {
-      imagePath = await generatePostImage(topic.topic, content.caption, topic.category);
+      imagePath = await generatePostImage(topic.topic, content.caption, topic.category, content.imageMetadata);
     } catch (error) {
       console.warn(`Content Generator: Image generation error - ${error.message}. Continuing without image.`);
     }

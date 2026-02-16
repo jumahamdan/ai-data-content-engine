@@ -52,12 +52,32 @@ function loadStyleGuidelines() {
 
 /**
  * Parse Claude's response into structured content.
- * Extracts caption text and hashtags from the generated post.
+ * Extracts caption text, hashtags, and optional IMAGE_DATA metadata from the generated post.
  * @param {string} text - Raw response text from Claude
  * @param {string} topic - The original topic (used as fallback imageTitle)
- * @returns {{ caption: string, hashtags: string[], imageTitle: string }}
+ * @returns {{ caption: string, hashtags: string[], imageTitle: string, imageMetadata: object|null }}
  */
 function parseResponse(text) {
+  // Extract IMAGE_DATA block first (before processing caption/hashtags)
+  const imageDataMatch = text.match(/```IMAGE_DATA\s*\n([\s\S]*?)\n\s*```/);
+  let imageMetadata = null;
+  if (imageDataMatch) {
+    try {
+      imageMetadata = JSON.parse(imageDataMatch[1].trim());
+      // Validate minimum required fields
+      if (!imageMetadata.title || !Array.isArray(imageMetadata.sections)) {
+        console.warn('Claude Client: IMAGE_DATA missing required fields, ignoring');
+        imageMetadata = null;
+      }
+    } catch (err) {
+      console.warn(`Claude Client: Failed to parse IMAGE_DATA JSON: ${err.message}`);
+      imageMetadata = null;
+    }
+  }
+
+  // Remove IMAGE_DATA block from text so it doesn't appear in caption
+  text = text.replace(/```IMAGE_DATA\s*\n[\s\S]*?\n\s*```/, '').trim();
+
   // Extract hashtags (words starting with #)
   const hashtagMatches = text.match(/#[A-Za-z]\w*/g) || [];
   const hashtags = [...new Set(hashtagMatches)];
@@ -95,7 +115,7 @@ function parseResponse(text) {
   const firstLine = caption.split('\n').find(l => l.trim().length > 10) || caption.substring(0, 80);
   const imageTitle = firstLine.trim().substring(0, 100);
 
-  return { caption, hashtags, imageTitle };
+  return { caption, hashtags, imageTitle, imageMetadata };
 }
 
 /**
@@ -153,7 +173,7 @@ async function generateContent(topicObj) {
 
       const result = parseResponse(responseText);
       console.log(
-        `Claude Client: Generated ${result.caption.length} char caption with ${result.hashtags.length} hashtags`
+        `Claude Client: Generated ${result.caption.length} char caption with ${result.hashtags.length} hashtags${result.imageMetadata ? `, image metadata (${result.imageMetadata.sections.length} sections)` : ''}`
       );
       return result;
     } catch (error) {
