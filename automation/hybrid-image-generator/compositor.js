@@ -152,35 +152,30 @@ async function prepareTemplateData(config) {
       sectionColor: sectionColors[index % sectionColors.length]
     }));
   } else if (layout === 'whiteboard') {
-    // Whiteboard layout: two-column comparison with bordered boxes
-    // Map sections into leftColumn and rightColumn structures
+    // Whiteboard layout: two-column comparison with bordered boxes and arrows
+    function buildColumn(section, allSections, filterFn) {
+      const rawBoxes = section.subsections || allSections.filter(filterFn).map(s => ({
+        title: s.title,
+        items: s.items || []
+      }));
+      // Add isLast flag for arrow rendering
+      const boxes = rawBoxes.map((box, i) => ({
+        ...box,
+        isLast: i === rawBoxes.length - 1
+      }));
+      return {
+        header: section.title || '',
+        description: section.description || '',
+        boxes
+      };
+    }
+
     if (sections.length >= 2) {
-      // First section becomes left column, second becomes right column
-      templateData.leftColumn = {
-        header: sections[0].title || '',
-        description: sections[0].description || '',
-        items: sections[0].items || [],
-        boxes: sections[0].subsections || sections.filter((_, i) => i % 2 === 0).map(s => ({
-          title: s.title,
-          items: s.items || []
-        }))
-      };
-      templateData.rightColumn = {
-        header: sections[1].title || '',
-        description: sections[1].description || '',
-        items: sections[1].items || [],
-        boxes: sections[1].subsections || sections.filter((_, i) => i % 2 === 1).map(s => ({
-          title: s.title,
-          items: s.items || []
-        }))
-      };
+      templateData.leftColumn = buildColumn(sections[0], sections, (_, i) => i % 2 === 0);
+      templateData.rightColumn = buildColumn(sections[1], sections, (_, i) => i % 2 === 1);
     } else {
-      // Fallback: single column uses all sections as boxes
-      templateData.leftColumn = {
-        header: '',
-        description: '',
-        boxes: sections.map(s => ({ title: s.title, items: s.items || [] }))
-      };
+      const boxes = sections.map((s, i) => ({ title: s.title, items: s.items || [], isLast: i === sections.length - 1 }));
+      templateData.leftColumn = { header: '', description: '', boxes };
       templateData.rightColumn = { header: '', description: '', boxes: [] };
     }
   } else if (layout === 'dense-infographic') {

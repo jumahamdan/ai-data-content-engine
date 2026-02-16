@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=1080, height=1080" />
     <title>Whiteboard Layout</title>
 
-    <!-- Google Fonts (dynamically injected based on theme) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- {{googleFontsUrl}} will be replaced by compositor -->
     <link href="{{googleFontsUrl}}" rel="stylesheet" />
 
     <style>
@@ -27,7 +25,6 @@
         color: var(--text-primary, '#333');
       }
 
-      /* Background layer - Clean whiteboard */
       .background-layer {
         position: absolute;
         top: 0;
@@ -42,7 +39,6 @@
         background-repeat: no-repeat;
       }
 
-      /* Very light overlay */
       .overlay {
         position: absolute;
         top: 0;
@@ -50,10 +46,9 @@
         width: 100%;
         height: 100%;
         z-index: 1;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
       }
 
-      /* Content container */
       .content {
         position: relative;
         z-index: 2;
@@ -61,38 +56,38 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        padding: 50px 55px;
+        padding: 40px 48px 36px;
       }
 
-      /* Title section */
       .title-section {
         text-align: center;
-        margin-bottom: 36px;
+        margin-bottom: 20px;
       }
 
       .title {
         font-family: var(--font-title, 'Arial', sans-serif);
-        font-size: 44px;
-        font-weight: bold;
+        font-size: 42px;
+        font-weight: 700;
         color: var(--text-primary, '#1a1a1a');
-        line-height: 1.2;
-        margin-bottom: 12px;
+        line-height: 1.15;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
 
       .subtitle {
         font-family: var(--font-body, 'Arial', sans-serif);
-        font-size: 20px;
-        color: var(--text-secondary, '#444');
+        font-size: 18px;
+        color: var(--text-secondary, '#555');
         font-style: italic;
-        line-height: 1.4;
+        line-height: 1.3;
       }
 
-      /* Two-column layout */
       .columns-container {
         display: flex;
-        gap: 30px;
+        gap: 28px;
         flex: 1;
-        margin-bottom: 28px;
+        margin-bottom: 18px;
       }
 
       .column {
@@ -103,16 +98,18 @@
 
       .column-header {
         font-family: var(--font-title, 'Arial', sans-serif);
-        font-size: 26px;
-        font-weight: bold;
-        color: var(--text-accent, '#e67e22');
+        font-size: 24px;
+        font-weight: 700;
         text-decoration: underline;
-        margin-bottom: 12px;
+        text-underline-offset: 4px;
+        margin-bottom: 6px;
         text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
       }
 
       .column.left .column-header {
-        color: #3a7bd5;
+        color: #2980b9;
       }
 
       .column.right .column-header {
@@ -120,36 +117,43 @@
       }
 
       .column-description {
-        font-size: 15px;
+        font-size: 14px;
         font-style: italic;
         color: var(--text-secondary, '#555');
-        margin-bottom: 16px;
+        margin-bottom: 14px;
         text-align: center;
-        line-height: 1.4;
+        line-height: 1.3;
       }
 
-      /* Boxes within columns */
       .boxes-container {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 6px;
         flex: 1;
+      }
+
+      .box-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       .box {
         border: 2px solid #333;
-        border-radius: 4px;
-        padding: 16px 18px;
-        background: rgba(255, 255, 255, 0.85);
+        border-radius: 3px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.88);
+        width: 100%;
       }
 
       .box-title {
-        font-size: 18px;
-        font-weight: bold;
+        font-size: 17px;
+        font-weight: 700;
         text-decoration: underline;
+        text-underline-offset: 3px;
         color: var(--text-primary, '#1a1a1a');
-        margin-bottom: 8px;
-        line-height: 1.3;
+        margin-bottom: 6px;
+        line-height: 1.25;
       }
 
       .box-items {
@@ -159,58 +163,64 @@
       .box-item {
         display: flex;
         align-items: flex-start;
-        margin-bottom: 6px;
-        font-size: 15px;
-        line-height: 1.4;
+        margin-bottom: 3px;
+        font-size: 14px;
+        line-height: 1.35;
         color: var(--text-primary, '#1a1a1a');
       }
 
       .box-item-bullet {
-        color: var(--text-accent, '#e67e22');
-        font-size: 18px;
-        margin-right: 8px;
+        color: #555;
+        font-size: 14px;
+        margin-right: 6px;
         flex-shrink: 0;
-        line-height: 1.3;
+        line-height: 1.35;
       }
 
       .box-item-text {
         flex: 1;
       }
 
-      /* Insight box */
-      .insight-section {
-        background: rgba(255, 255, 255, 0.9);
-        border: 3px solid var(--text-accent, '#e67e22');
-        border-radius: 8px;
-        padding: 20px 32px;
+      .arrow {
         text-align: center;
-        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        font-size: 20px;
+        color: #666;
+        line-height: 1;
+        padding: 2px 0;
       }
 
-      .insight-icon {
-        font-size: 32px;
-        margin-bottom: 10px;
+      .insight-section {
+        background: rgba(255, 255, 255, 0.92);
+        border: 2px solid var(--text-accent, '#e67e22');
+        border-radius: 6px;
+        padding: 16px 28px;
+        text-align: center;
+      }
+
+      .insight-label {
+        font-family: var(--font-title, 'Arial', sans-serif);
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-primary, '#1a1a1a');
+        margin-bottom: 6px;
       }
 
       .insight-text {
         font-family: var(--font-body, 'Arial', sans-serif);
-        font-size: 20px;
-        font-weight: bold;
+        font-size: 17px;
+        font-weight: 600;
         color: var(--text-accent, '#e67e22');
         line-height: 1.4;
       }
     </style>
   </head>
   <body>
-    <!-- Background image layer -->
     <div class="background-layer"></div>
-
-    <!-- Optional overlay -->
     <div class="overlay"></div>
 
-    <!-- Main content -->
     <div class="content">
-      <!-- Title section -->
       <div class="title-section">
         <h1 class="title">{{title}}</h1>
         {{#subtitle}}
@@ -218,58 +228,65 @@
         {{/subtitle}}
       </div>
 
-      <!-- Two-column layout -->
       <div class="columns-container">
-        <!-- Left column -->
         {{#leftColumn}}
         <div class="column left">
           {{#header}}
           <h2 class="column-header">{{header}}</h2>
           {{/header}}
           {{#description}}
-          <p class="column-description">{{description}}</p>
+          <p class="column-description">({{description}})</p>
           {{/description}}
 
           <div class="boxes-container">
             {{#boxes}}
-            <div class="box">
-              <h3 class="box-title">{{title}}</h3>
-              <ul class="box-items">
-                {{#items}}
-                <li class="box-item">
-                  <span class="box-item-bullet">•</span>
-                  <span class="box-item-text">{{.}}</span>
-                </li>
-                {{/items}}
-              </ul>
+            <div class="box-wrapper">
+              <div class="box">
+                <h3 class="box-title">{{title}}</h3>
+                <ul class="box-items">
+                  {{#items}}
+                  <li class="box-item">
+                    <span class="box-item-bullet">&bull;</span>
+                    <span class="box-item-text">{{.}}</span>
+                  </li>
+                  {{/items}}
+                </ul>
+              </div>
+              {{^isLast}}
+              <div class="arrow">&#9660;</div>
+              {{/isLast}}
             </div>
             {{/boxes}}
           </div>
         </div>
         {{/leftColumn}}
 
-        <!-- Right column -->
         {{#rightColumn}}
         <div class="column right">
           {{#header}}
           <h2 class="column-header">{{header}}</h2>
           {{/header}}
           {{#description}}
-          <p class="column-description">{{description}}</p>
+          <p class="column-description">({{description}})</p>
           {{/description}}
 
           <div class="boxes-container">
             {{#boxes}}
-            <div class="box">
-              <h3 class="box-title">{{title}}</h3>
-              <ul class="box-items">
-                {{#items}}
-                <li class="box-item">
-                  <span class="box-item-bullet">•</span>
-                  <span class="box-item-text">{{.}}</span>
-                </li>
-                {{/items}}
-              </ul>
+            <div class="box-wrapper">
+              <div class="box">
+                <h3 class="box-title">{{title}}</h3>
+                <ul class="box-items">
+                  {{#items}}
+                  <li class="box-item">
+                    <span class="box-item-bullet">&bull;</span>
+                    <span class="box-item-text">{{.}}</span>
+                  </li>
+                  {{/items}}
+                </ul>
+              </div>
+              {{^isLast}}
+              <div class="arrow">&#9660;</div>
+              {{/isLast}}
             </div>
             {{/boxes}}
           </div>
@@ -277,10 +294,9 @@
         {{/rightColumn}}
       </div>
 
-      <!-- Insight section -->
       {{#insight}}
       <div class="insight-section">
-        <div class="insight-icon">💡</div>
+        <p class="insight-label">Key Takeaway</p>
         <p class="insight-text">"{{insight}}"</p>
       </div>
       {{/insight}}
