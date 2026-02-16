@@ -1,4 +1,4 @@
-Generate a LinkedIn post that breaks down {{concept}} from a practitioner's perspective.
+Generate a LinkedIn post that breaks down {{topic}} from a practitioner's perspective.
 
 Structure:
 - Hook that frames a real-world problem or scenario (never reference interviews)
