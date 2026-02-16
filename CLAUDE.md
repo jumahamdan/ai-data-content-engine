@@ -41,7 +41,6 @@ automation/
   whatsapp/             Firestore queue + Twilio client
   whatsapp-function/    Deployed Twilio webhook (cloud function)
   hybrid-image-generator/    DALL-E + Gemini + Puppeteer image pipeline
-  image-generator/      Puppeteer-based image generation
   .eslintrc.json        ESLint configuration
   .prettierrc.json      Prettier configuration
   .prettierignore       Files excluded from formatting
@@ -93,7 +92,7 @@ topics/                 topic-bank.json — topic rotation bank
 | Publisher (LinkedIn MVP) | Done | `docs/03-Features/github-actions-workflow.md` |
 | GitHub Actions Workflows | Done (cron enabled) | `docs/03-Features/github-actions-workflow.md` |
 | WhatsApp Approval | Complete | `docs/03-Features/whatsapp-approval.md` |
-| Hybrid Image Generator | Phases 1-5 done, multi-provider support | `docs/03-Features/hybrid-image-generator.md` |
+| Hybrid Image Generator | Active, multi-provider support (Gemini + DALL-E) | `docs/03-Features/hybrid-image-generator.md` |
 | Gemini Image Generator | Complete | `docs/03-Features/gemini-image-generator.md` |
 | Pipeline Image Integration | Complete | `docs/03-Features/pipeline-image-integration.md` |
 | CI + Linting + SonarCloud | Done | `.github/workflows/ci.yml` |

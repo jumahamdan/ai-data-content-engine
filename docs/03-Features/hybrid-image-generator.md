@@ -1,8 +1,8 @@
 # Feature: Hybrid Image Generator (DALL-E + Puppeteer)
 
-> **Status:** 🔄 Not Started
+> **Status:** ✅ Complete
 > **Branch:** `feature/hybrid-image-generator`
-> **Replaces:** Current `automation/image-generator/` (keep as fallback)
+> **Replaces:** Legacy `automation/image-generator/` (deleted in Phase 5 housekeeping)
 > **Priority:** MVP Enhancement
 >
 > **See also:** [Gemini Image Generator](gemini-image-generator.md) -- Gemini provider integration for cost-optimized image generation
@@ -245,7 +245,6 @@ automation/
 │   │   └── base.css
 │   └── cache/                   # Cached backgrounds & illustrations
 │       └── .gitkeep
-├── image-generator/             # Keep as fallback (current)
 └── ...
 ```
 
@@ -441,7 +440,7 @@ PROJECT CONTEXT:
 - Workspace: c:\Users\Juma Hamdan\GitHub\ai-data-content-engine
 - Node.js automation scripts in automation/
 - Goal: Professional illustrated infographics using DALL-E backgrounds + Puppeteer text
-- Current generator in automation/image-generator/ stays as fallback
+- Legacy generator deleted in Phase 5 housekeeping (replaced by hybrid-image-generator)
 
 ═══════════════════════════════════════════════════════════════
                     TASK STATUS
