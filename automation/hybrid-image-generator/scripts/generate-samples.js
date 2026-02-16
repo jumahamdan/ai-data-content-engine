@@ -17,10 +17,10 @@
 
 const path = require('node:path');
 const fs = require('node:fs').promises;
-const { batchGenerate } = require('./index');
+const { batchGenerate } = require('../index');
 
 // Output directory
-const OUTPUT_DIR = path.join(__dirname, 'test-outputs', 'samples');
+const OUTPUT_DIR = path.join(__dirname, '..', 'test-outputs', 'samples');
 
 // Sample content data for each layout type
 const SAMPLE_CONTENT = {

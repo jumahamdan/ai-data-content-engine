@@ -8,7 +8,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.js\"",
-    "format:check": "prettier --check \"**/*.js\""
+    "format:check": "prettier --check \"**/*.js\"",
+    "generate-samples": "node hybrid-image-generator/scripts/generate-samples.js",
+    "generate-illustrations": "node hybrid-image-generator/scripts/generate-illustration-library.js",
+    "test-gemini": "node test-gemini-images.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",

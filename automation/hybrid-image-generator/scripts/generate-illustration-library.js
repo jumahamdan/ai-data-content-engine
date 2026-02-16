@@ -11,9 +11,9 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
-const { createIllustrationCache } = require('./illustration-cache');
+const { createIllustrationCache } = require('../illustration-cache');
 
 // Common illustration library organized by category
 const ILLUSTRATION_LIBRARY = {
