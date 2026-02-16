@@ -91,14 +91,14 @@ topics/                 topic-bank.json — topic rotation bank
 |---------|--------|-----|
 | Content Generator (Claude API) | Done | `docs/03-Features/github-actions-workflow.md` |
 | Publisher (LinkedIn MVP) | Done | `docs/03-Features/github-actions-workflow.md` |
-| GitHub Actions Workflows | Done (cron disabled) | `docs/03-Features/github-actions-workflow.md` |
+| GitHub Actions Workflows | Done (cron enabled) | `docs/03-Features/github-actions-workflow.md` |
 | WhatsApp Approval | Complete | `docs/03-Features/whatsapp-approval.md` |
 | Hybrid Image Generator | Phases 1-5 done, multi-provider support | `docs/03-Features/hybrid-image-generator.md` |
 | Gemini Image Generator | Complete | `docs/03-Features/gemini-image-generator.md` |
 | Pipeline Image Integration | Complete | `docs/03-Features/pipeline-image-integration.md` |
 | CI + Linting + SonarCloud | Done | `.github/workflows/ci.yml` |
 | Workflow Improvements | Done | `docs/03-Features/workflow-improvements.md` |
-| LinkedIn OAuth & Real Posting | In Progress | `docs/03-Features/linkedin-oauth.md` |
+| LinkedIn OAuth & Real Posting | Complete | `docs/03-Features/linkedin-oauth.md` |
 | Comment Replies | Planned | `docs/03-Features/comment-replies.md` |
 
 ## GitHub Secrets (CI/CD)

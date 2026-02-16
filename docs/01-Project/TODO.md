@@ -16,13 +16,14 @@
 - [x] Gemini AI image generation integrated into pipeline
 - [x] Firebase Storage upload for post images
 
+- [x] LinkedIn OAuth & real posting (OAuth 2.0 + Posts API v202601)
+- [x] End-to-end testing (generate → WhatsApp approve/reject → publish to LinkedIn)
+
 ### Remaining
 
-- [ ] LinkedIn OAuth & real posting (currently MVP stub — logs to console)
-- [ ] End-to-end testing (generate → approve → publish cycle)
 - [ ] Expand topic bank
 
-**Schedule:** 2 posts/day (8am + 4pm CT) — cron disabled, manual dispatch only
+**Schedule:** 2 posts/day (8am + 4pm CT) — cron enabled
 
 ---
 
