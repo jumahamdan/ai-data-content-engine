@@ -123,10 +123,12 @@ async function prepareTemplateData(config) {
 
   // Helper: build a whiteboard column from a section
   function buildColumn(section, allSections, filterFn) {
-    const rawBoxes = section.subsections || allSections.filter(filterFn).map(s => ({
-      title: s.title,
-      items: s.items || []
-    }));
+    const rawBoxes =
+      section.subsections ||
+      allSections.filter(filterFn).map(s => ({
+        title: s.title,
+        items: s.items || []
+      }));
     // Add isLast flag for arrow rendering
     const boxes = rawBoxes.map((box, i) => ({
       ...box,
@@ -188,7 +190,11 @@ async function prepareTemplateData(config) {
       templateData.leftColumn = buildColumn(sections[0], sections, (_, i) => i % 2 === 0);
       templateData.rightColumn = buildColumn(sections[1], sections, (_, i) => i % 2 === 1);
     } else {
-      const boxes = sections.map((s, i) => ({ title: s.title, items: s.items || [], isLast: i === sections.length - 1 }));
+      const boxes = sections.map((s, i) => ({
+        title: s.title,
+        items: s.items || [],
+        isLast: i === sections.length - 1
+      }));
       templateData.leftColumn = { header: '', description: '', boxes };
       templateData.rightColumn = { header: '', description: '', boxes: [] };
     }
