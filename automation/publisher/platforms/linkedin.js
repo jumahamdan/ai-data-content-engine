@@ -20,8 +20,12 @@ const LINKEDIN_API_VERSION = '202601';
  * Make an authenticated request to the LinkedIn API.
  */
 async function linkedinFetch(url, accessToken, options = {}) {
+  // Encode string bodies as UTF-8 Buffer to avoid ByteString errors with emoji/unicode
+  const body = typeof options.body === 'string' ? Buffer.from(options.body, 'utf-8') : options.body;
+
   const response = await fetch(url, {
     ...options,
+    body,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'LinkedIn-Version': LINKEDIN_API_VERSION,
