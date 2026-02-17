@@ -121,6 +121,24 @@ async function prepareTemplateData(config) {
     insight
   };
 
+  // Helper: build a whiteboard column from a section
+  function buildColumn(section, allSections, filterFn) {
+    const rawBoxes = section.subsections || allSections.filter(filterFn).map(s => ({
+      title: s.title,
+      items: s.items || []
+    }));
+    // Add isLast flag for arrow rendering
+    const boxes = rawBoxes.map((box, i) => ({
+      ...box,
+      isLast: i === rawBoxes.length - 1
+    }));
+    return {
+      header: section.title || '',
+      description: section.description || '',
+      boxes
+    };
+  }
+
   // Layout-specific data preparation
   if (layout === 'comparison') {
     // Comparison layout: left and right sections
@@ -166,23 +184,6 @@ async function prepareTemplateData(config) {
     }));
   } else if (layout === 'whiteboard') {
     // Whiteboard layout: two-column comparison with bordered boxes and arrows
-    function buildColumn(section, allSections, filterFn) {
-      const rawBoxes = section.subsections || allSections.filter(filterFn).map(s => ({
-        title: s.title,
-        items: s.items || []
-      }));
-      // Add isLast flag for arrow rendering
-      const boxes = rawBoxes.map((box, i) => ({
-        ...box,
-        isLast: i === rawBoxes.length - 1
-      }));
-      return {
-        header: section.title || '',
-        description: section.description || '',
-        boxes
-      };
-    }
-
     if (sections.length >= 2) {
       templateData.leftColumn = buildColumn(sections[0], sections, (_, i) => i % 2 === 0);
       templateData.rightColumn = buildColumn(sections[1], sections, (_, i) => i % 2 === 1);
