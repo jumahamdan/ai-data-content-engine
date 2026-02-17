@@ -6,16 +6,16 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
-const { createBackgroundGenerator, THEMES } = require('./background-generator');
-const { createDalleClient } = require('./dalle-client');
+const { createBackgroundGenerator, THEMES } = require('../background-generator');
+const { createDalleClient } = require('../dalle-client');
 
 async function testThemeValidation() {
   console.log('\n=== Test 1: Theme Validation ===');
 
   const bgGen = createBackgroundGenerator({
-    cacheDir: path.join(__dirname, 'cache', 'test'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -41,7 +41,7 @@ async function testCacheCheck() {
   console.log('\n=== Test 2: Cache Check ===');
 
   const bgGen = createBackgroundGenerator({
-    cacheDir: path.join(__dirname, 'cache', 'test'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -61,7 +61,7 @@ async function testCacheStats() {
   console.log('\n=== Test 3: Cache Statistics ===');
 
   const bgGen = createBackgroundGenerator({
-    cacheDir: path.join(__dirname, 'cache', 'test'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -77,7 +77,7 @@ async function testStatsTracking() {
   console.log('\n=== Test 4: Statistics Tracking ===');
 
   const bgGen = createBackgroundGenerator({
-    cacheDir: path.join(__dirname, 'cache', 'test'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -127,7 +127,7 @@ async function testRealGeneration() {
   }
 
   const bgGen = createBackgroundGenerator({
-    cacheDir: path.join(__dirname, 'cache', 'test'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test'),
     verbose: true
   });
 

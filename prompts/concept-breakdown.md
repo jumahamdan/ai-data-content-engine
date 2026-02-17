@@ -16,3 +16,18 @@ Output:
 - LinkedIn-ready caption (6-12 lines)
 - End with a thoughtful question that invites discussion
 - 5-8 hashtags
+
+After the hashtags, add a fenced block with image metadata for the infographic:
+
+```IMAGE_DATA
+{
+  "title": "<short punchy image title, max 60 chars>",
+  "subtitle": "<one-line subtitle, max 80 chars>",
+  "sections": [<sections array — see below>],
+  "insight": "<one key takeaway sentence for the bottom of the image>"
+}
+```
+
+Sections: 3-4 objects, each: { "title": "<stage name>", "items": ["<point 1>", "<point 2>", "<point 3>"] }
+Represent the concept as a progression or breakdown of key areas.
+Keep each item under 50 characters. Max 4 items per section.

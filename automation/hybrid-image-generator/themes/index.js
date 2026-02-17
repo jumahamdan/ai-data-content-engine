@@ -8,6 +8,9 @@
 const chalkboard = require('./chalkboard');
 const watercolor = require('./watercolor');
 const tech = require('./tech');
+const notebook = require('./notebook');
+const whiteboard = require('./whiteboard');
+const denseInfographic = require('./dense-infographic');
 
 /**
  * Registry of all available themes
@@ -16,7 +19,10 @@ const tech = require('./tech');
 const THEMES = {
   chalkboard,
   watercolor,
-  tech
+  tech,
+  notebook,
+  whiteboard,
+  'dense-infographic': denseInfographic
 };
 
 /**

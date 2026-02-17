@@ -33,6 +33,24 @@ const THEMES = {
     dallePrompt:
       'Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024',
     fallbackColor: '#1a1a2e'
+  },
+  notebook: {
+    name: 'notebook',
+    dallePrompt:
+      'Cream-colored grid paper notebook page texture, light blue graph lines, slightly aged paper with subtle coffee stains, soft shadow at edges, no text no words no letters no numbers no writing no annotations, abstract paper texture only, 1024x1024',
+    fallbackColor: '#f5f0e8'
+  },
+  whiteboard: {
+    name: 'whiteboard',
+    dallePrompt:
+      'Clean white dry-erase whiteboard surface texture, very subtle gray smudge marks from previous erasing, slight glossy reflection, whiteboard markers tray shadow at bottom edge, no text no words no letters no writing no annotations, abstract surface texture only, 1024x1024',
+    fallbackColor: '#f8f8f8'
+  },
+  'dense-infographic': {
+    name: 'dense-infographic',
+    dallePrompt:
+      'Light warm beige parchment paper texture with very subtle noise grain, slightly aged look, soft vignette at corners, no text no words no letters no writing no annotations, abstract paper texture only, 1024x1024',
+    fallbackColor: '#faf6ef'
   }
 };
 

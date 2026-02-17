@@ -6,9 +6,9 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
-const { createBackgroundGenerator, THEMES } = require('./background-generator');
+const { createBackgroundGenerator, THEMES } = require('../background-generator');
 
 async function main() {
   console.log('========================================');
@@ -22,7 +22,7 @@ async function main() {
   console.log(`🔥 Generating ${countPerTheme} backgrounds per theme\n`);
 
   // Use test cache for testing
-  const testCacheDir = path.join(__dirname, 'cache', 'test');
+  const testCacheDir = path.join(__dirname, '..', 'cache', 'test');
   console.log(`📁 Cache directory: ${testCacheDir}\n`);
 
   const bgGen = createBackgroundGenerator({

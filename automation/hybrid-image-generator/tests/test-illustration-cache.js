@@ -6,10 +6,10 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
-const { createIllustrationCache, ILLUSTRATION_STYLES } = require('./illustration-cache');
-const { createDalleClient } = require('./dalle-client');
+const { createIllustrationCache, ILLUSTRATION_STYLES } = require('../illustration-cache');
+const { createDalleClient } = require('../dalle-client');
 
 async function testStylesAndCategories() {
   console.log('\n=== Test 1: Styles and Categories ===');
@@ -26,7 +26,7 @@ async function testInputValidation() {
   console.log('\n=== Test 2: Input Validation ===');
 
   const cache = createIllustrationCache({
-    cacheDir: path.join(__dirname, 'cache', 'test-illustrations'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test-illustrations'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -66,7 +66,7 @@ async function testListIllustrations() {
   console.log('\n=== Test 3: List Illustrations ===');
 
   const cache = createIllustrationCache({
-    cacheDir: path.join(__dirname, 'cache', 'test-illustrations'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test-illustrations'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -88,7 +88,7 @@ async function testCacheStats() {
   console.log('\n=== Test 4: Cache Statistics ===');
 
   const cache = createIllustrationCache({
-    cacheDir: path.join(__dirname, 'cache', 'test-illustrations'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test-illustrations'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -110,7 +110,7 @@ async function testStatsTracking() {
   console.log('\n=== Test 5: Statistics Tracking ===');
 
   const cache = createIllustrationCache({
-    cacheDir: path.join(__dirname, 'cache', 'test-illustrations'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test-illustrations'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -137,7 +137,7 @@ async function testNameSanitization() {
   console.log('\n=== Test 6: Name Sanitization ===');
 
   const cache = createIllustrationCache({
-    cacheDir: path.join(__dirname, 'cache', 'test-illustrations'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test-illustrations'),
     dalleClient: createDalleClient({ enabled: false }),
     verbose: false
   });
@@ -172,7 +172,7 @@ async function testRealGeneration() {
   }
 
   const cache = createIllustrationCache({
-    cacheDir: path.join(__dirname, 'cache', 'test-illustrations'),
+    cacheDir: path.join(__dirname, '..', 'cache', 'test-illustrations'),
     verbose: true
   });
 

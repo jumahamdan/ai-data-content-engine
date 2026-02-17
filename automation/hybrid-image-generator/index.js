@@ -29,7 +29,7 @@ const { createIllustrationCache } = require('./illustration-cache');
 // Constants
 const DEFAULT_THEME = 'chalkboard';
 const DEFAULT_LAYOUT = 'single';
-const VALID_LAYOUTS = ['comparison', 'evolution', 'single'];
+const VALID_LAYOUTS = ['comparison', 'evolution', 'single', 'notebook', 'whiteboard', 'dense-infographic'];
 
 /**
  * Auto-select theme based on content metadata
@@ -153,13 +153,14 @@ function validateContentData(contentData) {
     throw new Error('Content data must include a non-empty title');
   }
 
-  // Normalize sections
+  // Normalize sections (preserve extra properties like subsections, description)
   const normalizedSections = sections.map((section, index) => {
     if (!section.title && !section.items) {
       throw new Error(`Section ${index} must have at least a title or items`);
     }
 
     return {
+      ...section,
       title: section.title || '',
       items: Array.isArray(section.items) ? section.items : [],
       type: section.type || 'neutral',

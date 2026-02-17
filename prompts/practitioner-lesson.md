@@ -18,3 +18,18 @@ Output:
 - LinkedIn-ready caption (6-12 lines)
 - End with a reflective question
 - 5-8 hashtags
+
+After the hashtags, add a fenced block with image metadata for the infographic:
+
+```IMAGE_DATA
+{
+  "title": "<short punchy image title, max 60 chars>",
+  "subtitle": "<one-line subtitle, max 80 chars>",
+  "sections": [<sections array — see below>],
+  "insight": "<one key takeaway sentence for the bottom of the image>"
+}
+```
+
+Sections: 1-2 objects summarizing the key lessons.
+Each: { "title": "<lesson area>", "items": ["<takeaway 1>", "<takeaway 2>", "<takeaway 3>"] }
+Keep it focused — this is a single-topic deep dive. Keep each item under 60 characters. Max 4 items per section.

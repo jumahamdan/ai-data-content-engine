@@ -1,8 +1,8 @@
-# Feature: Hybrid Image Generator (DALL-E + Puppeteer)
+# Feature: Hybrid Image Generator (v2.0)
 
-> **Status:** 🔄 Not Started
-> **Branch:** `feature/hybrid-image-generator`
-> **Replaces:** Current `automation/image-generator/` (keep as fallback)
+> **Status:** ✅ Complete (v2.0 Image Quality Overhaul)
+> **Branch:** `feature/image-quality-overhaul`
+> **Replaces:** Legacy `automation/image-generator/` (deleted in Phase 5 housekeeping)
 > **Priority:** MVP Enhancement
 >
 > **See also:** [Gemini Image Generator](gemini-image-generator.md) -- Gemini provider integration for cost-optimized image generation
@@ -11,32 +11,9 @@
 
 ## Goal
 
-Rebuild the image generator to produce professional, illustrated infographics like the LinkedIn examples — with hand-drawn visuals, textured backgrounds, and storytelling layouts. Uses DALL-E for creative illustrations + Puppeteer for crisp text overlay.
+Generate professional, illustrated infographics with AI-generated abstract backgrounds + crisp HTML/CSS text overlays. Uses Gemini (default) or DALL-E for visual backgrounds paired with Puppeteer-rendered layouts for readable, multi-section infographics.
 
----
-
-## Reference Examples
-
-### Style 1: Chalkboard Educational
-- Dark textured background (chalkboard)
-- Hand-drawn café/building illustrations
-- Chalk-style typography
-- Two-column "Features vs Challenges"
-- Warm, educational vibe
-
-### Style 2: Light Illustrated Evolution
-- Light cream/paper texture
-- Watercolor buildings, lakes, warehouses
-- Horizontal comparison flow (A → B → C)
-- Pros/cons with ✓ ✗ indicators
-- Professional storytelling
-
-### Common Elements
-- **Illustrated metaphors** (not flat icons)
-- **Textured backgrounds** (not plain colors)
-- **Comparison layouts** (side-by-side or evolution)
-- **Color-coded sections**
-- **Crisp, readable text**
+**Key Design Principle:** AI-generated text is illegible. We use Gemini/DALL-E for abstract visual backgrounds (no text) and HTML/CSS for all text overlay to ensure crisp, readable typography.
 
 ---
 
@@ -44,42 +21,44 @@ Rebuild the image generator to produce professional, illustrated infographics li
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    HYBRID IMAGE GENERATION                   │
+│             v2.0 HYBRID IMAGE GENERATION FLOW                │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  INPUT: Content from OpenAI                                │
-│  {                                                         │
-│    title: "Data Mesh for Data Engineers",                  │
-│    theme: "chalkboard" | "watercolor" | "tech",            │
-│    metaphor: "cafés representing data domains",            │
-│    sections: [                                             │
-│      { title: "Key Features", items: [...], type: "pros" },│
-│      { title: "Challenges", items: [...], type: "cons" }   │
-│    ],                                                      │
-│    layout: "comparison" | "evolution" | "single"           │
-│  }                                                         │
-│                                                             │
-│  STEP 1: Generate Background (DALL-E 3)                    │
-│  ────────────────────────────────────────                  │
-│  Prompt: "Chalkboard texture background with hand-drawn    │
-│  café buildings representing data domains, soft lighting,  │
-│  no text, illustration style, 1024x1024"                   │
-│  Output: background.png                                    │
-│                                                             │
-│  STEP 2: Generate Illustration Elements (DALL-E 3)         │
-│  ────────────────────────────────────────                  │
-│  Prompt: "Hand-drawn watercolor data warehouse building,   │
-│  isometric view, soft colors, transparent background"      │
-│  Output: icon_warehouse.png, icon_lake.png, etc.           │
-│  (Cache these - reuse across posts)                        │
-│                                                             │
-│  STEP 3: Composite Final Image (Puppeteer)                 │
-│  ────────────────────────────────────────                  │
+│  INPUT: Content from Claude API + Pillar-Theme Mapping     │
+│  ─────────────────────────────────────────────────────────  │
+│  Content Generator selects topic + pillar category          │
+│         ↓                                                   │
+│  pillar-theme-map.js maps category → theme/layout           │
+│         ↓                                                   │
+│  Claude generates structured IMAGE_DATA metadata            │
+│    {                                                        │
+│      title: "Data Mesh for Data Engineers",                │
+│      subtitle: "Key Concepts",                             │
+│      sections: [                                           │
+│        { title: "Domain", items: ["Ownership", "Autonomy"] }│
+│      ],                                                    │
+│      insight: "Think products not pipelines."              │
+│    }                                                       │
+│         ↓                                                   │
+│  STEP 1: Generate Background (Gemini Flash or DALL-E 3)    │
+│  ────────────────────────────────────────────────────────   │
+│  Prompt: "Abstract chalkboard texture background, soft     │
+│  lighting, no text, illustration style, 1024x1024"         │
+│  Output: background.png (cached, reused)                   │
+│         ↓                                                   │
+│  STEP 2: Composite Final Image (Puppeteer)                 │
+│  ────────────────────────────────────────────────────────   │
 │  - Load background image                                   │
-│  - Position illustration elements                          │
-│  - Overlay HTML/CSS text layout                            │
-│  - Render to PNG (1080x1080 @ 2x)                          │
-│  Output: final-post.png                                    │
+│  - Render HTML layout template with theme CSS              │
+│  - Overlay structured content (title, sections, insight)   │
+│  - Export to PNG (1080x1080 @ 2x)                          │
+│  Output: post-<timestamp>.png                              │
+│         ↓                                                   │
+│  STEP 3: Upload to Firebase Storage                        │
+│  ────────────────────────────────────────────────────────   │
+│  - Attach metadata: theme, layout, provider                │
+│  - Return public URL                                       │
+│  Output: https://firebasestorage.googleapis.com/...        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -88,11 +67,24 @@ Rebuild the image generator to produce professional, illustrated infographics li
 
 ## Theme Definitions
 
+v2.0 includes **6 visual themes**, each with color palette, typography, and recommended layouts.
+
+| Theme             | Primary Color | Style                     | Recommended Layouts          |
+| ----------------- | ------------- | ------------------------- | ---------------------------- |
+| chalkboard        | #2d4a3e       | Chalk on dark green       | comparison, single           |
+| watercolor        | #faf8f5       | Soft pastel on cream      | comparison, evolution        |
+| tech              | #1a1a2e       | Neon on dark blue         | evolution, dense-infographic |
+| notebook          | #f5f0e8       | Handwritten on grid paper | notebook                     |
+| whiteboard        | #ffffff       | Clean marker on white     | evolution, comparison        |
+| dense-infographic | #faf6ef       | Multi-section on parchment | dense-infographic            |
+
 ### Theme: Chalkboard
+
 ```json
 {
   "name": "chalkboard",
   "background": {
+    "geminiPrompt": "Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024",
     "dallePrompt": "Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024",
     "fallbackColor": "#2d4a3e"
   },
@@ -111,10 +103,12 @@ Rebuild the image generator to produce professional, illustrated infographics li
 ```
 
 ### Theme: Watercolor
+
 ```json
 {
   "name": "watercolor",
   "background": {
+    "geminiPrompt": "Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024",
     "dallePrompt": "Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024",
     "fallbackColor": "#faf8f5"
   },
@@ -133,10 +127,12 @@ Rebuild the image generator to produce professional, illustrated infographics li
 ```
 
 ### Theme: Tech
+
 ```json
 {
   "name": "tech",
   "background": {
+    "geminiPrompt": "Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024",
     "dallePrompt": "Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024",
     "fallbackColor": "#1a1a2e"
   },
@@ -154,11 +150,32 @@ Rebuild the image generator to produce professional, illustrated infographics li
 }
 ```
 
+### Theme: Notebook
+
+Clean grid paper background with handwritten typography and card-based layouts. Compact spacing with rounded borders. Best for step-by-step guides and automation tutorials.
+
+Theme file: `automation/hybrid-image-generator/themes/notebook.js`
+
+### Theme: Whiteboard
+
+Clean white background with marker-style text, bordered boxes, and conceptual arrows. Professional presentation style with color-coded sections. Ideal for architecture comparisons and evolution flows.
+
+Theme file: `automation/hybrid-image-generator/themes/whiteboard.js`
+
+### Theme: Dense Infographic
+
+Warm parchment background with multi-section layouts, color-coded borders, numbered circles, and packed information. Supports 4-6 section layouts with optional subsections. Best for complex mental models and governance frameworks.
+
+Theme file: `automation/hybrid-image-generator/themes/dense-infographic.js`
+
 ---
 
 ## Layout Templates
 
+v2.0 includes **6 HTML layout templates** for different content structures.
+
 ### Layout: Comparison (Side-by-Side)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
@@ -178,7 +195,10 @@ Rebuild the image generator to produce professional, illustrated infographics li
 └─────────────────────────────────────────────────────────────┘
 ```
 
+Template file: `automation/hybrid-image-generator/layouts/comparison.html`
+
 ### Layout: Evolution (Horizontal Flow)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
@@ -197,7 +217,10 @@ Rebuild the image generator to produce professional, illustrated infographics li
 └─────────────────────────────────────────────────────────────┘
 ```
 
+Template file: `automation/hybrid-image-generator/layouts/evolution.html`
+
 ### Layout: Single (Deep Dive)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
@@ -221,6 +244,162 @@ Rebuild the image generator to produce professional, illustrated infographics li
 └─────────────────────────────────────────────────────────────┘
 ```
 
+Template file: `automation/hybrid-image-generator/layouts/single.html`
+
+### Layout: Notebook
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Grid Paper Background                   TITLE              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────────┐  ┌──────────────────────┐        │
+│  │  Step 1              │  │  Step 2              │        │
+│  │  • Item 1            │  │  • Item 1            │        │
+│  │  • Item 2            │  │  • Item 2            │        │
+│  └──────────────────────┘  └──────────────────────┘        │
+│                                                             │
+│  ┌──────────────────────┐  ┌──────────────────────┐        │
+│  │  Step 3              │  │  Step 4              │        │
+│  │  • Item 1            │  │  • Item 1            │        │
+│  │  • Item 2            │  │  • Item 2            │        │
+│  └──────────────────────┘  └──────────────────────┘        │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│              ✏️ "Key takeaway statement"                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Card-based layout with handwritten font, grid paper background, compact spacing. Ideal for automation guides and step-by-step workflows.
+
+Template file: `automation/hybrid-image-generator/layouts/notebook.html`
+
+### Layout: Whiteboard
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         TITLE                                │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────┐               ┌─────────────────┐     │
+│  │  Architecture A  │   ────────→   │  Architecture B  │     │
+│  │  ─────────────── │               │  ─────────────── │     │
+│  │  • Feature 1     │               │  • Feature 1     │     │
+│  │  • Feature 2     │               │  • Feature 2     │     │
+│  │                  │               │                  │     │
+│  │  Sub-area:       │               │  Sub-area:       │     │
+│  │  • Detail 1      │               │  • Detail 1      │     │
+│  └─────────────────┘               └─────────────────┘     │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│              🎯 Key Takeaway: "Insight statement"            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Professional presentation style with bordered boxes, arrows, color-coded sections, and optional subsections. Ideal for architecture comparisons.
+
+Template file: `automation/hybrid-image-generator/layouts/whiteboard.html`
+
+### Layout: Dense Infographic
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         TITLE                                │
+│                       Subtitle                               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ① Section 1           ② Section 2                          │
+│  • Point 1             • Point 1                            │
+│  • Point 2             • Point 2                            │
+│                                                             │
+│  ③ Section 3           ④ Section 4                          │
+│  • Point 1             • Point 1                            │
+│  • Point 2             • Point 2                            │
+│                                                             │
+│  ⑤ Section 5           ⑥ Section 6                          │
+│  • Point 1             • Point 1                            │
+│  • Point 2             • Point 2                            │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│              💡 Key Takeaway: "Insight statement"            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Supports 4-6 sections with numbered circles, color-coded borders (CSS nth-child rotation), and packed information. Ideal for governance frameworks and layered mental models.
+
+Template file: `automation/hybrid-image-generator/layouts/dense-infographic.html`
+
+---
+
+## Pillar-to-Theme Mapping
+
+v2.0 automatically maps content pillar categories to appropriate theme/layout combinations via `automation/content-generator/pillar-theme-map.js`.
+
+| Pillar                 | Theme             | Layout            | Rationale                            |
+| ---------------------- | ----------------- | ----------------- | ------------------------------------ |
+| pipelines_architecture | whiteboard        | evolution         | Sequential flow progression          |
+| cloud_lakehouse        | whiteboard        | comparison        | Side-by-side architecture comparison |
+| ai_data_workflows      | tech              | dense-infographic | Dense technical content              |
+| automation_reliability | notebook          | notebook          | Sketch note guide style              |
+| governance_trust       | dense-infographic | dense-infographic | Multi-section layered models         |
+| real_world_lessons     | chalkboard        | single            | Single narrative practitioner story  |
+
+**Fallback:** Unknown categories default to `chalkboard` theme with `single` layout.
+
+**Usage:**
+
+```javascript
+const { getThemeForPillar } = require("./pillar-theme-map");
+const { theme, layout } = getThemeForPillar("pipelines_architecture");
+// Returns: { theme: 'whiteboard', layout: 'evolution' }
+```
+
+---
+
+## Claude IMAGE_DATA Integration
+
+v2.0 integrates structured metadata generation from Claude API for rich multi-section infographics.
+
+### Data Flow
+
+1. **Prompt Templates** - All 6 Claude prompt templates (`prompts/*.md`) include IMAGE_DATA instruction blocks tailored to their target layout
+2. **Claude Response** - Claude appends structured JSON after hashtags in a fenced code block
+3. **parseResponse Extraction** - `automation/content-generator/claude-client.js` extracts IMAGE_DATA, validates minimum fields (title, sections array), strips from caption
+4. **Pipeline Wire-through** - `automation/content-generator/index.js` builds rich contentData from imageMetadata
+5. **Graceful Fallback** - If IMAGE_DATA is missing or invalid, falls back to title-only layout (no crash)
+
+### IMAGE_DATA Structure
+
+```json
+{
+  "title": "Data Mesh for Data Engineers",
+  "subtitle": "Key Concepts",
+  "sections": [
+    {
+      "title": "Domain Ownership",
+      "items": ["Product thinking", "Autonomy", "Accountability"]
+    },
+    {
+      "title": "Self-Serve Platform",
+      "items": [
+        "Infrastructure as code",
+        "Centralized tools",
+        "Federated governance"
+      ]
+    }
+  ],
+  "insight": "Data Mesh turns data engineering from a service desk into product engineering."
+}
+```
+
+**Template-specific requirements:**
+
+- **evolution**: 3-4 sections (stages)
+- **comparison/whiteboard**: 2 sections, optional subsections field
+- **dense-infographic**: 4-6 sections
+- **notebook**: 3-5 sections (cards)
+- **single**: 1-2 sections (deep dive)
+
 ---
 
 ## File Structure
@@ -228,188 +407,178 @@ Rebuild the image generator to produce professional, illustrated infographics li
 ```
 automation/
 ├── hybrid-image-generator/
-│   ├── index.js                 # Main API
-│   ├── dalle-client.js          # DALL-E API wrapper
-│   ├── background-generator.js  # Generate/cache backgrounds
-│   ├── illustration-cache.js    # Cache reusable illustrations
+│   ├── index.js                 # Main API (generateImage)
+│   ├── background-generator.js  # Generate/cache backgrounds (multi-provider)
 │   ├── compositor.js            # Puppeteer compositing
+│   ├── provider-factory.js      # IMAGE_PROVIDER routing
+│   ├── gemini-client.js         # Gemini API wrapper
+│   ├── dalle-client.js          # DALL-E API wrapper (legacy)
+│   ├── illustration-cache.js    # Cache reusable illustrations
 │   ├── themes/
+│   │   ├── index.js             # Theme loader
 │   │   ├── chalkboard.js
 │   │   ├── watercolor.js
-│   │   └── tech.js
+│   │   ├── tech.js
+│   │   ├── notebook.js
+│   │   ├── whiteboard.js
+│   │   └── dense-infographic.js
 │   ├── layouts/
 │   │   ├── comparison.html
 │   │   ├── evolution.html
-│   │   └── single.html
+│   │   ├── single.html
+│   │   ├── notebook.html
+│   │   ├── whiteboard.html
+│   │   └── dense-infographic.html
 │   ├── styles/
 │   │   └── base.css
-│   └── cache/                   # Cached backgrounds & illustrations
-│       └── .gitkeep
-├── image-generator/             # Keep as fallback (current)
+│   ├── scripts/
+│   │   ├── generate-samples.js             # Generate all pillar/theme/layout samples
+│   │   └── generate-illustration-library.js # Pre-generate illustration cache
+│   ├── tests/
+│   │   ├── test-background-migration.js
+│   │   ├── test-cache-separation.js
+│   │   ├── test-gemini-client.js
+│   │   ├── test-integration.js
+│   │   ├── test-provider-factory.js
+│   │   ├── test-provider-routing.js
+│   │   ├── test-theme-layouts.js
+│   │   └── test-workflow-local.js
+│   ├── cache/
+│   │   ├── backgrounds/
+│   │   │   ├── gemini/
+│   │   │   └── dalle/
+│   │   └── illustrations/
+│   │       ├── gemini/
+│   │       └── dalle/
+│   └── test-outputs/              # Generated sample images
+├── content-generator/
+│   ├── pillar-theme-map.js        # Pillar → theme/layout mapping
+│   ├── index.js                   # Uses hybrid compositor
+│   └── claude-client.js           # IMAGE_DATA extraction
 └── ...
 ```
 
 ---
 
-## OpenAI Prompt Updates
+## Implementation Timeline
 
-Update the content generation prompt to include image metadata:
+### v1.0 (Phases 1-4) - Complete
 
-```
-Generate a LinkedIn post with:
-1. Caption (6-12 lines, ending with a thoughtful question)
-2. Image metadata for infographic generation:
-   - imageType: "comparison" | "evolution" | "single"
-   - imageTheme: "chalkboard" | "watercolor" | "tech"
-   - imageMetaphor: Brief visual metaphor (e.g., "cafés representing data domains")
-   - imageSections: Array of sections with title, items, and type (pros/cons/neutral)
-3. 5-8 relevant hashtags
+- Phase 1: DALL-E integration, background generator, illustration cache
+- Phase 2: Theme system (chalkboard, watercolor, tech)
+- Phase 3: Layout templates (comparison, evolution, single)
+- Phase 4: Puppeteer compositor, main API, integration
 
-Return as JSON:
-{
-  "caption": "...",
-  "imageType": "comparison",
-  "imageTheme": "chalkboard", 
-  "imageMetaphor": "network of cafés managing their own data menus",
-  "imageTitle": "Data Mesh for Data Engineers",
-  "imageSections": [
-    {
-      "title": "Key Features",
-      "type": "pros",
-      "items": ["Domain ownership", "Data as product", "Self-serve platform"]
-    },
-    {
-      "title": "Challenges",
-      "type": "cons", 
-      "items": ["Org change required", "Governance complexity"]
-    }
-  ],
-  "imageInsight": "Data Mesh turns data engineering from a service desk into product engineering.",
-  "hashtags": [...]
-}
-```
+### v2.0 (Phases 5-8) - Complete
+
+- Phase 5: Deleted legacy image-generator, reorganized tests/scripts into subfolders
+- Phase 6: Created 3 new themes (notebook, whiteboard, dense-infographic) with HTML layouts
+- Phase 7: Created pillar-theme-map.js, rewired content pipeline to use hybrid compositor, added IMAGE_DATA to all 6 Claude prompt templates
+- Phase 8: Sample generation for all 6 pillar/theme/layout combinations, updated feature documentation
 
 ---
 
 ## Cost Analysis
 
-| Component              | Cost        | Notes                       |
-| ---------------------- | ----------- | --------------------------- |
-| DALL-E 3 background    | $0.04       | 1024x1024, standard quality |
-| DALL-E 3 illustrations | $0.04 × 2-3 | Cache and reuse             |
-| OpenAI GPT-4 content   | $0.02       | Already in workflow         |
-| **Per new post**       | **~$0.06**  | After illustrations cached  |
-| **Monthly (60 posts)** | **~$3.60**  | Minimal                     |
+| Component              | Cost (Gemini) | Cost (DALL-E) | Notes                           |
+| ---------------------- | ------------- | ------------- | ------------------------------- |
+| Background generation  | $0.039        | $0.04         | 1024x1024, Gemini Flash default |
+| Claude content         | $0.02         | $0.02         | Already in workflow             |
+| **Per new post**       | **~$0.059**   | **~$0.06**    | After backgrounds cached        |
+| **Monthly (60 posts)** | **~$3.54**    | **~$3.60**    | Minimal                         |
 
-### Caching Strategy
-- **Backgrounds:** Generate 5-10 per theme, rotate randomly
-- **Illustrations:** Generate icon library once (~$2-3), reuse forever
-- **Net cost after caching:** ~$0.02-0.04 per post
+**Cost savings:** Gemini Flash is ~51% cheaper per image ($0.039 vs $0.08 for DALL-E 3).
+
+**Caching Strategy:**
+
+- Backgrounds generated on-demand, cached by theme/provider
+- Illustrations (deprecated in v2.0) were pre-generated and reused
+- Net cost after caching: ~$0.039-0.059 per post
 
 ---
 
 ## Environment Variables
 
 Add to `automation/.env`:
+
 ```bash
-# DALL-E (uses same OpenAI key)
+# Image provider selection
+IMAGE_PROVIDER=gemini  # Options: gemini (default), dalle, auto, none
+
+# Gemini configuration (default provider)
+GEMINI_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-2.5-flash-image
+GEMINI_VERBOSE=true
+
+# DALL-E configuration (legacy)
+OPENAI_API_KEY=your_api_key_here
 DALLE_MODEL=dall-e-3
 DALLE_QUALITY=standard
 DALLE_SIZE=1024x1024
+DALLE_VERBOSE=true
 ```
+
+**IMAGE_PROVIDER modes:**
+
+- `gemini` - Use Gemini Flash exclusively (cost-effective)
+- `dalle` - Use DALL-E 3 exclusively (higher quality)
+- `auto` - Intelligent provider selection with fallback chain
+- `none` - Skip AI generation, use CSS fallback backgrounds
 
 ---
 
 ## Architectural Decisions
 
-### Task 1.1 Implementation (Completed)
+### AI Text vs HTML/CSS Text
 
-**Retry Logic:**
-- Implemented exponential backoff: 2s, 4s, 8s, 16s (4 retries max)
-- Retries on rate limits (429) and server errors (5xx)
-- Logs retry attempts with reason and status code
+- **Decision:** Use Gemini/DALL-E for abstract backgrounds only, no text
+- **Rationale:** AI-generated text is illegible at infographic scale; HTML/CSS guarantees crisp typography
+- **Implementation:** All layouts use Puppeteer HTML templates with Google Fonts
 
-**Environment Flags:**
-- `DALLE_ENABLED=true/false` - Enable/disable API calls (default: true)
-- `DALLE_VERBOSE=true/false` - Control logging verbosity (default: true)
-- Test mode: Set `DALLE_ENABLED=false` to skip API calls during development
+### Theme-Layout Pairings
 
-**Logging & Statistics:**
-- Tracks: total calls, success/failure counts, latency, cache hits
-- Logs: prompt length, model config, latency, revised prompts
-- `getStats()` method for monitoring performance
+- **Decision:** Pillar categories auto-map to default theme/layout combinations
+- **Rationale:** Consistent visual identity per content type; reduces decision overhead
+- **Implementation:** `pillar-theme-map.js` with fallback to chalkboard/single
 
-**Transparent Backgrounds (MVP Decision):**
-- DALL-E 3 doesn't support native transparency
-- For MVP: Request illustrations on solid theme-matching backgrounds
-- Phase 6 optimization: Add sharp-based background removal if needed
-- This avoids complexity without impacting visual quality for MVP
+### Claude Metadata Extraction
 
-**API Client Pattern:**
-- Uses raw HTTPS (consistent with existing codebase)
-- No external SDK dependencies beyond OpenAI key
-- Factory function `createDalleClient()` for configuration
+- **Decision:** Extract IMAGE_DATA from Claude response, strip from caption, validate minimum fields
+- **Rationale:** Structured metadata enables rich multi-section layouts without manual formatting
+- **Implementation:** `parseResponse()` in claude-client.js validates title + sections array, returns null on failure
 
-**Illustration Positioning Strategy:**
-- Layout templates will define fixed positioning zones (top-left, top-right, center)
-- Use CSS absolute positioning within templates
-- Illustrations sized to fit zones (e.g., 200x200px for icons)
-- Implementation details in Phase 3 (Layout Templates) and Phase 4 (Compositor)
+### Graceful Fallback
+
+- **Decision:** Pipeline never crashes if IMAGE_DATA is missing; degrades to title-only layout
+- **Rationale:** Ensures continuous operation even if Claude omits metadata or format changes
+- **Implementation:** `generatePostImage()` checks for null imageMetadata, builds basic contentData
+
+### Provider Routing
+
+- **Decision:** Single IMAGE_PROVIDER env var replaces DALLE_ENABLED/GEMINI_ENABLED flags
+- **Rationale:** Simplifies configuration, supports auto mode with intelligent fallback
+- **Implementation:** `provider-factory.js` handles routing, `background-generator.js` supports multi-provider cache
 
 ---
 
-## Implementation Tasks
+## Testing
 
-### Phase 1: DALL-E Integration
-- [x] Task 1.1: Create `automation/hybrid-image-generator/dalle-client.js` — DALL-E API wrapper
-- [x] Task 1.2: Create `automation/hybrid-image-generator/background-generator.js` — Generate backgrounds by theme
-- [ ] Task 1.3: Test background generation for all 3 themes
-- [x] Task 1.4: Create `automation/hybrid-image-generator/illustration-cache.js` — Cache management
+### Unit Tests
 
-### Phase 2: Theme System ✅ COMPLETE
-- [x] Task 2.1: Create `themes/chalkboard.js` — Colors, fonts, DALL-E prompts
-- [x] Task 2.2: Create `themes/watercolor.js`
-- [x] Task 2.3: Create `themes/tech.js`
-- [x] Task 2.4: Create theme loader with fallback defaults
+- `test-gemini-client.js` - Gemini API wrapper
+- `test-provider-factory.js` - Provider routing logic
+- `test-theme-layouts.js` - Theme/layout rendering
 
-### Phase 3: Layout Templates ✅ COMPLETE
-- [x] Task 3.1: Create `layouts/comparison.html` — Side-by-side with background image support
-- [x] Task 3.2: Create `layouts/evolution.html` — Horizontal flow
-- [x] Task 3.3: Create `layouts/single.html` — Deep dive single topic
-- [x] Task 3.4: Create `styles/base.css` — Shared styles, Google Fonts
+### Integration Tests
 
-### Phase 4: Compositor ✅ COMPLETE
-- [x] Task 4.1: Create `automation/hybrid-image-generator/compositor.js` — Puppeteer rendering
-- [x] Task 4.2: Implement background image layering
-- [x] Task 4.3: Implement illustration positioning
-- [x] Task 4.4: Test full render pipeline
+- `test-integration.js` - Full pipeline (IMAGE_PROVIDER modes)
+- `test-provider-routing.js` - Provider fallback chain
+- `test-cache-separation.js` - Multi-provider cache isolation
 
-### Phase 5: Main API & Integration ✅ COMPLETE
-- [x] Task 5.1: Create `automation/hybrid-image-generator/index.js` — Main API
-- [x] Task 5.2: Update OpenAI prompt in workflow to include image metadata
-- [x] Task 5.3: Integrate with `test-workflow-local.js`
-- [x] Task 5.4: Generate sample outputs for each theme/layout combo
+### Manual Tests
 
-### Phase 6: Caching & Optimization
-- [ ] Task 6.1: Pre-generate background library (5 per theme)
-- [ ] Task 6.2: Pre-generate illustration icon library
-- [ ] Task 6.3: Implement smart cache lookup
-- [ ] Task 6.4: Add cache hit/miss logging
-
-### Phase 7: Testing & Documentation
-- [ ] Task 7.1: Create test script for all theme/layout combinations
-- [ ] Task 7.2: Document which topics map to which themes
-- [ ] Task 7.3: Update README with new image generation approach
-- [ ] Task 7.4: Mark feature complete
-
----
-
-## Fallback Strategy
-
-If DALL-E fails or rate limits:
-1. Use pre-cached backgrounds (stored locally)
-2. Fall back to current image generator (solid colors + SVG icons)
-3. Log warning but continue with post generation
+- `test-workflow-local.js` - End-to-end content generation
+- `scripts/generate-samples.js` - All 6 pillar/theme/layout combinations
 
 ---
 
@@ -417,116 +586,10 @@ If DALL-E fails or rate limits:
 
 | Feature         | Description                            |
 | --------------- | -------------------------------------- |
-| More themes     | "Blueprint", "Newspaper", "Neon"       |
+| A/B testing     | Track which themes get more engagement |
 | Animated GIFs   | Frame sequence with CSS animation      |
 | Custom branding | User-uploaded logo, colors             |
-| A/B testing     | Track which themes get more engagement |
-
----
-
-## 🤖 Claude AI Development Prompt
-
-**Copy and paste this prompt to start working on this feature:**
-
----
-
-```
-You are helping me rebuild the image generator for the AI & Data Content Engine.
-
-FIRST, read these documents:
-1. docs/04-Development/AI_AGENT_INSTRUCTIONS.md (session workflow)
-2. docs/03-Features/hybrid-image-generator.md (this feature's full specification)
-
-PROJECT CONTEXT:
-- Workspace: c:\Users\Juma Hamdan\GitHub\ai-data-content-engine
-- Node.js automation scripts in automation/
-- Goal: Professional illustrated infographics using DALL-E backgrounds + Puppeteer text
-- Current generator in automation/image-generator/ stays as fallback
-
-═══════════════════════════════════════════════════════════════
-                    TASK STATUS
-═══════════════════════════════════════════════════════════════
-
-Phase 1: DALL-E Integration
-  □ Task 1.1: Create dalle-client.js
-  □ Task 1.2: Create background-generator.js
-  □ Task 1.3: Test background generation
-  □ Task 1.4: Create illustration-cache.js
-
-Phase 2: Theme System
-  □ Task 2.1: Create themes/chalkboard.js
-  □ Task 2.2: Create themes/watercolor.js
-  □ Task 2.3: Create themes/tech.js
-  □ Task 2.4: Create theme loader
-
-Phase 3: Layout Templates
-  □ Task 3.1: Create layouts/comparison.html
-  □ Task 3.2: Create layouts/evolution.html
-  □ Task 3.3: Create layouts/single.html
-  □ Task 3.4: Create styles/base.css
-
-Phase 4: Compositor
-  □ Task 4.1: Create compositor.js
-  □ Task 4.2: Implement background layering
-  □ Task 4.3: Implement illustration positioning
-  □ Task 4.4: Test full render pipeline
-
-Phase 5: Main API & Integration
-  □ Task 5.1: Create index.js main API
-  □ Task 5.2: Update OpenAI prompt for image metadata
-  □ Task 5.3: Integrate with test-workflow-local.js
-  □ Task 5.4: Generate sample outputs
-
-Phase 6: Caching & Optimization
-  □ Task 6.1: Pre-generate background library
-  □ Task 6.2: Pre-generate illustration icons
-  □ Task 6.3: Implement cache lookup
-  □ Task 6.4: Add cache logging
-
-Phase 7: Testing & Documentation
-  □ Task 7.1: Create full test script
-  □ Task 7.2: Document topic-to-theme mapping
-  □ Task 7.3: Update README
-  □ Task 7.4: Mark feature complete
-
-═══════════════════════════════════════════════════════════════
-
-RULES:
-
-1. BRANCH: Create/checkout `feature/hybrid-image-generator`
-
-2. ONE TASK AT A TIME: Complete fully, test, commit, then move on
-
-3. COMMIT FORMAT: "Task X.X: <description>"
-
-4. CRITICAL REVIEW: Before implementing, evaluate:
-   - Is there a simpler approach?
-   - What are the edge cases (API failures, rate limits)?
-   - How do we handle caching efficiently?
-   - If you see improvements, suggest them BEFORE coding
-
-5. TESTING: Test each component before committing
-
-6. SESSION END: Summarize progress, note next task
-
-START: Review the architecture first. If you see improvements to the hybrid approach, suggest them. Then start with Task 1.1.
-```
-
----
-
-### Quick Start Commands
-
-**New session:**
-```
-Read docs/03-Features/hybrid-image-generator.md and docs/04-Development/coding-standards.md.
-Start with Task 1.1.
-```
-
-**Resume session:**
-```
-Read docs/03-Features/hybrid-image-generator.md. I completed up to Task 2.2.
-Continue with Task 2.3.
-```
+| More themes     | "Blueprint", "Newspaper", "Neon"       |
 
 ---
 

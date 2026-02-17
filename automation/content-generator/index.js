@@ -6,28 +6,53 @@ const admin = require('firebase-admin');
 const { selectTopic } = require('./topic-selector');
 const { generateContent } = require('./claude-client');
 const { addToQueue } = require('../whatsapp/firestore-queue');
-const { createGeminiClient } = require('../hybrid-image-generator/gemini-client');
+const { generateImage } = require('../hybrid-image-generator');
+const { getThemeForPillar } = require('./pillar-theme-map');
 
 const FIREBASE_PROJECT_ID = 'ai-content-engine-jh';
 const STORAGE_BUCKET = `${FIREBASE_PROJECT_ID}.firebasestorage.app`;
 
 /**
- * Generate a LinkedIn post image using Gemini AI.
- * Creates a visual that captures the topic's essence — not a text overlay.
+ * Generate a LinkedIn post image using hybrid compositor.
+ * Produces Gemini abstract background + Puppeteer crisp text overlay.
  * @param {string} topic - The post topic
- * @param {string} caption - The post caption (for context)
+ * @param {string} category - Content pillar category for theme/layout mapping
+ * @param {object|null} imageMetadata - Optional structured metadata from Claude (title, subtitle, sections, insight)
  * @returns {Promise<string|null>} Public URL of the uploaded image, or null on failure
  */
-async function generatePostImage(topic, _caption) {
-  const gemini = createGeminiClient();
+async function generatePostImage(topic, category, imageMetadata) {
+  // 1. Look up theme + layout for this content pillar
+  const { theme, layout } = getThemeForPillar(category);
 
-  // Build a prompt that creates an engaging LinkedIn visual
-  const prompt = `Create a professional, visually striking LinkedIn post image about "${topic}".
-The image should be a clean infographic-style visual that captures the key concept.
-Use modern design with clear visual hierarchy, subtle gradients, and professional colors.
-Include a short title "${topic}" prominently.
-Make it eye-catching for a LinkedIn feed. No stock photo look — make it informative and visual.`;
+  // 2. Build contentData from imageMetadata when available, falling back to basic structure
+  let contentData;
+  if (imageMetadata && imageMetadata.title && Array.isArray(imageMetadata.sections)) {
+    // Rich metadata from Claude — use it
+    contentData = {
+      title: imageMetadata.title,
+      subtitle: imageMetadata.subtitle || '',
+      sections: imageMetadata.sections,
+      insight: imageMetadata.insight || '',
+      theme,
+      layout
+    };
+    console.log(`Content Generator: Using Claude metadata (${imageMetadata.sections.length} sections)`);
+  } else {
+    // Fallback: use single layout to avoid rendering empty complex layouts
+    contentData = {
+      title: topic,
+      subtitle: '',
+      sections: [],
+      insight: '',
+      theme,
+      layout: 'single'
+    };
+    console.log('Content Generator: No image metadata, falling back to single layout');
+  }
 
+  console.log(`Content Generator: Generating composite image (theme: ${theme}, layout: ${layout})...`);
+
+  // 3. Call hybrid compositor
   const outputDir = path.join(__dirname, '..', 'output');
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
@@ -35,11 +60,20 @@ Make it eye-catching for a LinkedIn feed. No stock photo look — make it inform
   const fileName = `post-${Date.now()}.png`;
   const localPath = path.join(outputDir, fileName);
 
-  console.log('Content Generator: Generating AI image with Gemini...');
-  const result = await gemini.generateAndSave(prompt, localPath);
-  console.log(`Content Generator: Image generated locally (${result.latency}ms)`);
+  const result = await generateImage(contentData, {
+    outputPath: localPath,
+    verbose: false
+  });
 
-  // Upload to Firebase Storage for a public URL
+  if (!result.success) {
+    throw new Error(`Hybrid compositor failed: ${result.error}`);
+  }
+
+  console.log(
+    `Content Generator: Composite image generated (${result.metadata.latency.total}ms, theme: ${result.metadata.theme}, layout: ${result.metadata.layout})`
+  );
+
+  // 4. Upload to Firebase Storage (same as before)
   console.log('Content Generator: Uploading to Firebase Storage...');
   const bucket = admin.storage().bucket(STORAGE_BUCKET);
   const destination = `post-images/${fileName}`;
@@ -49,7 +83,13 @@ Make it eye-catching for a LinkedIn feed. No stock photo look — make it inform
       destination,
       metadata: {
         contentType: 'image/png',
-        metadata: { topic, generatedAt: new Date().toISOString() }
+        metadata: {
+          topic,
+          theme: result.metadata.theme,
+          layout: result.metadata.layout,
+          provider: result.metadata.provider,
+          generatedAt: new Date().toISOString()
+        }
       }
     });
 
@@ -89,7 +129,7 @@ async function generatePost() {
   let imagePath = null;
   if (process.env.IMAGE_PROVIDER !== 'none') {
     try {
-      imagePath = await generatePostImage(topic.topic, content.caption);
+      imagePath = await generatePostImage(topic.topic, topic.category, content.imageMetadata);
     } catch (error) {
       console.warn(`Content Generator: Image generation error - ${error.message}. Continuing without image.`);
     }

@@ -19,7 +19,7 @@ const {
   getThemeInfo,
   validateTheme,
   DEFAULT_THEME
-} = require('./themes');
+} = require('../themes');
 
 console.log('🎨 Testing Theme System\n');
 console.log('='.repeat(60));

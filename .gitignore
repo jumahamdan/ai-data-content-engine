@@ -15,11 +15,17 @@ automation/*-github.js
 automation/test-output.json
 
 # Generated image outputs (run npm run test-images to regenerate)
-automation/test-outputs/*.png
+automation/test-outputs/
+automation/hybrid-image-generator/test-outputs/
 
 # Cached backgrounds and illustrations (regenerate with warmup scripts)
-automation/hybrid-image-generator/cache/backgrounds/**/*.png
-automation/hybrid-image-generator/cache/illustrations/**/*.png
+automation/hybrid-image-generator/cache/
+
+# Runtime output
+automation/output/
+
+# Design reference images (local inspiration only)
+automation/hybrid-image-generator/references/
 
 # Dependencies
 automation/node_modules/
@@ -37,3 +43,6 @@ automation/pending-posts/*
 
 # GSD planning artifacts (working scratchpad for complex features)
 .planning/
+
+# Windows artifacts
+nul

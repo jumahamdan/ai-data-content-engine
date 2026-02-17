@@ -136,7 +136,7 @@ ai-data-content-engine/
 │   ├── whatsapp-function/          # Deployed to Twilio
 │   │   └── functions/incoming.js   # Webhook handler
 │   │
-│   └── image-generator/            # Post images
+│   └── hybrid-image-generator/     # DALL-E + Gemini + Puppeteer image pipeline
 │       └── ...
 │
 ├── config/                         # Credentials (gitignored)

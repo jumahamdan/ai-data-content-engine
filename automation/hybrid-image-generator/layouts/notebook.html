@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1080" />
+    <title>Notebook Layout</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="{{googleFontsUrl}}" rel="stylesheet" />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        position: relative;
+        font-family: var(--font-body, 'Arial', sans-serif);
+        color: var(--text-primary, '#333');
+      }
+
+      .background-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        background-color: var(--bg-primary, '#f5f0e8');
+        background-image: url('{{backgroundUrl}}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .content {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 40px 44px 36px;
+      }
+
+      .title-section {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .title {
+        font-family: var(--font-title, 'Arial', sans-serif);
+        font-size: var(--font-size-hero, 52px);
+        font-weight: 700;
+        color: var(--text-primary, '#2c2c2c');
+        line-height: 1.15;
+        margin-bottom: 6px;
+      }
+
+      .subtitle {
+        font-family: var(--font-body, 'Arial', sans-serif);
+        font-size: 21px;
+        color: var(--text-secondary, '#555');
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .cards-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        flex: 1;
+        margin-bottom: 16px;
+      }
+
+      .cards-grid.single-column {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.93);
+        border: 2px solid rgba(0, 0, 0, 0.12);
+        border-radius: 14px;
+        padding: 18px 22px 16px;
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-title-bar {
+        display: flex;
+        align-items: center;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid var(--text-accent, '#3a7bd5');
+      }
+
+      .card-icon {
+        font-size: 22px;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      .card-title {
+        font-family: var(--font-title, 'Arial', sans-serif);
+        font-size: 23px;
+        font-weight: 700;
+        color: var(--text-accent, '#3a7bd5');
+        line-height: 1.2;
+      }
+
+      .card-items {
+        list-style: none;
+        flex: 1;
+      }
+
+      .card-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 7px;
+        font-size: 17px;
+        line-height: 1.45;
+        color: var(--text-primary, '#2c2c2c');
+      }
+
+      .card-item-bullet {
+        color: var(--text-accent, '#3a7bd5');
+        font-size: 10px;
+        margin-right: 10px;
+        margin-top: 6px;
+        flex-shrink: 0;
+      }
+
+      .card-item-text {
+        flex: 1;
+      }
+
+      .insight-section {
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px dashed var(--border-color, '#bbb');
+        border-radius: 10px;
+        padding: 16px 28px;
+        text-align: center;
+      }
+
+      .insight-text {
+        font-family: var(--font-body, 'Arial', sans-serif);
+        font-size: 18px;
+        font-style: italic;
+        color: var(--text-primary, '#2c2c2c');
+        line-height: 1.4;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-layer"></div>
+    <div class="overlay"></div>
+
+    <div class="content">
+      <div class="title-section">
+        <h1 class="title">{{title}}</h1>
+        {{#subtitle}}
+        <p class="subtitle">{{subtitle}}</p>
+        {{/subtitle}}
+      </div>
+
+      <div class="cards-grid">
+        {{#sections}}
+        <div class="card">
+          <div class="card-title-bar">
+            <h2 class="card-title">{{title}}</h2>
+          </div>
+          <ul class="card-items">
+            {{#items}}
+            <li class="card-item">
+              <span class="card-item-bullet">&#9679;</span>
+              <span class="card-item-text">{{.}}</span>
+            </li>
+            {{/items}}
+          </ul>
+        </div>
+        {{/sections}}
+      </div>
+
+      {{#insight}}
+      <div class="insight-section">
+        <p class="insight-text">"{{insight}}"</p>
+      </div>
+      {{/insight}}
+    </div>
+  </body>
+</html>
