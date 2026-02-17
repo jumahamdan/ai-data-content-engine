@@ -178,12 +178,7 @@ async function prepareTemplateData(config) {
     templateData.showMainIllustration = !!templateData.mainIllustrationUrl;
   } else if (layout === 'notebook') {
     // Notebook layout: sections displayed as cards in a grid
-    // Cards get alternating accent colors for visual variety
-    const sectionColors = ['#3a7bd5', '#e67e22', '#27ae60', '#8e44ad', '#e74c3c', '#f39c12'];
-    templateData.sections = sections.map((section, index) => ({
-      ...section,
-      sectionColor: sectionColors[index % sectionColors.length]
-    }));
+    templateData.sections = sections;
   } else if (layout === 'whiteboard') {
     // Whiteboard layout: two-column comparison with bordered boxes and arrows
     if (sections.length >= 2) {
@@ -199,12 +194,10 @@ async function prepareTemplateData(config) {
       templateData.rightColumn = { header: '', description: '', boxes: [] };
     }
   } else if (layout === 'dense-infographic') {
-    // Dense infographic: numbered color-coded sections in grid
-    const categoryColors = ['#27ae60', '#2980b9', '#e67e22', '#8e44ad', '#e17055', '#f39c12', '#1abc9c'];
+    // Dense infographic: numbered sections in grid
     templateData.sections = sections.map((section, index) => ({
       ...section,
-      sectionNumber: index + 1,
-      categoryColor: categoryColors[index % categoryColors.length]
+      sectionNumber: index + 1
     }));
   }
 

@@ -6,14 +6,14 @@ Manage at: `Settings → Secrets and variables → Actions`
 
 | Secret                     | Source                                                           | Used By                                 |
 | -------------------------- | ---------------------------------------------------------------- | --------------------------------------- |
-| `ANTHROPIC_API_KEY`        | [console.anthropic.com](https://console.anthropic.com/)          | generate-content.yml                    |
-| `FIREBASE_SERVICE_ACCOUNT` | GCP Console → IAM → Service Accounts (base64 encoded)            | Both workflows                          |
-| `TWILIO_ACCOUNT_SID`       | [console.twilio.com](https://console.twilio.com/)                | Both workflows                          |
-| `TWILIO_AUTH_TOKEN`        | Twilio Console                                                   | Both workflows                          |
-| `TWILIO_WHATSAPP_FROM`     | `whatsapp:+14155238886` (sandbox)                                | Both workflows                          |
-| `WHATSAPP_TO`              | `whatsapp:+1YOURNUMBER`                                          | Both workflows                          |
-| `OPENAI_API_KEY`           | [platform.openai.com](https://platform.openai.com/)              | Image generation                        |
-| `GEMINI_API_KEY`           | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | generate-content.yml (image generation) |
+| `ANTHROPIC_API_KEY`        | [console.anthropic.com](https://console.anthropic.com/)          | automation.yml (generate job)           |
+| `FIREBASE_SERVICE_ACCOUNT` | GCP Console → IAM → Service Accounts (base64 encoded)            | automation.yml (both jobs)              |
+| `TWILIO_ACCOUNT_SID`       | [console.twilio.com](https://console.twilio.com/)                | automation.yml (both jobs)              |
+| `TWILIO_AUTH_TOKEN`        | Twilio Console                                                   | automation.yml (both jobs)              |
+| `TWILIO_WHATSAPP_FROM`     | `whatsapp:+14155238886` (sandbox)                                | automation.yml (both jobs)              |
+| `WHATSAPP_TO`              | `whatsapp:+1YOURNUMBER`                                          | automation.yml (both jobs)              |
+| `OPENAI_API_KEY`           | [platform.openai.com](https://platform.openai.com/)              | automation.yml (image generation)       |
+| `GEMINI_API_KEY`           | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | automation.yml (image generation)       |
 
 ### Encoding Firebase Service Account
 
@@ -48,14 +48,12 @@ Index definitions: `firestore.indexes.json`
 
 ## GitHub Actions Workflows
 
-Both workflows have cron schedules **commented out** (manual dispatch only).
+The unified workflow (`.github/workflows/automation.yml`) has three cron schedules:
 
-To re-enable scheduled runs, uncomment the `schedule` block in:
+- **Generate:** 14:00 UTC (8 AM CST / 9 AM CDT) and 22:00 UTC (4 PM CST / 5 PM CDT)
+- **Publish:** every 15 minutes
 
-- `.github/workflows/generate-content.yml` — 8am + 4pm CT
-- `.github/workflows/publish-content.yml` — every 15 minutes
-
-Trigger manually: GitHub repo → Actions tab → select workflow → Run workflow
+Trigger manually: GitHub repo → Actions tab → "Content Automation" → Run workflow → choose `generate` or `publish`
 
 ## Rotating Secrets
 

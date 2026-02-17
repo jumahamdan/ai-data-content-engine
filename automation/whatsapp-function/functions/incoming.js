@@ -190,15 +190,18 @@ exports.handler = async function (context, event, callback) {
     const response = handler ? await handler() : 'Unknown command. Try: status, list, yes <id>, no <id>';
 
     // Handlers return a string or { text, mediaUrl } for image attachments
-    if (typeof response === 'object' && response.text) {
+    if (response && typeof response === 'object' && typeof response.text === 'string') {
       console.log(`[WhatsApp] Response length: ${response.text.length}, media: ${!!response.mediaUrl}`);
       const msg = twiml.message(response.text);
       if (response.mediaUrl) {
         msg.media(response.mediaUrl);
       }
-    } else {
+    } else if (typeof response === 'string') {
       console.log(`[WhatsApp] Response length: ${response.length}`);
       twiml.message(response);
+    } else {
+      console.log('[WhatsApp] Unexpected response type, sending fallback');
+      twiml.message('Something went wrong. Please try again.');
     }
   } catch (error) {
     console.error('Error:', error);

@@ -355,7 +355,7 @@ async function generateImage(contentData, options = {}) {
         layout,
         title: normalizedData.title,
         backgroundSource: backgroundResult.source,
-        provider: backgroundResult.provider || backgroundResult.source || 'unknown',
+        provider: backgroundResult.provider || (backgroundResult.source || '').replace(/^cache-/, '') || 'unknown',
         illustrationCount: illustrations.length,
         generatedAt: new Date().toISOString(),
         latency: {
