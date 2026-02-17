@@ -56,7 +56,7 @@ Session-by-session record of shipped work. Most recent first.
 ### Shipped
 
 - OAuth 2.0 token acquisition script (`automation/linkedin-auth/get-token.js`) — Express callback server, auto-saves tokens to .env
-- Replaced MVP stub LinkedIn adapter with real Posts API integration (versioned, 202401)
+- Replaced MVP stub LinkedIn adapter with real Posts API integration (versioned, 202601)
 - Image upload flow: initializeUpload → download from Firebase Storage → PUT to LinkedIn → attach URN
 - MVP fallback preserved when no LINKEDIN_ACCESS_TOKEN is set
 - GitHub Actions `automation.yml` updated with LINKEDIN_ACCESS_TOKEN for publish job

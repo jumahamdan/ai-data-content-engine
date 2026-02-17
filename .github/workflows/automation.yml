@@ -2,8 +2,8 @@ name: Content Automation
 
 on:
   schedule:
-    - cron: '0 14 * * *'            # Generate: 8:00 AM CT (UTC-6)
-    - cron: '0 22 * * *'            # Generate: 4:00 PM CT (UTC-6)
+    - cron: '0 14 * * *'            # Generate: 14:00 UTC (8 AM CST / 9 AM CDT)
+    - cron: '0 22 * * *'            # Generate: 22:00 UTC (4 PM CST / 5 PM CDT)
     - cron: '*/15 * * * *'          # Publish: every 15 minutes
   workflow_dispatch:
     inputs:

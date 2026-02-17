@@ -50,7 +50,7 @@ async function generatePostImage(topic, category, imageMetadata) {
     console.log('Content Generator: No image metadata, falling back to single layout');
   }
 
-  console.log(`Content Generator: Generating composite image (theme: ${theme}, layout: ${layout})...`);
+  console.log(`Content Generator: Generating composite image (theme: ${theme}, layout: ${contentData.layout})...`);
 
   // 3. Call hybrid compositor
   const outputDir = path.join(__dirname, '..', 'output');

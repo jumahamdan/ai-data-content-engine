@@ -10,7 +10,7 @@ Each feature in this project has its own doc in this folder. Feature docs are th
 | WhatsApp Approval | [whatsapp-approval.md](whatsapp-approval.md) |
 | Hybrid Image Generator | [hybrid-image-generator.md](hybrid-image-generator.md) |
 | Gemini Image Generator | [gemini-image-generator.md](gemini-image-generator.md) |
-| Image Generator (summary) | [image-generator.md](image-generator.md) |
+| Pipeline Image Integration | [pipeline-image-integration.md](pipeline-image-integration.md) |
 | Comment Replies | [comment-replies.md](comment-replies.md) |
 
 ## Creating a New Feature Doc
