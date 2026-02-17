@@ -16,12 +16,11 @@ const STORAGE_BUCKET = `${FIREBASE_PROJECT_ID}.firebasestorage.app`;
  * Generate a LinkedIn post image using hybrid compositor.
  * Produces Gemini abstract background + Puppeteer crisp text overlay.
  * @param {string} topic - The post topic
- * @param {string} caption - The post caption (for context)
  * @param {string} category - Content pillar category for theme/layout mapping
  * @param {object|null} imageMetadata - Optional structured metadata from Claude (title, subtitle, sections, insight)
  * @returns {Promise<string|null>} Public URL of the uploaded image, or null on failure
  */
-async function generatePostImage(topic, caption, category, imageMetadata) {
+async function generatePostImage(topic, category, imageMetadata) {
   // 1. Look up theme + layout for this content pillar
   const { theme, layout } = getThemeForPillar(category);
 
@@ -39,16 +38,16 @@ async function generatePostImage(topic, caption, category, imageMetadata) {
     };
     console.log(`Content Generator: Using Claude metadata (${imageMetadata.sections.length} sections)`);
   } else {
-    // Fallback: basic structure from topic
+    // Fallback: use single layout to avoid rendering empty complex layouts
     contentData = {
       title: topic,
       subtitle: '',
       sections: [],
       insight: '',
       theme,
-      layout
+      layout: 'single'
     };
-    console.log('Content Generator: No image metadata, using basic title-only layout');
+    console.log('Content Generator: No image metadata, falling back to single layout');
   }
 
   console.log(`Content Generator: Generating composite image (theme: ${theme}, layout: ${layout})...`);
@@ -130,7 +129,7 @@ async function generatePost() {
   let imagePath = null;
   if (process.env.IMAGE_PROVIDER !== 'none') {
     try {
-      imagePath = await generatePostImage(topic.topic, content.caption, topic.category, content.imageMetadata);
+      imagePath = await generatePostImage(topic.topic, topic.category, content.imageMetadata);
     } catch (error) {
       console.warn(`Content Generator: Image generation error - ${error.message}. Continuing without image.`);
     }

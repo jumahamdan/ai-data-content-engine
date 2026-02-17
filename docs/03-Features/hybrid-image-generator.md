@@ -76,7 +76,7 @@ v2.0 includes **6 visual themes**, each with color palette, typography, and reco
 | tech              | #1a1a2e       | Neon on dark blue         | evolution, dense-infographic |
 | notebook          | #f5f0e8       | Handwritten on grid paper | notebook                     |
 | whiteboard        | #ffffff       | Clean marker on white     | evolution, comparison        |
-| dense-infographic | #1a1a2e       | Multi-section data viz    | dense-infographic            |
+| dense-infographic | #faf6ef       | Multi-section on parchment | dense-infographic            |
 
 ### Theme: Chalkboard
 
@@ -164,7 +164,7 @@ Theme file: `automation/hybrid-image-generator/themes/whiteboard.js`
 
 ### Theme: Dense Infographic
 
-Dark background with multi-section layouts, color-coded borders, numbered circles, and packed information. Supports 4-6 section layouts with optional subsections. Best for complex mental models and governance frameworks.
+Warm parchment background with multi-section layouts, color-coded borders, numbered circles, and packed information. Supports 4-6 section layouts with optional subsections. Best for complex mental models and governance frameworks.
 
 Theme file: `automation/hybrid-image-generator/themes/dense-infographic.js`
 

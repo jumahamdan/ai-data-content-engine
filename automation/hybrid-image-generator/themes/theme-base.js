@@ -256,9 +256,8 @@ const notebook = createTheme({
     '--cons-bg': 'rgba(244, 67, 54, 0.08)',
     '--pros-border': '#4caf50',
     '--cons-border': '#f44336',
-    '--title-color': '#2d2d2d',
-    '--body-color': '#4a4a4a',
-    '--body-font': 'Handlee, cursive'
+    '--title-color': '#2c2c2c',
+    '--body-color': '#444444'
   },
   colors: {
     primary: '#f5f0e8',
@@ -377,9 +376,8 @@ const denseInfographic = createTheme({
     '--cons-bg': 'rgba(231, 76, 60, 0.1)',
     '--pros-border': '#27ae60',
     '--cons-border': '#e74c3c',
-    '--title-color': '#2d3436',
-    '--body-color': '#5d6166',
-    '--title-font': 'Poppins, sans-serif'
+    '--title-color': '#1a1a2e',
+    '--body-color': '#2d3436'
   },
   colors: {
     primary: '#faf6ef',

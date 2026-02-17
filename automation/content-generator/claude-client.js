@@ -54,7 +54,6 @@ function loadStyleGuidelines() {
  * Parse Claude's response into structured content.
  * Extracts caption text, hashtags, and optional IMAGE_DATA metadata from the generated post.
  * @param {string} text - Raw response text from Claude
- * @param {string} topic - The original topic (used as fallback imageTitle)
  * @returns {{ caption: string, hashtags: string[], imageTitle: string, imageMetadata: object|null }}
  */
 function parseResponse(text) {
