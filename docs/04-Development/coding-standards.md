@@ -24,7 +24,7 @@ automation/
 ├── publisher/           # LinkedIn posting (to build)
 ├── whatsapp/            # Firestore queue + Twilio client
 ├── whatsapp-function/   # Deployed Twilio webhook
-└── image-generator/     # Puppeteer image generation
+└── hybrid-image-generator/  # DALL-E + Gemini + Puppeteer image pipeline
 
 .github/workflows/       # GitHub Actions (to build)
 config/                  # Credentials (gitignored)

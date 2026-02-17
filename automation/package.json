@@ -5,15 +5,17 @@
   "main": "test-workflow-local.js",
   "scripts": {
     "test": "node test-workflow-local.js",
-    "test-images": "node image-generator/test.js",
-    "generate-samples": "node image-generator/test.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.js\"",
-    "format:check": "prettier --check \"**/*.js\""
+    "format:check": "prettier --check \"**/*.js\"",
+    "generate-samples": "node hybrid-image-generator/scripts/generate-samples.js",
+    "generate-illustrations": "node hybrid-image-generator/scripts/generate-illustration-library.js",
+    "test-gemini": "node test-gemini-images.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
+    "@google/genai": "^1.41.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "firebase-admin": "^13.6.0",

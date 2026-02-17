@@ -1,25 +1,44 @@
 {
-  "interview_explainer": [
-    "Medallion Architecture",
-    "CDC in modern pipelines",
-    "Semantic models vs datasets",
-    "Layers of AI",
-    "Agentic RAG"
+  "pipelines_architecture": [
+    "Why full reload pipelines quietly destroy cloud budgets",
+    "Designing idempotent pipelines: preventing duplicate data disasters",
+    "When NOT to use streaming: batch pipelines that scale better",
+    "Handling late-arriving data without breaking downstream reports",
+    "Most teams over-engineer pipelines before validating data value"
   ],
-  "architecture": [
-    "Warehouse vs Lakehouse",
-    "Medallion vs Data Mesh",
-    "Hybrid architectures"
+  "cloud_lakehouse": [
+    "The real cost difference between compute-heavy vs storage-heavy designs",
+    "Why small file problems cripple lakehouse performance (and how to fix it)",
+    "Partitioning strategies that actually improve query speed",
+    "When a data warehouse is the better choice than a lakehouse",
+    "Not every organization needs a lakehouse architecture"
   ],
-  "optimization": [
-    "SQL window functions",
-    "Spark broadcast joins",
-    "Data skew and repartitioning",
-    "RAG chunking failures"
+  "ai_data_workflows": [
+    "Using AI to generate pipeline documentation automatically",
+    "Where AI-generated SQL helps and where it introduces risk",
+    "Automating data quality checks using anomaly detection",
+    "Retrieval-Augmented Generation (RAG) for internal knowledge bases",
+    "AI won't replace data engineers — it will expose weak ones"
   ],
-  "layered": [
-    "Layers of a RAG system",
-    "Layers of an AI agent",
-    "Layers of data quality"
+  "automation_reliability": [
+    "Building retry logic that prevents pipeline failures from cascading",
+    "Event-driven pipelines vs scheduled jobs: real trade-offs in production",
+    "Observability basics: metrics every data pipeline should emit",
+    "Automating schema validation to catch breaking changes early",
+    "Most self-healing pipelines just hide deeper problems"
+  ],
+  "governance_trust": [
+    "Implementing row-level security without killing performance",
+    "Dynamic data masking: protecting PII while enabling analytics",
+    "Why data catalogs fail without ownership accountability",
+    "Building data quality SLAs that teams actually follow",
+    "Governance fails when it's owned only by compliance teams"
+  ],
+  "real_world_lessons": [
+    "The hidden cost of quick fixes in production pipelines",
+    "Why most dashboards fail to answer real business questions",
+    "Lessons learned from debugging a silent data corruption issue",
+    "Translating technical issues into business impact: a skill engineers overlook",
+    "Shipping fast without observability is professional negligence"
   ]
 }

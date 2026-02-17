@@ -11,7 +11,7 @@
 
 const path = require('path');
 const fs = require('fs').promises;
-const { compositeImage } = require('./compositor');
+const { compositeImage } = require('../compositor');
 
 // Test data for comparison layout
 const comparisonTestConfig = {
@@ -42,7 +42,7 @@ const comparisonTestConfig = {
   ],
   illustrations: [], // No illustrations for this test
   insight: 'Data Mesh is not just technology - it is a fundamental shift in how we think about data ownership.',
-  outputPath: path.join(__dirname, 'test-outputs', 'compositor-comparison.png'),
+  outputPath: path.join(__dirname, '..', 'test-outputs', 'compositor-comparison.png'),
   verbose: true
 };
 
@@ -73,7 +73,7 @@ const evolutionTestConfig = {
     }
   ],
   insight: "Each generation solved yesterday's problems while creating tomorrow's opportunities.",
-  outputPath: path.join(__dirname, 'test-outputs', 'compositor-evolution.png'),
+  outputPath: path.join(__dirname, '..', 'test-outputs', 'compositor-evolution.png'),
   verbose: true
 };
 
@@ -112,7 +112,7 @@ const singleTestConfig = {
     }
   ],
   insight: 'RAG bridges the gap between static LLM knowledge and dynamic real-world information.',
-  outputPath: path.join(__dirname, 'test-outputs', 'compositor-single.png'),
+  outputPath: path.join(__dirname, '..', 'test-outputs', 'compositor-single.png'),
   verbose: true
 };
 
@@ -196,7 +196,7 @@ async function main() {
     process.exit(1);
   } else {
     console.log('\n✓ All tests passed!');
-    console.log(`\nGenerated images saved to: ${path.join(__dirname, 'test-outputs')}`);
+    console.log(`\nGenerated images saved to: ${path.join(__dirname, '..', 'test-outputs')}`);
   }
 }
 

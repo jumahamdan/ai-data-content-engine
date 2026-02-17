@@ -3,8 +3,8 @@
  *
  * Orchestrates the full pipeline:
  * 1. Content validation and auto-selection (theme/layout)
- * 2. Background generation (DALL-E with caching)
- * 3. Illustration lookup (optional)
+ * 2. Background generation (DALL-E/Gemini/none via IMAGE_PROVIDER with fallback)
+ * 3. Illustration lookup (optional, provider-aware)
  * 4. Final composition (Puppeteer rendering)
  *
  * Usage:
@@ -21,16 +21,15 @@
  * Task 5.1: Main API & Integration - Phase 5
  */
 
-const path = require('path');
 const { createBackgroundGenerator } = require('./background-generator');
 const { compositeImage } = require('./compositor');
-const { getTheme, getThemeNames, isValidTheme } = require('./themes');
+const { getThemeNames, isValidTheme } = require('./themes');
 const { createIllustrationCache } = require('./illustration-cache');
 
 // Constants
 const DEFAULT_THEME = 'chalkboard';
 const DEFAULT_LAYOUT = 'single';
-const VALID_LAYOUTS = ['comparison', 'evolution', 'single'];
+const VALID_LAYOUTS = ['comparison', 'evolution', 'single', 'notebook', 'whiteboard', 'dense-infographic'];
 
 /**
  * Auto-select theme based on content metadata
@@ -154,13 +153,14 @@ function validateContentData(contentData) {
     throw new Error('Content data must include a non-empty title');
   }
 
-  // Normalize sections
+  // Normalize sections (preserve extra properties like subsections, description)
   const normalizedSections = sections.map((section, index) => {
     if (!section.title && !section.items) {
       throw new Error(`Section ${index} must have at least a title or items`);
     }
 
     return {
+      ...section,
       title: section.title || '',
       items: Array.isArray(section.items) ? section.items : [],
       type: section.type || 'neutral',
@@ -296,8 +296,19 @@ async function generateImage(contentData, options = {}) {
       force: options.forceBackground || false
     });
 
-    if (verbose) {
-      console.log(`[HybridGen]   Background: ${backgroundResult.source} (${backgroundResult.latency}ms)`);
+    // Handle IMAGE_PROVIDER=none or failure
+    let backgroundPath = null;
+    if (backgroundResult.success !== false && backgroundResult.imagePath) {
+      backgroundPath = backgroundResult.imagePath;
+      if (verbose) {
+        console.log(`[HybridGen]   Background: ${backgroundResult.source} (${backgroundResult.latency}ms)`);
+      }
+    } else {
+      if (verbose) {
+        console.log(
+          `[HybridGen] No AI background available (provider: ${backgroundResult.source || 'none'}), using CSS fallback`
+        );
+      }
     }
 
     // Step 4: Resolve illustrations (optional)
@@ -314,7 +325,7 @@ async function generateImage(contentData, options = {}) {
     const buffer = await compositeImage({
       layout,
       theme,
-      backgroundPath: backgroundResult.imagePath,
+      backgroundPath, // May be null if IMAGE_PROVIDER=none
       title: normalizedData.title,
       subtitle: normalizedData.subtitle,
       sections: normalizedData.sections,
@@ -344,6 +355,7 @@ async function generateImage(contentData, options = {}) {
         layout,
         title: normalizedData.title,
         backgroundSource: backgroundResult.source,
+        provider: backgroundResult.provider || (backgroundResult.source || '').replace(/^cache-/, '') || 'unknown',
         illustrationCount: illustrations.length,
         generatedAt: new Date().toISOString(),
         latency: {

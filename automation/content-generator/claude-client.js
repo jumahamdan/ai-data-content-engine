@@ -6,21 +6,19 @@ const MODEL = 'claude-sonnet-4-20250514';
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
 
-// Map topic-bank categories to prompt template filenames
+// Map template names to prompt template filenames
 const TEMPLATE_MAP = {
-  'interview-explainer': 'interview-explainer.md',
-  interview_explainer: 'interview-explainer.md',
+  'concept-breakdown': 'concept-breakdown.md',
   'architecture-comparison': 'architecture-comparison.md',
-  architecture: 'architecture-comparison.md',
   'optimization-story': 'optimization-story.md',
-  optimization: 'optimization-story.md',
   'layered-mental-model': 'layered-mental-model.md',
-  layered: 'layered-mental-model.md'
+  'automation-guide': 'automation-guide.md',
+  'practitioner-lesson': 'practitioner-lesson.md'
 };
 
 /**
  * Load a prompt template from the prompts/ folder and inject the topic.
- * @param {string} templateName - Template key (e.g. "interview-explainer")
+ * @param {string} templateName - Template key (e.g. "concept-breakdown")
  * @param {string} topic - The topic to inject into the template
  * @returns {string} The filled prompt
  */
@@ -33,8 +31,7 @@ function loadPromptTemplate(templateName, topic) {
   const promptPath = path.join(__dirname, '..', '..', 'prompts', filename);
   let template = fs.readFileSync(promptPath, 'utf-8');
 
-  // Replace placeholder tokens with the actual topic
-  template = template.replace(/\{\{concept\}\}/g, topic);
+  // Replace placeholder token with the actual topic
   template = template.replace(/\{\{topic\}\}/g, topic);
 
   return template;
@@ -55,12 +52,39 @@ function loadStyleGuidelines() {
 
 /**
  * Parse Claude's response into structured content.
- * Extracts caption text and hashtags from the generated post.
+ * Extracts caption text, hashtags, and optional IMAGE_DATA metadata from the generated post.
  * @param {string} text - Raw response text from Claude
- * @param {string} topic - The original topic (used as fallback imageTitle)
- * @returns {{ caption: string, hashtags: string[], imageTitle: string }}
+ * @returns {{ caption: string, hashtags: string[], imageTitle: string, imageMetadata: object|null }}
  */
 function parseResponse(text) {
+  // Extract IMAGE_DATA block using indexOf (avoids regex backtracking DoS)
+  let imageMetadata = null;
+  const startMarker = '```IMAGE_DATA';
+  const endMarker = '```';
+  const startIdx = text.indexOf(startMarker);
+
+  if (startIdx !== -1) {
+    const contentStart = text.indexOf('\n', startIdx);
+    const endIdx = contentStart !== -1 ? text.indexOf(endMarker, contentStart + 1) : -1;
+
+    if (contentStart !== -1 && endIdx !== -1) {
+      const jsonContent = text.slice(contentStart + 1, endIdx).trim();
+      try {
+        imageMetadata = JSON.parse(jsonContent);
+        // Validate minimum required fields
+        if (!imageMetadata.title || !Array.isArray(imageMetadata.sections)) {
+          console.warn('Claude Client: IMAGE_DATA missing required fields, ignoring');
+          imageMetadata = null;
+        }
+      } catch (err) {
+        console.warn(`Claude Client: Failed to parse IMAGE_DATA JSON: ${err.message}`);
+        imageMetadata = null;
+      }
+      // Remove IMAGE_DATA block from text so it doesn't appear in caption
+      text = (text.slice(0, startIdx) + text.slice(endIdx + endMarker.length)).trim();
+    }
+  }
+
   // Extract hashtags (words starting with #)
   const hashtagMatches = text.match(/#[A-Za-z]\w*/g) || [];
   const hashtags = [...new Set(hashtagMatches)];
@@ -98,7 +122,7 @@ function parseResponse(text) {
   const firstLine = caption.split('\n').find(l => l.trim().length > 10) || caption.substring(0, 80);
   const imageTitle = firstLine.trim().substring(0, 100);
 
-  return { caption, hashtags, imageTitle };
+  return { caption, hashtags, imageTitle, imageMetadata };
 }
 
 /**
@@ -156,7 +180,7 @@ async function generateContent(topicObj) {
 
       const result = parseResponse(responseText);
       console.log(
-        `Claude Client: Generated ${result.caption.length} char caption with ${result.hashtags.length} hashtags`
+        `Claude Client: Generated ${result.caption.length} char caption with ${result.hashtags.length} hashtags${result.imageMetadata ? `, image metadata (${result.imageMetadata.sections.length} sections)` : ''}`
       );
       return result;
     } catch (error) {

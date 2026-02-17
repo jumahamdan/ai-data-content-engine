@@ -1,24 +1,26 @@
 # Roadmap
 
-## Phase 1: MVP (Current) 🔄
+## Phase 1: MVP (Current)
 
-### ✅ Complete
+### Complete
+
 - WhatsApp approval workflow (Twilio Functions + Firestore)
 - Post queue in Firestore (cloud-based)
-- Image generation system (Puppeteer + HTML/CSS)
+- Image generation (Puppeteer HTML/CSS + Gemini AI + DALL-E hybrid pipeline)
+- Content generator (Claude API + topic rotation + prompt templates)
+- Publisher module (Firestore query → LinkedIn stub → status update)
+- GitHub Actions automation (generate + publish via manual dispatch, cron ready)
+- CI pipeline (ESLint + Prettier + SonarCloud)
+- Branch protection (develop + main: require PRs, passing CI, no force push)
+- Gemini AI images integrated into content pipeline + Firebase Storage upload
 
-### 🔄 In Progress
-- GitHub Actions for scheduled content generation
-- Claude API integration for content creation
-- LinkedIn posting (stub - logs only)
+### Remaining
 
-### ⏳ Remaining
-- LinkedIn OAuth & real posting
+- LinkedIn OAuth & real posting (stub → real API)
 - End-to-end testing
+- Expand topic bank
 
-**Schedule:** 2 posts/day
-- 8:00 AM CT - Morning post
-- 4:00 PM CT - Evening post
+**Schedule:** 2 posts/day (8am + 4pm CT) — cron disabled until LinkedIn is live
 
 ---
 
@@ -36,7 +38,7 @@
 
 - [ ] TikTok integration (slideshow/video)
 - [ ] Lightweight animation (mp4/gif) for diagrams
-- [ ] AI-powered image generation (DALL-E)
+- [ ] Enhanced AI image generation (style references, example-based)
 - [ ] Video content from text posts
 
 ---
@@ -54,7 +56,7 @@
 ## Architecture Evolution
 
 ```
-Phase 1 (MVP):     GitHub Actions → Firestore → LinkedIn
+Phase 1 (MVP):     GitHub Actions → Firestore → LinkedIn (stub)
 Phase 2:           + Instagram, Facebook adapters
 Phase 3:           + Video generation pipeline
 Phase 4:           + Analytics feedback loop
@@ -62,4 +64,4 @@ Phase 4:           + Analytics feedback loop
 
 ---
 
-[← Back to README](../README.md)
+[← Back to README](../../README.md)

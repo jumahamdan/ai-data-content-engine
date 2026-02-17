@@ -1,7 +1,11 @@
 # Feature: Image Generator
 
-> **Status:** ⏸️ PAUSED - Need to build professional templates  
-> **Branch:** `feature/hybrid-image-generator`  
+> **DEPRECATED:** This module was deleted in Phase 5 housekeeping (February 2026).
+> **Replacement:** See [hybrid-image-generator.md](../03-Features/hybrid-image-generator.md) for the current image generation system.
+> **Reason:** Fully superseded by hybrid-image-generator with multi-provider support (Gemini + DALL-E).
+
+> **Status:** ⏸️ PAUSED - Need to build professional templates
+> **Branch:** `feature/hybrid-image-generator`
 > **Last Updated:** February 2, 2026
 
 ---

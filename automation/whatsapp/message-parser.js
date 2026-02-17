@@ -11,8 +11,6 @@
  *   status     → show system status
  */
 
-const VALID_COMMANDS = ['yes', 'no', 'list', 'status'];
-
 /**
  * Parse a WhatsApp message body into a command object.
  * @param {string} messageBody - Raw message text from WhatsApp

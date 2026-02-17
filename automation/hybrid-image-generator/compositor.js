@@ -121,6 +121,26 @@ async function prepareTemplateData(config) {
     insight
   };
 
+  // Helper: build a whiteboard column from a section
+  function buildColumn(section, allSections, filterFn) {
+    const rawBoxes =
+      section.subsections ||
+      allSections.filter(filterFn).map(s => ({
+        title: s.title,
+        items: s.items || []
+      }));
+    // Add isLast flag for arrow rendering
+    const boxes = rawBoxes.map((box, i) => ({
+      ...box,
+      isLast: i === rawBoxes.length - 1
+    }));
+    return {
+      header: section.title || '',
+      description: section.description || '',
+      boxes
+    };
+  }
+
   // Layout-specific data preparation
   if (layout === 'comparison') {
     // Comparison layout: left and right sections
@@ -133,16 +153,52 @@ async function prepareTemplateData(config) {
     templateData.showIllustrations = !!(templateData.illustration1Url || templateData.illustration2Url);
   } else if (layout === 'evolution') {
     // Evolution layout: multiple stages with progression
-    templateData.stages = sections.map((section, index) => ({
-      ...section,
-      illustrationUrl: illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot]
-    }));
+    templateData.stages = sections.map((section, index) => {
+      // Transform string items to objects with text and icon properties
+      const transformedItems = (section.items || []).map(item => {
+        if (typeof item === 'string') {
+          return { text: item, icon: '✓', iconType: 'check' };
+        }
+        return item;
+      });
+
+      return {
+        ...section,
+        items: transformedItems,
+        illustrationUrl: illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot],
+        isLast: index === sections.length - 1
+      };
+    });
     templateData.showArrows = sections.length > 1;
+    templateData.summary = insight;
   } else if (layout === 'single') {
     // Single layout: deep dive on one topic
     templateData.sections = sections;
     templateData.mainIllustrationUrl = illustrationUrls['main'] || illustrationUrls['center'];
     templateData.showMainIllustration = !!templateData.mainIllustrationUrl;
+  } else if (layout === 'notebook') {
+    // Notebook layout: sections displayed as cards in a grid
+    templateData.sections = sections;
+  } else if (layout === 'whiteboard') {
+    // Whiteboard layout: two-column comparison with bordered boxes and arrows
+    if (sections.length >= 2) {
+      templateData.leftColumn = buildColumn(sections[0], sections, (_, i) => i % 2 === 0);
+      templateData.rightColumn = buildColumn(sections[1], sections, (_, i) => i % 2 === 1);
+    } else {
+      const boxes = sections.map((s, i) => ({
+        title: s.title,
+        items: s.items || [],
+        isLast: i === sections.length - 1
+      }));
+      templateData.leftColumn = { header: '', description: '', boxes };
+      templateData.rightColumn = { header: '', description: '', boxes: [] };
+    }
+  } else if (layout === 'dense-infographic') {
+    // Dense infographic: numbered sections in grid
+    templateData.sections = sections.map((section, index) => ({
+      ...section,
+      sectionNumber: index + 1
+    }));
   }
 
   return { templateData, theme };

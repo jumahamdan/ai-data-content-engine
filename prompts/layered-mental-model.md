@@ -15,3 +15,18 @@ Output:
 - LinkedIn-ready caption
 - End with a reflective question
 - 58 hashtags
+
+After the hashtags, add a fenced block with image metadata for the infographic:
+
+```IMAGE_DATA
+{
+  "title": "<short punchy image title, max 60 chars>",
+  "subtitle": "<one-line subtitle, max 80 chars>",
+  "sections": [<sections array — see below>],
+  "insight": "<one key takeaway sentence for the bottom of the image>"
+}
+```
+
+Sections: 4-6 objects representing the layers of the mental model.
+Each: { "title": "<layer name>", "items": ["<component or principle 1>", "<component or principle 2>"] }
+Pack the layers densely. Keep each item under 45 characters. Max 3 items per section.

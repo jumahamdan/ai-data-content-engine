@@ -99,23 +99,25 @@ async function handleList(postsRef) {
 
 async function handleView(postsRef, postId) {
   const doc = await postsRef.doc(postId).get();
-  if (!doc.exists) return `⚠️ Post #${postId} not found.`;
+  if (!doc.exists) return { text: `⚠️ Post #${postId} not found.` };
 
   const post = doc.data();
-  let caption = post.content?.caption || post.caption || 'No caption';
+  const caption = post.content?.caption || post.caption || 'No caption';
   const hashtags = post.content?.hashtags || post.hashtags || '';
   const status = post.status || 'unknown';
+  const imageUrl = post.imagePath && post.imagePath.startsWith('https') ? post.imagePath : null;
 
-  // Truncate caption if too long (WhatsApp limit ~1600 chars)
-  const maxCaptionLen = 1200;
-  if (caption.length > maxCaptionLen) {
-    caption = caption.substring(0, maxCaptionLen) + '...\n\n[Truncated for WhatsApp]';
-  }
+  const footer = status === 'pending' ? `\n\nReply: YES ${postId} or NO ${postId}` : '';
+  const header = `📝 Post #${postId}\n━━━━━━━━━━━━━━━━\nStatus: ${status.toUpperCase()}\n\n`;
+  const hashtagBlock = hashtags ? `\n\n${hashtags}` : '';
 
-  let msg = `📝 Post #${postId}\n━━━━━━━━━━━━━━━━\nStatus: ${status.toUpperCase()}\n\n${caption}\n\n`;
-  if (hashtags) msg += `${hashtags}\n\n`;
-  if (status === 'pending') msg += `Reply: YES ${postId} or NO ${postId}`;
-  return msg;
+  // Twilio WhatsApp enforces a 1600-char limit (error 21617).
+  // Budget 1400 to account for multi-byte emoji/unicode overhead.
+  const maxCaption = 1400 - header.length - hashtagBlock.length - footer.length;
+  const trimmedCaption = caption.length > maxCaption ? caption.substring(0, maxCaption - 3) + '...' : caption;
+
+  const msg = header + trimmedCaption + hashtagBlock + footer;
+  return { text: msg, mediaUrl: imageUrl };
 }
 
 async function handleApprove(postsRef, postId) {
@@ -186,8 +188,21 @@ exports.handler = async function (context, event, callback) {
     console.log(`[WhatsApp] Command: ${parsed.command}, PostId: ${parsed.postId}`);
     const handler = handlers[parsed.command];
     const response = handler ? await handler() : 'Unknown command. Try: status, list, yes <id>, no <id>';
-    console.log(`[WhatsApp] Response length: ${response.length}`);
-    twiml.message(response);
+
+    // Handlers return a string or { text, mediaUrl } for image attachments
+    if (response && typeof response === 'object' && typeof response.text === 'string') {
+      console.log(`[WhatsApp] Response length: ${response.text.length}, media: ${!!response.mediaUrl}`);
+      const msg = twiml.message(response.text);
+      if (response.mediaUrl) {
+        msg.media(response.mediaUrl);
+      }
+    } else if (typeof response === 'string') {
+      console.log(`[WhatsApp] Response length: ${response.length}`);
+      twiml.message(response);
+    } else {
+      console.log('[WhatsApp] Unexpected response type, sending fallback');
+      twiml.message('Something went wrong. Please try again.');
+    }
   } catch (error) {
     console.error('Error:', error);
     twiml.message(`❌ Error: ${error.message}\n\nPlease try again.`);

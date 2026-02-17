@@ -4,7 +4,6 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Image generator integration
-const { generateFromWorkflow } = require('./image-generator/workflow-integration');
 const { generateImage: generateHybridImage } = require('./hybrid-image-generator');
 
 // WhatsApp approval queue
@@ -190,62 +189,39 @@ async function main() {
     console.log('Generating image...');
     const sanitizedTopic = content.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    // Check if hybrid image generation is enabled
-    const useHybridImages = process.env.HYBRID_IMAGES_ENABLED === 'true';
+    console.log('Using hybrid image generator...');
 
-    let imageResult;
+    // Prepare content data for hybrid generator
+    const hybridContentData = {
+      title: content.imageTitle,
+      subtitle: content.imageSubtitle || '',
+      sections: content.imageSections || [],
+      insight: content.imageInsight || '',
+      theme: content.imageTheme,
+      layout: content.imageLayout,
+      imageMood: content.imageMood
+    };
 
-    if (useHybridImages) {
-      console.log('Using hybrid image generator (DALL-E + Puppeteer)...');
+    const outputPath = path.join(__dirname, 'test-outputs', `${sanitizedTopic}-${Date.now()}.png`);
 
-      // Prepare content data for hybrid generator
-      const hybridContentData = {
-        title: content.imageTitle,
-        subtitle: content.imageSubtitle || '',
-        sections: content.imageSections || [],
-        insight: content.imageInsight || '',
-        theme: content.imageTheme,
-        layout: content.imageLayout,
-        imageMood: content.imageMood
-      };
+    const hybridResult = await generateHybridImage(hybridContentData, {
+      outputPath,
+      verbose: true
+    });
 
-      const outputPath = path.join(__dirname, 'test-outputs', `${sanitizedTopic}-${Date.now()}.png`);
-
-      const hybridResult = await generateHybridImage(hybridContentData, {
-        outputPath,
-        verbose: true
-      });
-
-      if (hybridResult.success) {
-        imageResult = {
-          imagePath: hybridResult.imagePath,
-          imageType: hybridResult.metadata.layout,
-          theme: hybridResult.metadata.theme,
-          latency: hybridResult.metadata.latency.total
-        };
-        console.log(`Hybrid image generated: ${imageResult.imagePath}`);
-        console.log(`Theme: ${imageResult.theme}, Layout: ${imageResult.imageType}`);
-        console.log(`Generation time: ${imageResult.latency}ms`);
-      } else {
-        console.error('Hybrid generation failed:', hybridResult.error);
-        console.log('Falling back to legacy image generator...');
-
-        // Fallback to legacy generator
-        imageResult = await generateFromWorkflow(content, {
-          outputDir: path.join(__dirname, 'test-outputs'),
-          filename: `${sanitizedTopic}-${Date.now()}`
-        });
-        console.log(`Fallback image generated: ${imageResult.imagePath}`);
-      }
-    } else {
-      console.log('Using legacy image generator...');
-      imageResult = await generateFromWorkflow(content, {
-        outputDir: path.join(__dirname, 'test-outputs'),
-        filename: `${sanitizedTopic}-${Date.now()}`
-      });
-      console.log(`Image generated: ${imageResult.imagePath}`);
-      console.log(`Image type: ${imageResult.imageType}`);
+    if (!hybridResult.success) {
+      throw new Error(`Image generation failed: ${hybridResult.error}`);
     }
+
+    const imageResult = {
+      imagePath: hybridResult.imagePath,
+      imageType: hybridResult.metadata.layout,
+      theme: hybridResult.metadata.theme,
+      latency: hybridResult.metadata.latency.total
+    };
+    console.log(`Image generated: ${imageResult.imagePath}`);
+    console.log(`Theme: ${imageResult.theme}, Layout: ${imageResult.imageType}`);
+    console.log(`Generation time: ${imageResult.latency}ms`);
 
     // Add image path to content
     content.imagePath = imageResult.imagePath;

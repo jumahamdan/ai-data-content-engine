@@ -57,7 +57,7 @@ ai-data-content-engine/
 │   ├── publisher/              # LinkedIn posting pipeline
 │   ├── whatsapp/               # Firestore queue + Twilio client
 │   ├── whatsapp-function/      # Twilio webhook (deployed)
-│   └── image-generator/        # Puppeteer image generation
+│   └── hybrid-image-generator/ # DALL-E + Gemini + Puppeteer image pipeline
 ├── config/                     # Credentials (gitignored)
 ├── content-spec/               # Tone & style guidelines
 ├── prompts/                    # AI prompt templates
