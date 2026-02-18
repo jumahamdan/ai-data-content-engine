@@ -10,77 +10,26 @@
     <link href="{{googleFontsUrl}}" rel="stylesheet" />
 
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        width: 1080px;
-        height: 1080px;
-        overflow: hidden;
-        position: relative;
-        font-family: var(--font-body, 'Arial', sans-serif);
-        color: var(--text-primary, '#333');
-      }
-
-      .background-layer {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        background-color: var(--bg-primary, '#faf6ef');
-        background-image: url('{{backgroundUrl}}');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-      }
-
-      .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        background: rgba(255, 255, 255, 0.03);
-      }
-
+      /* Layout-specific styles (base styles injected by compositor) */
       .content {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
         padding: 32px 36px 28px;
       }
 
       .title-section {
-        text-align: center;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid var(--text-primary, #1a1a1a);
       }
 
       .title {
-        font-family: var(--font-title, 'Arial', sans-serif);
-        font-size: 36px;
-        font-weight: 700;
-        color: var(--text-primary, '#1a1a2e');
-        line-height: 1.15;
-        margin-bottom: 6px;
+        font-size: var(--font-size-hero, 36px);
+        margin-bottom: 4px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
       }
 
       .subtitle {
-        font-family: var(--font-body, 'Arial', sans-serif);
         font-size: 15px;
-        color: var(--text-secondary, '#555');
-        font-style: italic;
-        line-height: 1.3;
       }
 
       .sections-grid {
@@ -96,12 +45,17 @@
       }
 
       .section {
-        background: rgba(255, 255, 255, 0.95);
-        border-left: 5px solid var(--text-accent, '#e17055');
-        border-radius: 6px;
+        background: var(--section-bg, rgba(255, 255, 255, 0.92));
+        border: 2px solid var(--border-color, #d4d4d4);
+        border-radius: var(--border-radius, 3px);
         padding: 12px 14px 10px;
-        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.06);
       }
+
+      /* Color rotation for section top borders */
+      .section:nth-child(4n+1) { border-top: 4px solid var(--marker-1, #27ae60); }
+      .section:nth-child(4n+2) { border-top: 4px solid var(--marker-2, #2980b9); }
+      .section:nth-child(4n+3) { border-top: 4px solid var(--marker-3, #8e44ad); }
+      .section:nth-child(4n+4) { border-top: 4px solid var(--marker-4, #e67e22); }
 
       .section-header {
         display: flex;
@@ -112,29 +66,31 @@
       }
 
       .section-number {
-        font-family: var(--font-title, 'Arial', sans-serif);
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-accent, '#e17055');
-        margin-right: 8px;
-        flex-shrink: 0;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.06);
-      }
-
-      .section-title {
-        font-family: var(--font-title, 'Arial', sans-serif);
+        font-family: var(--font-title, Arial, sans-serif);
         font-size: 15px;
         font-weight: 700;
-        color: var(--text-primary, '#1a1a2e');
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+
+      /* Color rotation for section numbers and titles */
+      .section:nth-child(4n+1) .section-number { color: var(--marker-1, #27ae60); }
+      .section:nth-child(4n+2) .section-number { color: var(--marker-2, #2980b9); }
+      .section:nth-child(4n+3) .section-number { color: var(--marker-3, #8e44ad); }
+      .section:nth-child(4n+4) .section-number { color: var(--marker-4, #e67e22); }
+
+      .section-title {
+        font-family: var(--font-title, Arial, sans-serif);
+        font-size: 15px;
+        font-weight: 700;
         line-height: 1.25;
         flex: 1;
       }
+
+      .section:nth-child(4n+1) .section-title { color: var(--marker-1, #27ae60); }
+      .section:nth-child(4n+2) .section-title { color: var(--marker-2, #2980b9); }
+      .section:nth-child(4n+3) .section-title { color: var(--marker-3, #8e44ad); }
+      .section:nth-child(4n+4) .section-title { color: var(--marker-4, #e67e22); }
 
       .section-items {
         list-style: none;
@@ -146,73 +102,33 @@
         margin-bottom: 4px;
         font-size: 13px;
         line-height: 1.35;
-        color: var(--body-color, '#333');
+        color: var(--text-primary, #333);
       }
 
       .section-item-bullet {
-        color: var(--text-accent, '#e17055');
         font-size: 8px;
         margin-right: 7px;
         margin-top: 4px;
         flex-shrink: 0;
       }
 
+      .section:nth-child(4n+1) .section-item-bullet { color: var(--marker-1, #27ae60); }
+      .section:nth-child(4n+2) .section-item-bullet { color: var(--marker-2, #2980b9); }
+      .section:nth-child(4n+3) .section-item-bullet { color: var(--marker-3, #8e44ad); }
+      .section:nth-child(4n+4) .section-item-bullet { color: var(--marker-4, #e67e22); }
+
       .section-item-text {
         flex: 1;
       }
 
-      /* Color rotation for section borders and numbers */
-      .section:nth-child(6n+1) { border-left-color: #27ae60; }
-      .section:nth-child(6n+2) { border-left-color: #2980b9; }
-      .section:nth-child(6n+3) { border-left-color: #e67e22; }
-      .section:nth-child(6n+4) { border-left-color: #8e44ad; }
-      .section:nth-child(6n+5) { border-left-color: #e17055; }
-      .section:nth-child(6n+6) { border-left-color: #f39c12; }
-
-      .section:nth-child(6n+1) .section-number { color: #27ae60; }
-      .section:nth-child(6n+2) .section-number { color: #2980b9; }
-      .section:nth-child(6n+3) .section-number { color: #e67e22; }
-      .section:nth-child(6n+4) .section-number { color: #8e44ad; }
-      .section:nth-child(6n+5) .section-number { color: #e17055; }
-      .section:nth-child(6n+6) .section-number { color: #f39c12; }
-
-      .section:nth-child(6n+1) .section-title { color: #27ae60; }
-      .section:nth-child(6n+2) .section-title { color: #2980b9; }
-      .section:nth-child(6n+3) .section-title { color: #e67e22; }
-      .section:nth-child(6n+4) .section-title { color: #8e44ad; }
-      .section:nth-child(6n+5) .section-title { color: #e17055; }
-      .section:nth-child(6n+6) .section-title { color: #f39c12; }
-
-      .section:nth-child(6n+1) .section-item-bullet { color: #27ae60; }
-      .section:nth-child(6n+2) .section-item-bullet { color: #2980b9; }
-      .section:nth-child(6n+3) .section-item-bullet { color: #e67e22; }
-      .section:nth-child(6n+4) .section-item-bullet { color: #8e44ad; }
-      .section:nth-child(6n+5) .section-item-bullet { color: #e17055; }
-      .section:nth-child(6n+6) .section-item-bullet { color: #f39c12; }
-
+      /* Bottom punchline */
       .insight-section {
-        background: linear-gradient(135deg, rgba(26, 26, 46, 0.08), rgba(26, 26, 46, 0.03));
-        border: 2px solid var(--text-primary, '#1a1a2e');
-        border-radius: 8px;
-        padding: 14px 24px;
-        text-align: center;
-      }
-
-      .insight-label {
-        font-family: var(--font-title, 'Arial', sans-serif);
-        font-size: 13px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: var(--text-secondary, '#555');
-        margin-bottom: 4px;
+        border-top: 2px solid var(--border-color, #aaa);
+        padding-top: 12px;
       }
 
       .insight-text {
-        font-family: var(--font-body, 'Arial', sans-serif);
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--text-primary, '#1a1a2e');
+        font-size: 17px;
         line-height: 1.35;
       }
     </style>
@@ -234,7 +150,7 @@
         <div class="section">
           <div class="section-header">
             {{#sectionNumber}}
-            <span class="section-number">{{sectionNumber}}</span>
+            <span class="section-number">{{sectionNumber}}.</span>
             {{/sectionNumber}}
             <h2 class="section-title">{{title}}</h2>
           </div>
@@ -252,7 +168,6 @@
 
       {{#insight}}
       <div class="insight-section">
-        <p class="insight-label">Key Takeaway</p>
         <p class="insight-text">{{insight}}</p>
       </div>
       {{/insight}}

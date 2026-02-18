@@ -47,14 +47,17 @@ async function testCacheCheck() {
   });
 
   // Get cached backgrounds (should be empty or return cached)
-  const cachedChalkboard = await bgGen.getCachedBackgrounds('chalkboard');
-  console.log(`✅ Found ${cachedChalkboard.length} cached chalkboard backgrounds`);
+  const cachedGlassSticky = await bgGen.getCachedBackgrounds('wb-glass-sticky');
+  console.log(`Found ${cachedGlassSticky.length} cached wb-glass-sticky backgrounds`);
 
-  const cachedWatercolor = await bgGen.getCachedBackgrounds('watercolor');
-  console.log(`✅ Found ${cachedWatercolor.length} cached watercolor backgrounds`);
+  const cachedGlassClean = await bgGen.getCachedBackgrounds('wb-glass-clean');
+  console.log(`Found ${cachedGlassClean.length} cached wb-glass-clean backgrounds`);
 
-  const cachedTech = await bgGen.getCachedBackgrounds('tech');
-  console.log(`✅ Found ${cachedTech.length} cached tech backgrounds`);
+  const cachedStandingMarker = await bgGen.getCachedBackgrounds('wb-standing-marker');
+  console.log(`Found ${cachedStandingMarker.length} cached wb-standing-marker backgrounds`);
+
+  const cachedStandingMinimal = await bgGen.getCachedBackgrounds('wb-standing-minimal');
+  console.log(`Found ${cachedStandingMinimal.length} cached wb-standing-minimal backgrounds`);
 }
 
 async function testCacheStats() {
@@ -86,7 +89,7 @@ async function testStatsTracking() {
 
   // Attempt to get background with disabled DALL-E (will try cache first)
   try {
-    await bgGen.getBackground('chalkboard');
+    await bgGen.getBackground('wb-standing-minimal');
   } catch (error) {
     // Expected if no cache and DALL-E disabled
   }
@@ -132,10 +135,10 @@ async function testRealGeneration() {
   });
 
   try {
-    console.log('   Generating chalkboard background...');
-    const result = await bgGen.getBackground('chalkboard');
+    console.log('   Generating wb-standing-minimal background...');
+    const result = await bgGen.getBackground('wb-standing-minimal');
 
-    console.log('✅ Real background generation successful');
+    console.log('Real background generation successful');
     console.log('   Path:', result.imagePath);
     console.log('   Theme:', result.theme);
     console.log('   Source:', result.source);
@@ -143,8 +146,8 @@ async function testRealGeneration() {
 
     // Test cache hit
     console.log('\n   Testing cache retrieval...');
-    const cachedResult = await bgGen.getBackground('chalkboard');
-    console.log('✅ Cache retrieval successful');
+    const cachedResult = await bgGen.getBackground('wb-standing-minimal');
+    console.log('Cache retrieval successful');
     console.log('   Source:', cachedResult.source);
     console.log('   Latency:', cachedResult.latency + 'ms');
 

@@ -43,7 +43,7 @@ async function testInputValidation() {
 
   // Test invalid category
   try {
-    await cache.getIllustration('test', 'chalkboard', 'invalid-category');
+    await cache.getIllustration('test', 'wb-standing-minimal', 'invalid-category');
     console.log('❌ Should have thrown invalid category error');
   } catch (error) {
     if (error.message.includes('Invalid category')) {
@@ -53,7 +53,7 @@ async function testInputValidation() {
 
   // Test missing illustration
   try {
-    await cache.getIllustration('nonexistent', 'watercolor', 'icon');
+    await cache.getIllustration('nonexistent', 'wb-glass-clean', 'icon');
     console.log('❌ Should have thrown not found error');
   } catch (error) {
     if (error.message.includes('not found in cache')) {
@@ -76,12 +76,12 @@ async function testListIllustrations() {
   console.log(`✅ Found ${all.length} total illustrations in cache`);
 
   // List by theme
-  const watercolor = await cache.listIllustrations('watercolor');
-  console.log(`✅ Found ${watercolor.length} watercolor illustrations`);
+  const glassClean = await cache.listIllustrations('wb-glass-clean');
+  console.log(`Found ${glassClean.length} wb-glass-clean illustrations`);
 
   // List by theme and category
-  const chalkboardIcons = await cache.listIllustrations('chalkboard', 'icon');
-  console.log(`✅ Found ${chalkboardIcons.length} chalkboard icons`);
+  const standingMinimalIcons = await cache.listIllustrations('wb-standing-minimal', 'icon');
+  console.log(`Found ${standingMinimalIcons.length} wb-standing-minimal icons`);
 }
 
 async function testCacheStats() {
@@ -119,7 +119,7 @@ async function testStatsTracking() {
 
   // Attempt to get non-existent illustration
   try {
-    await cache.getIllustration('test', 'watercolor', 'icon');
+    await cache.getIllustration('test', 'wb-glass-clean', 'icon');
   } catch (error) {
     // Expected
   }
@@ -179,7 +179,7 @@ async function testRealGeneration() {
   try {
     console.log('   Generating test illustration...');
     const result = await cache.generateIllustration('test-warehouse', 'simple data warehouse building', {
-      theme: 'watercolor',
+      theme: 'wb-glass-clean',
       category: 'building',
       size: '1024x1024'
     });
@@ -194,7 +194,7 @@ async function testRealGeneration() {
 
     // Test cache retrieval
     console.log('\n   Testing cache retrieval...');
-    const cached = await cache.getIllustration('test-warehouse', 'watercolor', 'building');
+    const cached = await cache.getIllustration('test-warehouse', 'wb-glass-clean', 'building');
     console.log('✅ Cache retrieval successful');
     console.log('   Source:', cached.source);
 

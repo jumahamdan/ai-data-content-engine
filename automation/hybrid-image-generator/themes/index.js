@@ -3,44 +3,46 @@
  *
  * Central module for loading and managing visual themes.
  * Provides theme lookup with fallback defaults.
+ *
+ * Whiteboard theme family (4 variants):
+ *   wb-glass-sticky     Glass-mounted whiteboard with sticky-note accents
+ *   wb-glass-clean      Glass-mounted whiteboard, minimal and clean
+ *   wb-standing-marker  Standing whiteboard with bold marker style
+ *   wb-standing-minimal Standing whiteboard, clean corporate
  */
 
-const chalkboard = require('./chalkboard');
-const watercolor = require('./watercolor');
-const tech = require('./tech');
-const notebook = require('./notebook');
-const whiteboard = require('./whiteboard');
-const denseInfographic = require('./dense-infographic');
+const wbGlassSticky = require('./wb-glass-sticky');
+const wbGlassClean = require('./wb-glass-clean');
+const wbStandingMarker = require('./wb-standing-marker');
+const wbStandingMinimal = require('./wb-standing-minimal');
 
 /**
  * Registry of all available themes
  * Key: theme name, Value: theme configuration object
  */
 const THEMES = {
-  chalkboard,
-  watercolor,
-  tech,
-  notebook,
-  whiteboard,
-  'dense-infographic': denseInfographic
+  'wb-glass-sticky': wbGlassSticky,
+  'wb-glass-clean': wbGlassClean,
+  'wb-standing-marker': wbStandingMarker,
+  'wb-standing-minimal': wbStandingMinimal
 };
 
 /**
  * Default theme to use when requested theme is not found
  */
-const DEFAULT_THEME = 'chalkboard';
+const DEFAULT_THEME = 'wb-standing-minimal';
 
 /**
  * Get a theme by name with fallback to default
  *
- * @param {string} themeName - Name of the theme to load ('chalkboard', 'watercolor', 'tech')
+ * @param {string} themeName - Name of the theme to load
  * @param {Object} options - Configuration options
  * @param {boolean} options.strict - If true, throw error for invalid theme instead of falling back
  * @returns {Object} Theme configuration object
  *
  * @example
- * const theme = getTheme('watercolor');
- * console.log(theme.typography.titleFont); // 'Playfair Display, serif'
+ * const theme = getTheme('wb-glass-sticky');
+ * console.log(theme.typography.titleFont); // 'Architects Daughter, cursive'
  *
  * @example
  * // With strict mode
@@ -82,7 +84,7 @@ function getTheme(themeName, options = {}) {
  *
  * @example
  * const themes = getThemeNames();
- * console.log(themes); // ['chalkboard', 'watercolor', 'tech']
+ * console.log(themes); // ['wb-glass-sticky', 'wb-glass-clean', 'wb-standing-marker', 'wb-standing-minimal']
  */
 function getThemeNames() {
   return Object.keys(THEMES);
@@ -95,8 +97,8 @@ function getThemeNames() {
  * @returns {boolean} True if theme exists, false otherwise
  *
  * @example
- * isValidTheme('watercolor'); // true
- * isValidTheme('invalid');    // false
+ * isValidTheme('wb-glass-sticky'); // true
+ * isValidTheme('chalkboard');       // false
  */
 function isValidTheme(themeName) {
   if (!themeName) return false;
@@ -108,12 +110,6 @@ function isValidTheme(themeName) {
  * Get all themes as an array
  *
  * @returns {Object[]} Array of theme configuration objects
- *
- * @example
- * const allThemes = getAllThemes();
- * allThemes.forEach(theme => {
- *   console.log(theme.name, theme.colors.primary);
- * });
  */
 function getAllThemes() {
   return Object.values(THEMES);
@@ -122,12 +118,8 @@ function getAllThemes() {
 /**
  * Get theme by recommended layout
  *
- * @param {string} layout - Layout type ('comparison', 'evolution', 'single')
+ * @param {string} layout - Layout type ('comparison', 'evolution', 'whiteboard', 'dense-infographic')
  * @returns {string[]} Array of theme names that recommend this layout
- *
- * @example
- * const themes = getThemesByLayout('evolution');
- * console.log(themes); // ['watercolor', 'tech']
  */
 function getThemesByLayout(layout) {
   return getAllThemes()
@@ -140,10 +132,6 @@ function getThemesByLayout(layout) {
  *
  * @param {string} themeName - Theme name
  * @returns {string} CSS variables formatted for inline styles or style tags
- *
- * @example
- * const cssVars = getCSSVariables('tech');
- * // Returns: "--canvas-width: 1080px; --canvas-height: 1080px; ..."
  */
 function getCSSVariables(themeName) {
   const theme = getTheme(themeName);
@@ -157,10 +145,6 @@ function getCSSVariables(themeName) {
  *
  * @param {string} themeName - Theme name
  * @returns {string} Google Fonts CSS import URL
- *
- * @example
- * const fontUrl = getGoogleFontsURL('watercolor');
- * // Returns: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
  */
 function getGoogleFontsURL(themeName) {
   const theme = getTheme(themeName);
@@ -173,17 +157,6 @@ function getGoogleFontsURL(themeName) {
  *
  * @param {string} themeName - Theme name
  * @returns {Object} Summary of theme properties
- *
- * @example
- * const info = getThemeInfo('chalkboard');
- * console.log(info);
- * // {
- * //   name: 'chalkboard',
- * //   primaryColor: '#2d4a3e',
- * //   accentColor: '#f4d03f',
- * //   titleFont: 'Permanent Marker, cursive',
- * //   recommendedLayouts: ['comparison', 'single']
- * // }
  */
 function getThemeInfo(themeName) {
   const theme = getTheme(themeName);
@@ -203,12 +176,6 @@ function getThemeInfo(themeName) {
  *
  * @param {Object} theme - Theme object to validate
  * @returns {Object} Validation result { valid: boolean, errors: string[] }
- *
- * @example
- * const result = validateTheme(myTheme);
- * if (!result.valid) {
- *   console.error('Theme validation failed:', result.errors);
- * }
  */
 function validateTheme(theme) {
   const errors = [];

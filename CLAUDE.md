@@ -41,7 +41,7 @@ automation/
   publisher/            Post publishing pipeline (index.js, platforms/linkedin.js)
   whatsapp/             Firestore queue + Twilio client
   whatsapp-function/    Deployed Twilio webhook (cloud function)
-  hybrid-image-generator/    DALL-E + Gemini + Puppeteer image pipeline (6 themes, 6 layouts)
+  hybrid-image-generator/    DALL-E + Gemini + Puppeteer image pipeline (4 whiteboard themes, 4 layouts)
   .eslintrc.json        ESLint configuration
   .prettierrc.json      Prettier configuration
   .prettierignore       Files excluded from formatting
@@ -73,7 +73,7 @@ topics/                 topic-bank.json — topic rotation bank
 | `docs/02-Architecture/system-architecture.md`    | Full system design, data flow, cloud services                          |
 | `docs/03-Features/github-actions-workflow.md`    | GitHub Actions replacement for n8n (Phases 1-3 done, Phase 4 testing)  |
 | `docs/03-Features/whatsapp-approval.md`          | WhatsApp approval system (COMPLETE)                                    |
-| `docs/03-Features/hybrid-image-generator.md`     | DALL-E + Puppeteer image pipeline (Phases 1-5 done)                    |
+| `docs/03-Features/hybrid-image-generator.md`     | DALL-E + Puppeteer image pipeline (v3.0 whiteboard overhaul)           |
 | `docs/03-Features/gemini-image-generator.md`     | Gemini image provider: architecture, cost comparison, provider routing |
 | `docs/03-Features/pipeline-image-integration.md` | Gemini images in content pipeline + Firebase Storage upload            |
 | `docs/03-Features/image-generator.md`            | Image generator status summary and next steps                          |
@@ -93,7 +93,7 @@ topics/                 topic-bank.json — topic rotation bank
 | Publisher (LinkedIn MVP)       | Done                                                                   | `docs/03-Features/github-actions-workflow.md`    |
 | GitHub Actions Workflows       | Done (cron enabled)                                                    | `docs/03-Features/github-actions-workflow.md`    |
 | WhatsApp Approval              | Complete                                                               | `docs/03-Features/whatsapp-approval.md`          |
-| Hybrid Image Generator         | Complete (v2.0) - 6 themes, 6 layouts, pillar mapping, Claude metadata | `docs/03-Features/hybrid-image-generator.md`     |
+| Hybrid Image Generator         | Complete (v3.0) - 4 whiteboard themes, 4 layouts, pillar mapping, Claude metadata | `docs/03-Features/hybrid-image-generator.md`     |
 | Gemini Image Generator         | Complete                                                               | `docs/03-Features/gemini-image-generator.md`     |
 | Pipeline Image Integration     | Complete (v2.0) - hybrid compositor with pillar-based theme selection  | `docs/03-Features/pipeline-image-integration.md` |
 | CI + Linting + SonarCloud      | Done                                                                   | `.github/workflows/ci.yml`                       |

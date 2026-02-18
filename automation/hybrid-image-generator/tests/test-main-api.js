@@ -19,12 +19,12 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'test-outputs');
  * Test 1: Basic comparison layout
  */
 async function testComparison() {
-  console.log('\n=== Test 1: Comparison Layout (Chalkboard Theme) ===\n');
+  console.log('\n=== Test 1: Comparison Layout (wb-standing-minimal) ===\n');
 
   const contentData = {
     title: 'Data Mesh vs Data Warehouse',
     subtitle: 'Architectural Comparison',
-    theme: 'chalkboard',
+    theme: 'wb-standing-minimal',
     layout: 'comparison',
     sections: [
       {
@@ -51,7 +51,7 @@ async function testComparison() {
     verbose: true
   });
 
-  console.log('\nResult:', result.success ? '✓ Success' : '✗ Failed');
+  console.log('\nResult:', result.success ? 'Success' : 'Failed');
   if (result.metadata) {
     console.log('Metadata:', JSON.stringify(result.metadata, null, 2));
   }
@@ -101,7 +101,7 @@ async function testAutoSelection() {
     verbose: true
   });
 
-  console.log('\nResult:', result.success ? '✓ Success' : '✗ Failed');
+  console.log('\nResult:', result.success ? 'Success' : 'Failed');
   if (result.metadata) {
     console.log('Actual theme used:', result.metadata.theme);
     console.log('Actual layout used:', result.metadata.layout);
@@ -131,20 +131,20 @@ async function testQuickGenerate() {
     path.join(OUTPUT_DIR, 'test-quick-generate.png')
   );
 
-  console.log('\nResult:', result.success ? '✓ Success' : '✗ Failed');
+  console.log('\nResult:', result.success ? 'Success' : 'Failed');
 
   return result;
 }
 
 /**
- * Test 4: Evolution layout
+ * Test 4: Evolution layout (vertical flowchart)
  */
 async function testEvolution() {
-  console.log('\n=== Test 4: Evolution Layout (Watercolor Theme) ===\n');
+  console.log('\n=== Test 4: Evolution Layout (wb-standing-marker) ===\n');
 
   const contentData = {
     title: 'Data Storage Evolution',
-    theme: 'watercolor',
+    theme: 'wb-standing-marker',
     layout: 'evolution',
     sections: [
       {
@@ -171,50 +171,49 @@ async function testEvolution() {
     verbose: true
   });
 
-  console.log('\nResult:', result.success ? '✓ Success' : '✗ Failed');
+  console.log('\nResult:', result.success ? 'Success' : 'Failed');
 
   return result;
 }
 
 /**
- * Test 5: Single layout
+ * Test 5: Dense infographic layout
  */
-async function testSingle() {
-  console.log('\n=== Test 5: Single Layout (Tech Theme) ===\n');
+async function testDenseInfographic() {
+  console.log('\n=== Test 5: Dense Infographic Layout (wb-glass-clean) ===\n');
 
   const contentData = {
-    title: 'Vector Databases',
-    subtitle: 'Powering AI Applications',
-    theme: 'tech',
-    layout: 'single',
+    title: 'ML Pipeline Components',
+    subtitle: 'End-to-End Machine Learning',
+    theme: 'wb-glass-clean',
+    layout: 'dense-infographic',
     sections: [
       {
-        title: 'What are Vector Databases?',
-        items: [
-          'Store data as high-dimensional vectors',
-          'Optimized for similarity search',
-          'Purpose-built for AI workloads'
-        ]
+        title: 'Data Ingestion',
+        items: ['CDC pipelines', 'Event streaming', 'Batch imports']
       },
       {
-        title: 'Key Use Cases',
-        items: [
-          'Semantic search',
-          'Recommendation engines',
-          'RAG (Retrieval Augmented Generation)',
-          'Image/video similarity'
-        ]
+        title: 'Feature Engineering',
+        items: ['Feature store', 'Transformations', 'Validation']
+      },
+      {
+        title: 'Model Training',
+        items: ['Experiment tracking', 'Hyperparameter tuning', 'Distributed']
+      },
+      {
+        title: 'Deployment',
+        items: ['Model registry', 'A/B testing', 'Canary rollouts']
       }
     ],
-    insight: 'Vector databases are essential infrastructure for modern AI applications.'
+    insight: 'Modern ML requires automation across the entire lifecycle.'
   };
 
   const result = await generateImage(contentData, {
-    outputPath: path.join(OUTPUT_DIR, 'test-single.png'),
+    outputPath: path.join(OUTPUT_DIR, 'test-dense-infographic.png'),
     verbose: true
   });
 
-  console.log('\nResult:', result.success ? '✓ Success' : '✗ Failed');
+  console.log('\nResult:', result.success ? 'Success' : 'Failed');
 
   return result;
 }
@@ -234,7 +233,7 @@ async function testErrorHandling() {
     { verbose: false }
   );
 
-  console.log('Result:', result1.success ? '✗ Should have failed' : '✓ Correctly failed');
+  console.log('Result:', result1.success ? 'Should have failed' : 'Correctly failed');
   console.log('Error:', result1.error);
 
   // Test 6b: Invalid theme
@@ -247,7 +246,7 @@ async function testErrorHandling() {
     { verbose: false }
   );
 
-  console.log('Result:', result2.success ? '✗ Should have failed' : '✓ Correctly failed');
+  console.log('Result:', result2.success ? 'Should have failed' : 'Correctly failed');
   console.log('Error:', result2.error);
 
   // Test 6c: Invalid layout
@@ -260,7 +259,7 @@ async function testErrorHandling() {
     { verbose: false }
   );
 
-  console.log('Result:', result3.success ? '✗ Should have failed' : '✓ Correctly failed');
+  console.log('Result:', result3.success ? 'Should have failed' : 'Correctly failed');
   console.log('Error:', result3.error);
 
   return { result1, result2, result3 };
@@ -268,9 +267,8 @@ async function testErrorHandling() {
 
 // Main test runner
 async function runAllTests() {
-  console.log('╔════════════════════════════════════════════════════════════╗');
-  console.log('║  Hybrid Image Generator - Main API Test Suite            ║');
-  console.log('╚════════════════════════════════════════════════════════════╝');
+  console.log('Hybrid Image Generator - Main API Test Suite');
+  console.log('='.repeat(60));
 
   const results = [];
 
@@ -280,13 +278,13 @@ async function runAllTests() {
     results.push(await testAutoSelection());
     results.push(await testQuickGenerate());
     results.push(await testEvolution());
-    results.push(await testSingle());
+    results.push(await testDenseInfographic());
     await testErrorHandling(); // Error tests don't count toward success
 
     // Summary
-    console.log('\n╔════════════════════════════════════════════════════════════╗');
-    console.log('║  Test Summary                                             ║');
-    console.log('╚════════════════════════════════════════════════════════════╝\n');
+    console.log('\n' + '='.repeat(60));
+    console.log('Test Summary');
+    console.log('='.repeat(60) + '\n');
 
     const successCount = results.filter(r => r.success).length;
     const failedCount = results.length - successCount;
@@ -308,13 +306,13 @@ async function runAllTests() {
     console.log('\nAll test images saved to:', OUTPUT_DIR);
 
     if (failedCount > 0) {
-      console.log('\n✗ Some tests failed. See output above for details.');
+      console.log('\nSome tests failed. See output above for details.');
       process.exit(1);
     } else {
-      console.log('\n✓ All tests passed!');
+      console.log('\nAll tests passed!');
     }
   } catch (error) {
-    console.error('\n✗ Test suite failed with error:', error);
+    console.error('\nTest suite failed with error:', error);
     process.exit(1);
   }
 }
