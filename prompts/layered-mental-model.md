@@ -29,4 +29,4 @@ After the hashtags, add a fenced block with image metadata for the infographic:
 
 Sections: 4-6 objects representing the layers of the mental model.
 Each: { "title": "<layer name>", "items": ["<component or principle 1>", "<component or principle 2>"] }
-Pack the layers densely. Keep each item under 45 characters. Max 3 items per section.
+Pack the layers densely. Keep each item under 70 characters. Target 4-6 items per section. Dense content looks better than sparse.

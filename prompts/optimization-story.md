@@ -32,4 +32,4 @@ After the hashtags, add a fenced block with image metadata for the infographic:
 
 Sections: 4-6 objects covering different optimization areas.
 Each: { "title": "<area name>", "items": ["<technique or insight 1>", "<technique or insight 2>"] }
-Pack useful information densely. Keep each item under 45 characters. Max 3 items per section.
+Pack useful information densely. Keep each item under 70 characters. Target 4-6 items per section. Dense content looks better than sparse.

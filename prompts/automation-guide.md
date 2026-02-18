@@ -31,4 +31,4 @@ After the hashtags, add a fenced block with image metadata for the infographic:
 
 Sections: 3-5 objects representing key topics or steps.
 Each: { "title": "<topic or step name>", "items": ["<point 1>", "<point 2>", "<point 3>"] }
-Think of each section as a note card. Keep each item under 50 characters. Max 4 items per section.
+Think of each section as a note card. Keep each item under 75 characters. Target 5-7 items per section. Pack the image with useful information — dense content looks better than sparse.

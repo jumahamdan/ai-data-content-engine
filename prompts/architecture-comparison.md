@@ -31,4 +31,4 @@ After the hashtags, add a fenced block with image metadata for the infographic:
 Sections: exactly 2 objects representing the two architectures being compared.
 Each: { "title": "<architecture name>", "items": ["<strength or trait 1>", "<strength or trait 2>", "<strength or trait 3>"], "subsections": [{"title": "<sub-area>", "items": ["<detail>"]}] }
 The subsections field is optional — include 2-3 subsections per side if the comparison has clear sub-categories.
-Keep each item under 50 characters. Max 4 items per section, 3 items per subsection.
+Keep each item under 75 characters. Target 5-7 items per section, 3-5 items per subsection. Pack the image with useful information — dense content looks better than sparse.

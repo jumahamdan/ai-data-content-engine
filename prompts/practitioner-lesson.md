@@ -32,4 +32,4 @@ After the hashtags, add a fenced block with image metadata for the infographic:
 
 Sections: 1-2 objects summarizing the key lessons.
 Each: { "title": "<lesson area>", "items": ["<takeaway 1>", "<takeaway 2>", "<takeaway 3>"] }
-Keep it focused — this is a single-topic deep dive. Keep each item under 60 characters. Max 4 items per section.
+Keep it focused — this is a single-topic deep dive. Keep each item under 75 characters. Target 5-7 items per section. Pack the image with useful information — dense content looks better than sparse.

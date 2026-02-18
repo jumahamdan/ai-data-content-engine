@@ -12,12 +12,12 @@
     <style>
       /* Layout-specific styles (base styles injected by compositor) */
       .content {
-        padding: 44px 56px 40px;
+        padding: 28px 32px 24px;
       }
 
       .title-section {
-        margin-bottom: 24px;
-        padding-bottom: 12px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
         border-bottom: 3px solid var(--text-primary, #333);
       }
 
@@ -37,14 +37,13 @@
         align-items: center;
         flex: 1;
         gap: 0;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
       }
 
       .stage-wrapper {
         display: flex;
         align-items: center;
         width: 100%;
-        max-width: 700px;
       }
 
       .stage {
@@ -108,16 +107,16 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 28px;
+        height: 18px;
         width: 100%;
-        max-width: 700px;
+        position: relative;
       }
 
       .arrow-down::before {
         content: '';
         display: block;
         width: 2px;
-        height: 16px;
+        height: 10px;
         background: var(--border-color, #666);
       }
 
@@ -131,6 +130,18 @@
         border-top: 8px solid var(--border-color, #666);
         position: relative;
         left: -1px;
+      }
+
+      /* Arrow label text */
+      .arrow-label {
+        font-size: 12px;
+        font-style: italic;
+        color: var(--text-secondary, #555);
+        position: absolute;
+        left: calc(50% + 16px);
+        top: 50%;
+        transform: translateY(-50%);
+        white-space: nowrap;
       }
 
       /* Sidebar callout annotation */
@@ -155,7 +166,7 @@
       }
 
       .insight-text {
-        font-size: 21px;
+        font-size: 25px;
       }
     </style>
   </head>
@@ -190,7 +201,9 @@
           {{/annotation}}
         </div>
         {{^isLast}}
-        <div class="arrow-down"></div>
+        <div class="arrow-down">
+          {{#arrowLabel}}<span class="arrow-label">{{arrowLabel}}</span>{{/arrowLabel}}
+        </div>
         {{/isLast}}
         {{/stages}}
       </div>
