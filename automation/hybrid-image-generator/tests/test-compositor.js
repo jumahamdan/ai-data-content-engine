@@ -16,7 +16,7 @@ const { compositeImage } = require('../compositor');
 // Test data for comparison layout
 const comparisonTestConfig = {
   layout: 'comparison',
-  theme: 'chalkboard',
+  theme: 'wb-standing-minimal',
   backgroundPath: null, // Will use theme fallback color
   title: 'Data Mesh vs Traditional Data Warehouse',
   subtitle: 'A comparison of modern data architectures',
@@ -49,7 +49,7 @@ const comparisonTestConfig = {
 // Test data for evolution layout
 const evolutionTestConfig = {
   layout: 'evolution',
-  theme: 'watercolor',
+  theme: 'wb-standing-marker',
   backgroundPath: null,
   title: 'Evolution of Data Platforms',
   subtitle: 'From monoliths to distributed systems',
@@ -57,14 +57,12 @@ const evolutionTestConfig = {
     {
       title: 'Data Warehouse',
       label: 'Gen 1',
-      items: ['Centralized storage', 'ETL pipelines', 'BI focus'],
-      cons: ['Siloed teams', 'Slow to change']
+      items: ['Centralized storage', 'ETL pipelines', 'BI focus']
     },
     {
       title: 'Data Lake',
       label: 'Gen 2',
-      items: ['Schema on read', 'Raw data storage', 'Big data support'],
-      cons: ['Data swamps', 'Quality issues']
+      items: ['Schema on read', 'Raw data storage', 'Big data support']
     },
     {
       title: 'Data Mesh',
@@ -77,42 +75,33 @@ const evolutionTestConfig = {
   verbose: true
 };
 
-// Test data for single layout
-const singleTestConfig = {
-  layout: 'single',
-  theme: 'tech',
+// Test data for dense-infographic layout
+const denseInfographicTestConfig = {
+  layout: 'dense-infographic',
+  theme: 'wb-glass-clean',
   backgroundPath: null,
   title: 'What is RAG?',
   subtitle: 'Retrieval-Augmented Generation explained',
   sections: [
     {
       title: 'The Problem',
-      items: [
-        'LLMs have limited context windows',
-        'Training data becomes stale',
-        'Cannot access private/real-time data'
-      ]
+      items: ['LLMs have limited context windows', 'Training data becomes stale', 'Cannot access private data']
     },
     {
       title: 'The Solution',
-      items: [
-        'Retrieve relevant context from external sources',
-        'Augment the prompt with retrieved information',
-        'Generate responses using both LLM knowledge + fresh context'
-      ]
+      items: ['Retrieve relevant context', 'Augment the prompt', 'Generate with fresh context']
     },
     {
       title: 'Why It Matters',
-      items: [
-        'Reduces hallucinations',
-        'Enables access to proprietary data',
-        'Keeps responses current',
-        'More cost-effective than fine-tuning'
-      ]
+      items: ['Reduces hallucinations', 'Enables proprietary data access', 'Keeps responses current']
+    },
+    {
+      title: 'Key Components',
+      items: ['Vector database', 'Embedding model', 'Retrieval pipeline', 'LLM orchestration']
     }
   ],
   insight: 'RAG bridges the gap between static LLM knowledge and dynamic real-world information.',
-  outputPath: path.join(__dirname, '..', 'test-outputs', 'compositor-single.png'),
+  outputPath: path.join(__dirname, '..', 'test-outputs', 'compositor-dense-infographic.png'),
   verbose: true
 };
 
@@ -134,14 +123,14 @@ async function runTest(testName, config) {
     const buffer = await compositeImage(config);
     const duration = Date.now() - startTime;
 
-    console.log(`\n✓ Test passed: ${testName}`);
+    console.log(`\nPASS: ${testName}`);
     console.log(`  Duration: ${duration}ms`);
     console.log(`  Output: ${config.outputPath}`);
     console.log(`  Size: ${buffer.length} bytes (${(buffer.length / 1024).toFixed(1)} KB)`);
 
     return { success: true, duration, size: buffer.length };
   } catch (err) {
-    console.error(`\n✗ Test failed: ${testName}`);
+    console.error(`\nFAIL: ${testName}`);
     console.error(`  Error: ${err.message}`);
     console.error(err.stack);
     return { success: false, error: err.message };
@@ -152,14 +141,13 @@ async function runTest(testName, config) {
  * Main test runner
  */
 async function main() {
-  console.log('╔════════════════════════════════════════════════════════════╗');
-  console.log('║              COMPOSITOR TEST SUITE                         ║');
-  console.log('╚════════════════════════════════════════════════════════════╝');
+  console.log('Compositor Test Suite');
+  console.log('='.repeat(60));
 
   const tests = [
-    { name: 'Comparison Layout (Chalkboard Theme)', config: comparisonTestConfig },
-    { name: 'Evolution Layout (Watercolor Theme)', config: evolutionTestConfig },
-    { name: 'Single Layout (Tech Theme)', config: singleTestConfig }
+    { name: 'Comparison Layout (wb-standing-minimal)', config: comparisonTestConfig },
+    { name: 'Evolution Layout (wb-standing-marker)', config: evolutionTestConfig },
+    { name: 'Dense Infographic Layout (wb-glass-clean)', config: denseInfographicTestConfig }
   ];
 
   const results = [];
@@ -170,15 +158,15 @@ async function main() {
   }
 
   // Print summary
-  console.log('\n╔════════════════════════════════════════════════════════════╗');
-  console.log('║                    TEST SUMMARY                            ║');
-  console.log('╚════════════════════════════════════════════════════════════╝\n');
+  console.log('\n' + '='.repeat(60));
+  console.log('Test Summary');
+  console.log('='.repeat(60) + '\n');
 
   const passed = results.filter(r => r.success).length;
   const failed = results.filter(r => !r.success).length;
 
   results.forEach(result => {
-    const status = result.success ? '✓' : '✗';
+    const status = result.success ? 'PASS' : 'FAIL';
     const duration = result.duration ? `${result.duration}ms` : 'N/A';
     const size = result.size ? `${(result.size / 1024).toFixed(1)} KB` : 'N/A';
     console.log(`${status} ${result.name}`);
@@ -192,10 +180,10 @@ async function main() {
   console.log(`\nTotal: ${results.length} tests, ${passed} passed, ${failed} failed`);
 
   if (failed > 0) {
-    console.log('\n⚠ Some tests failed. Check errors above.');
+    console.log('\nSome tests failed. Check errors above.');
     process.exit(1);
   } else {
-    console.log('\n✓ All tests passed!');
+    console.log('\nAll tests passed!');
     console.log(`\nGenerated images saved to: ${path.join(__dirname, '..', 'test-outputs')}`);
   }
 }

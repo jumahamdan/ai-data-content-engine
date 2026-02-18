@@ -1,7 +1,7 @@
-# Feature: Hybrid Image Generator (v2.0)
+# Feature: Hybrid Image Generator (v3.0)
 
-> **Status:** ✅ Complete (v2.0 Image Quality Overhaul)
-> **Branch:** `feature/image-quality-overhaul`
+> **Status:** Complete (v3.0 Whiteboard Theme Overhaul)
+> **Branch:** `feature/whiteboard-theme-overhaul`
 > **Replaces:** Legacy `automation/image-generator/` (deleted in Phase 5 housekeeping)
 > **Priority:** MVP Enhancement
 >
@@ -11,9 +11,9 @@
 
 ## Goal
 
-Generate professional, illustrated infographics with AI-generated abstract backgrounds + crisp HTML/CSS text overlays. Uses Gemini (default) or DALL-E for visual backgrounds paired with Puppeteer-rendered layouts for readable, multi-section infographics.
+Generate professional whiteboard-style infographics with AI-generated backgrounds + crisp HTML/CSS text overlays. Uses Gemini (default) or DALL-E for photorealistic whiteboard backgrounds paired with Puppeteer-rendered layouts for readable, multi-section infographics.
 
-**Key Design Principle:** AI-generated text is illegible. We use Gemini/DALL-E for abstract visual backgrounds (no text) and HTML/CSS for all text overlay to ensure crisp, readable typography.
+**Key Design Principle:** AI-generated text is illegible. We use Gemini/DALL-E for photorealistic whiteboard backgrounds (no text) and HTML/CSS for all text overlay to ensure crisp, readable typography with a handwritten marker aesthetic.
 
 ---
 
@@ -21,7 +21,7 @@ Generate professional, illustrated infographics with AI-generated abstract backg
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│             v2.0 HYBRID IMAGE GENERATION FLOW                │
+│             v3.0 HYBRID IMAGE GENERATION FLOW                │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  INPUT: Content from Claude API + Pillar-Theme Mapping     │
@@ -42,8 +42,8 @@ Generate professional, illustrated infographics with AI-generated abstract backg
 │         ↓                                                   │
 │  STEP 1: Generate Background (Gemini Flash or DALL-E 3)    │
 │  ────────────────────────────────────────────────────────   │
-│  Prompt: "Abstract chalkboard texture background, soft     │
-│  lighting, no text, illustration style, 1024x1024"         │
+│  Prompt: "Photorealistic glass/standing whiteboard in       │
+│  modern office, no text, blank surface, 1024x1024"         │
 │  Output: background.png (cached, reused)                   │
 │         ↓                                                   │
 │  STEP 2: Composite Final Image (Puppeteer)                 │
@@ -67,298 +67,220 @@ Generate professional, illustrated infographics with AI-generated abstract backg
 
 ## Theme Definitions
 
-v2.0 includes **6 visual themes**, each with color palette, typography, and recommended layouts.
+v3.0 includes **4 whiteboard themes** — a cohesive family of glass-mounted and standing whiteboard styles inspired by real LinkedIn whiteboard explainer images.
 
-| Theme             | Primary Color | Style                     | Recommended Layouts          |
-| ----------------- | ------------- | ------------------------- | ---------------------------- |
-| chalkboard        | #2d4a3e       | Chalk on dark green       | comparison, single           |
-| watercolor        | #faf8f5       | Soft pastel on cream      | comparison, evolution        |
-| tech              | #1a1a2e       | Neon on dark blue         | evolution, dense-infographic |
-| notebook          | #f5f0e8       | Handwritten on grid paper | notebook                     |
-| whiteboard        | #ffffff       | Clean marker on white     | evolution, comparison        |
-| dense-infographic | #faf6ef       | Multi-section on parchment | dense-infographic            |
+| Theme              | Accent Color | Style                           | Fonts                                  | Recommended Layouts          |
+| ------------------ | ------------ | ------------------------------- | -------------------------------------- | ---------------------------- |
+| wb-glass-sticky    | #5b4a9e      | Glass whiteboard, sticky notes  | Architects Daughter + Patrick Hand     | whiteboard, comparison       |
+| wb-glass-clean     | #1a8a6a      | Glass whiteboard, minimal clean | Architects Daughter + Nunito           | dense-infographic, evolution |
+| wb-standing-marker | #c0392b      | Standing board, bold markers    | Caveat + Patrick Hand                  | evolution, dense-infographic |
+| wb-standing-minimal| #2c3e50      | Standing board, clean corporate | Architects Daughter + Nunito           | comparison, whiteboard       |
 
-### Theme: Chalkboard
+### Marker Color Palettes
 
-```json
-{
-  "name": "chalkboard",
-  "background": {
-    "geminiPrompt": "Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024",
-    "dallePrompt": "Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024",
-    "fallbackColor": "#2d4a3e"
-  },
-  "typography": {
-    "titleFont": "Permanent Marker, cursive",
-    "bodyFont": "Patrick Hand, cursive",
-    "titleColor": "#ffffff",
-    "bodyColor": "#e8e8e8",
-    "accentColor": "#f4d03f"
-  },
-  "illustrations": {
-    "style": "hand-drawn chalk sketch style, white lines on transparent",
-    "examples": ["café storefront", "data pipeline arrows", "people icons"]
-  }
-}
-```
+Each theme defines 4 marker colors used for color-coded sections via CSS custom properties (`--marker-1` through `--marker-4`):
 
-### Theme: Watercolor
+| Theme              | Marker 1  | Marker 2  | Marker 3  | Marker 4  |
+| ------------------ | --------- | --------- | --------- | --------- |
+| wb-glass-sticky    | #7c5cbf   | #2e8b57   | #2980b9   | #d4762c   |
+| wb-glass-clean     | #1a8a6a   | #27ae60   | #8e44ad   | #e67e22   |
+| wb-standing-marker | #c0392b   | #2471a3   | #229954   | #d4762c   |
+| wb-standing-minimal| #2c3e50   | #1a8a6a   | #6c3483   | #b9770e   |
 
-```json
-{
-  "name": "watercolor",
-  "background": {
-    "geminiPrompt": "Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024",
-    "dallePrompt": "Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024",
-    "fallbackColor": "#faf8f5"
-  },
-  "typography": {
-    "titleFont": "Playfair Display, serif",
-    "bodyFont": "Open Sans, sans-serif",
-    "titleColor": "#2c3e50",
-    "bodyColor": "#34495e",
-    "accentColor": "#3498db"
-  },
-  "illustrations": {
-    "style": "soft watercolor illustration, pastel colors, architectural",
-    "examples": ["warehouse building", "lake with data", "modern office"]
-  }
-}
-```
+### Theme: wb-glass-sticky
 
-### Theme: Tech
+Glass-mounted whiteboard with sticky-note accents. Chrome mounting clips, modern office backdrop visible behind glass. Purple accent with handwritten fonts.
 
-```json
-{
-  "name": "tech",
-  "background": {
-    "geminiPrompt": "Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024",
-    "dallePrompt": "Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024",
-    "fallbackColor": "#1a1a2e"
-  },
-  "typography": {
-    "titleFont": "Inter, sans-serif",
-    "bodyFont": "Inter, sans-serif",
-    "titleColor": "#ffffff",
-    "bodyColor": "#b8b8b8",
-    "accentColor": "#00d4aa"
-  },
-  "illustrations": {
-    "style": "isometric 3D tech icons, glowing edges, dark background",
-    "examples": ["database cylinder", "cloud servers", "neural network"]
-  }
-}
-```
+- **Background prompt:** Photorealistic glass whiteboard mounted on modern office wall with chrome clips. Clean white surface with subtle reflections. Blurred office backdrop.
+- **Fallback color:** `#f4f4f6`
+- **Theme file:** `automation/hybrid-image-generator/themes/wb-glass-sticky.js`
 
-### Theme: Notebook
+### Theme: wb-glass-clean
 
-Clean grid paper background with handwritten typography and card-based layouts. Compact spacing with rounded borders. Best for step-by-step guides and automation tutorials.
+Glass whiteboard, minimal and clean. Pristine surface with faint glossy sheen. Teal accent with mixed handwritten/sans-serif fonts.
 
-Theme file: `automation/hybrid-image-generator/themes/notebook.js`
+- **Background prompt:** Clean glass or acrylic whiteboard panel on light gray wall with chrome clips. Pristine white with faint glossy sheen. Minimalist professional setting.
+- **Fallback color:** `#f6f6f8`
+- **Theme file:** `automation/hybrid-image-generator/themes/wb-glass-clean.js`
 
-### Theme: Whiteboard
+### Theme: wb-standing-marker
 
-Clean white background with marker-style text, bordered boxes, and conceptual arrows. Professional presentation style with color-coded sections. Ideal for architecture comparisons and evolution flows.
+Freestanding whiteboard with bold marker style. Metal frame, marker tray with colored dry-erase markers. Red accent with bold handwritten fonts.
 
-Theme file: `automation/hybrid-image-generator/themes/whiteboard.js`
+- **Background prompt:** Freestanding whiteboard on metal frame in bright office. Clean white surface with aluminum frame border. Marker tray at bottom edge.
+- **Fallback color:** `#fafafa`
+- **Theme file:** `automation/hybrid-image-generator/themes/wb-standing-marker.js`
 
-### Theme: Dense Infographic
+### Theme: wb-standing-minimal
 
-Warm parchment background with multi-section layouts, color-coded borders, numbered circles, and packed information. Supports 4-6 section layouts with optional subsections. Best for complex mental models and governance frameworks.
+Wall-mounted dry-erase whiteboard, clean corporate. Thin silver frame, subtle erasing marks. Dark slate accent with mixed handwritten/sans-serif fonts.
 
-Theme file: `automation/hybrid-image-generator/themes/dense-infographic.js`
+- **Background prompt:** Large wall-mounted dry-erase whiteboard with very subtle gray smudge marks. Thin silver aluminum frame. Corporate meeting room setting.
+- **Fallback color:** `#f8f8f8`
+- **Theme file:** `automation/hybrid-image-generator/themes/wb-standing-minimal.js`
+
+### Common CSS Styling
+
+All whiteboard themes share these design principles:
+
+- **Overlay:** `rgba(255,255,255,0.05)` — minimal, backgrounds are already light
+- **Section backgrounds:** `rgba(255,255,255,0.88-0.95)` depending on theme
+- **Border radius:** `3px` max — marker-drawn boxes have nearly square corners
+- **No text shadows** — whiteboard text doesn't have shadows
+- **Box shadows:** subtle `0 1px 3px rgba(0,0,0,0.08)` or none
 
 ---
 
 ## Layout Templates
 
-v2.0 includes **6 HTML layout templates** for different content structures.
+v3.0 includes **4 HTML layout templates** for different content structures. All layouts use marker color rotation via `nth-child` and CSS custom properties from the active theme.
 
 ### Layout: Comparison (Side-by-Side)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
-├─────────────────────────────────────────────────────────────┤
-│  [Illustration 1]              [Illustration 2]             │
-│    Concept A                     Concept B                  │
+│                    ─────────────────                          │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐          ┌─────────────────┐          │
-│  │  Key Features   │          │   Challenges    │          │
-│  │  ✓ Point 1      │          │   ⚠ Point 1     │          │
-│  │  ✓ Point 2      │          │   ⚠ Point 2     │          │
-│  │  ✓ Point 3      │          │   ⚠ Point 3     │          │
+│  │  Concept A       │          │  Concept B       │          │
+│  │  (marker-1 top)  │          │  (marker-2 top)  │          │
+│  │  ● Point 1       │          │  ● Point 1       │          │
+│  │  ● Point 2       │          │  ● Point 2       │          │
+│  │  ● Point 3       │          │  ● Point 3       │          │
 │  └─────────────────┘          └─────────────────┘          │
 ├─────────────────────────────────────────────────────────────┤
-│                    💡 Key Insight                            │
-│              "Summary statement here"                        │
+│              "Key insight statement here"                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Template file: `automation/hybrid-image-generator/layouts/comparison.html`
+- Color-coded column headers using `--marker-1` and `--marker-2`
+- No illustrations — whiteboard comparisons use text only
+- Flat insight section with marker-drawn border-top separator
+- Template: `automation/hybrid-image-generator/layouts/comparison.html`
 
-### Layout: Evolution (Horizontal Flow)
+### Layout: Evolution (Vertical Flowchart)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
+│                    ─────────────────                          │
 ├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  [Icon A]  ───→  [Icon B]  ───→  [Icon C]                  │
-│  Stage 1         Stage 2         Stage 3                    │
-│                                                             │
-├───────────────┬───────────────┬─────────────────────────────┤
-│  ✓ Pro 1      │  ✓ Pro 1      │  ✓ Pro 1                   │
-│  ✓ Pro 2      │  ✓ Pro 2      │  ✓ Pro 2                   │
-│  ✗ Con 1      │  ✗ Con 1      │  ✓ Pro 3                   │
-│  ✗ Con 2      │  ✗ Con 2      │  ✓ Pro 4                   │
-├───────────────┴───────────────┴─────────────────────────────┤
-│              📌 "Evolution summary statement"                │
+│  ┌─────────────────────────────────────────────────┐        │
+│  │ Stage 1: Traditional DB  (marker-1 left border) │        │
+│  │ ✓ Monolithic  ✓ ACID  ✓ Limited scale           │        │
+│  └─────────────────────────────────────────────────┘        │
+│                         │                                    │
+│                         ▼                                    │
+│  ┌─────────────────────────────────────────────────┐        │
+│  │ Stage 2: Data Warehouse  (marker-2 left border) │        │
+│  │ ✓ Centralized  ✓ ETL  ✓ Analytics              │        │
+│  └─────────────────────────────────────────────────┘        │
+│                         │                                    │
+│                         ▼                                    │
+│  ┌─────────────────────────────────────────────────┐        │
+│  │ Stage 3: Lakehouse  (marker-3 left border)      │        │
+│  │ ✓ Unified  ✓ Flexible  ✓ Cloud-native           │        │
+│  └─────────────────────────────────────────────────┘        │
+├─────────────────────────────────────────────────────────────┤
+│              "Evolution summary statement"                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Template file: `automation/hybrid-image-generator/layouts/evolution.html`
+- **Vertical top-to-bottom** flowchart (converted from horizontal in v2.0)
+- CSS-drawn downward arrows between stages using `::before`/`::after` pseudo-elements
+- Marker color rotation on left border via `nth-child(4n+X)` using `--marker-1` through `--marker-4`
+- Supports optional `{{annotation}}` callout text per stage
+- Template: `automation/hybrid-image-generator/layouts/evolution.html`
 
-### Layout: Single (Deep Dive)
+### Layout: Whiteboard (Two-Column Structured)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
-│                    [Main Illustration]                       │
-│                      Subtitle/Metaphor                       │
+│                    ─────────────────                          │
 ├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Section 1: What is it?                                     │
-│  • Point 1                                                  │
-│  • Point 2                                                  │
-│                                                             │
-│  Section 2: Why it matters                                  │
-│  • Point 1                                                  │
-│  • Point 2                                                  │
-│                                                             │
-│  Section 3: Key takeaway                                    │
-│  💡 "Insight quote here"                                    │
-│                                                             │
+│  Column A (marker-1)         Column B (marker-2)            │
+│  ┌─────────────────┐        ┌─────────────────┐            │
+│  │  Sub-area 1     │        │  Sub-area 1     │            │
+│  │  • Detail 1     │        │  • Detail 1     │            │
+│  │  • Detail 2     │        │  • Detail 2     │            │
+│  └────────┬────────┘        └────────┬────────┘            │
+│           ↓                          ↓                      │
+│  ┌─────────────────┐        ┌─────────────────┐            │
+│  │  Sub-area 2     │        │  Sub-area 2     │            │
+│  │  • Detail 1     │        │  • Detail 1     │            │
+│  └─────────────────┘        └─────────────────┘            │
 ├─────────────────────────────────────────────────────────────┤
-│                    @your-handle                              │
+│              "Key insight statement"                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Template file: `automation/hybrid-image-generator/layouts/single.html`
+- Two-column comparison with bordered boxes and downward arrows
+- Color-coded columns using theme marker colors
+- Supports subsections within each column
+- Template: `automation/hybrid-image-generator/layouts/whiteboard.html`
 
-### Layout: Notebook
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Grid Paper Background                   TITLE              │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────────────────┐  ┌──────────────────────┐        │
-│  │  Step 1              │  │  Step 2              │        │
-│  │  • Item 1            │  │  • Item 1            │        │
-│  │  • Item 2            │  │  • Item 2            │        │
-│  └──────────────────────┘  └──────────────────────┘        │
-│                                                             │
-│  ┌──────────────────────┐  ┌──────────────────────┐        │
-│  │  Step 3              │  │  Step 4              │        │
-│  │  • Item 1            │  │  • Item 1            │        │
-│  │  • Item 2            │  │  • Item 2            │        │
-│  └──────────────────────┘  └──────────────────────┘        │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│              ✏️ "Key takeaway statement"                     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Card-based layout with handwritten font, grid paper background, compact spacing. Ideal for automation guides and step-by-step workflows.
-
-Template file: `automation/hybrid-image-generator/layouts/notebook.html`
-
-### Layout: Whiteboard
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         TITLE                                │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────────┐               ┌─────────────────┐     │
-│  │  Architecture A  │   ────────→   │  Architecture B  │     │
-│  │  ─────────────── │               │  ─────────────── │     │
-│  │  • Feature 1     │               │  • Feature 1     │     │
-│  │  • Feature 2     │               │  • Feature 2     │     │
-│  │                  │               │                  │     │
-│  │  Sub-area:       │               │  Sub-area:       │     │
-│  │  • Detail 1      │               │  • Detail 1      │     │
-│  └─────────────────┘               └─────────────────┘     │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│              🎯 Key Takeaway: "Insight statement"            │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Professional presentation style with bordered boxes, arrows, color-coded sections, and optional subsections. Ideal for architecture comparisons.
-
-Template file: `automation/hybrid-image-generator/layouts/whiteboard.html`
-
-### Layout: Dense Infographic
+### Layout: Dense Infographic (Multi-Section Grid)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         TITLE                                │
 │                       Subtitle                               │
+│                    ─────────────────                          │
 ├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ① Section 1           ② Section 2                          │
-│  • Point 1             • Point 1                            │
-│  • Point 2             • Point 2                            │
-│                                                             │
-│  ③ Section 3           ④ Section 4                          │
-│  • Point 1             • Point 1                            │
-│  • Point 2             • Point 2                            │
-│                                                             │
-│  ⑤ Section 5           ⑥ Section 6                          │
-│  • Point 1             • Point 1                            │
-│  • Point 2             • Point 2                            │
-│                                                             │
+│  ┌──────────────────┐       ┌──────────────────┐           │
+│  │ 1. Section One    │       │ 2. Section Two    │           │
+│  │ (marker-1 top)    │       │ (marker-2 top)    │           │
+│  │ • Point 1         │       │ • Point 1         │           │
+│  │ • Point 2         │       │ • Point 2         │           │
+│  └──────────────────┘       └──────────────────┘           │
+│  ┌──────────────────┐       ┌──────────────────┐           │
+│  │ 3. Section Three  │       │ 4. Section Four   │           │
+│  │ (marker-3 top)    │       │ (marker-4 top)    │           │
+│  │ • Point 1         │       │ • Point 1         │           │
+│  │ • Point 2         │       │ • Point 2         │           │
+│  └──────────────────┘       └──────────────────┘           │
 ├─────────────────────────────────────────────────────────────┤
-│              💡 Key Takeaway: "Insight statement"            │
+│              "Key insight statement"                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Supports 4-6 sections with numbered circles, color-coded borders (CSS nth-child rotation), and packed information. Ideal for governance frameworks and layered mental models.
-
-Template file: `automation/hybrid-image-generator/layouts/dense-infographic.html`
+- Numbered sections with bold text prefix ("1.", "2.") instead of circular badges
+- Full-border boxes with colored `border-top: 4px` rotating through `--marker-1` to `--marker-4`
+- Supports 4-6 sections in a 2-column grid
+- Template: `automation/hybrid-image-generator/layouts/dense-infographic.html`
 
 ---
 
 ## Pillar-to-Theme Mapping
 
-v2.0 automatically maps content pillar categories to appropriate theme/layout combinations via `automation/content-generator/pillar-theme-map.js`.
+v3.0 automatically maps content pillar categories to whiteboard theme/layout combinations via `automation/content-generator/pillar-theme-map.js`.
 
-| Pillar                 | Theme             | Layout            | Rationale                            |
-| ---------------------- | ----------------- | ----------------- | ------------------------------------ |
-| pipelines_architecture | whiteboard        | evolution         | Sequential flow progression          |
-| cloud_lakehouse        | whiteboard        | comparison        | Side-by-side architecture comparison |
-| ai_data_workflows      | tech              | dense-infographic | Dense technical content              |
-| automation_reliability | notebook          | notebook          | Sketch note guide style              |
-| governance_trust       | dense-infographic | dense-infographic | Multi-section layered models         |
-| real_world_lessons     | chalkboard        | single            | Single narrative practitioner story  |
+| Pillar                 | Theme              | Layout            | Rationale                                      |
+| ---------------------- | ------------------ | ----------------- | ---------------------------------------------- |
+| pipelines_architecture | wb-standing-marker | evolution         | Sequential flows as vertical flowchart          |
+| cloud_lakehouse        | wb-standing-minimal| comparison        | Architecture comparisons as side-by-side columns|
+| ai_data_workflows      | wb-glass-clean     | dense-infographic | Dense AI/ML content in multi-section grid       |
+| automation_reliability | wb-standing-marker | dense-infographic | Operational checklists as numbered sections     |
+| governance_trust       | wb-glass-sticky    | whiteboard        | Governance models with sticky-note elements     |
+| real_world_lessons     | wb-glass-clean     | evolution         | Practitioner stories as vertical progression    |
 
-**Fallback:** Unknown categories default to `chalkboard` theme with `single` layout.
+**Fallback:** Unknown categories default to `wb-standing-minimal` theme with `comparison` layout.
 
 **Usage:**
 
 ```javascript
 const { getThemeForPillar } = require("./pillar-theme-map");
 const { theme, layout } = getThemeForPillar("pipelines_architecture");
-// Returns: { theme: 'whiteboard', layout: 'evolution' }
+// Returns: { theme: 'wb-standing-marker', layout: 'evolution' }
 ```
 
 ---
 
 ## Claude IMAGE_DATA Integration
 
-v2.0 integrates structured metadata generation from Claude API for rich multi-section infographics.
+Structured metadata generation from Claude API for rich multi-section infographics.
 
 ### Data Flow
 
@@ -394,11 +316,9 @@ v2.0 integrates structured metadata generation from Claude API for rich multi-se
 
 **Template-specific requirements:**
 
-- **evolution**: 3-4 sections (stages)
-- **comparison/whiteboard**: 2 sections, optional subsections field
+- **evolution**: 3-4 sections (stages), optional `label` field per stage
+- **comparison/whiteboard**: 2 sections, optional `subsections` field
 - **dense-infographic**: 4-6 sections
-- **notebook**: 3-5 sections (cards)
-- **single**: 1-2 sections (deep dive)
 
 ---
 
@@ -407,7 +327,7 @@ v2.0 integrates structured metadata generation from Claude API for rich multi-se
 ```
 automation/
 ├── hybrid-image-generator/
-│   ├── index.js                 # Main API (generateImage)
+│   ├── index.js                 # Main API (generateImage, batchGenerate, quickGenerate)
 │   ├── background-generator.js  # Generate/cache backgrounds (multi-provider)
 │   ├── compositor.js            # Puppeteer compositing
 │   ├── provider-factory.js      # IMAGE_PROVIDER routing
@@ -415,26 +335,25 @@ automation/
 │   ├── dalle-client.js          # DALL-E API wrapper (legacy)
 │   ├── illustration-cache.js    # Cache reusable illustrations
 │   ├── themes/
-│   │   ├── index.js             # Theme loader
-│   │   ├── chalkboard.js
-│   │   ├── watercolor.js
-│   │   ├── tech.js
-│   │   ├── notebook.js
-│   │   ├── whiteboard.js
-│   │   └── dense-infographic.js
+│   │   ├── index.js             # Theme loader + registry
+│   │   ├── theme-base.js        # Theme factory + all 4 theme definitions
+│   │   ├── wb-glass-sticky.js   # Glass whiteboard with sticky-note accents
+│   │   ├── wb-glass-clean.js    # Glass whiteboard, minimal clean
+│   │   ├── wb-standing-marker.js # Standing board, bold markers
+│   │   └── wb-standing-minimal.js # Standing board, clean corporate
 │   ├── layouts/
-│   │   ├── comparison.html
-│   │   ├── evolution.html
-│   │   ├── single.html
-│   │   ├── notebook.html
-│   │   ├── whiteboard.html
-│   │   └── dense-infographic.html
+│   │   ├── comparison.html      # Side-by-side columns
+│   │   ├── evolution.html       # Vertical flowchart
+│   │   ├── whiteboard.html      # Two-column structured
+│   │   └── dense-infographic.html # Multi-section grid
 │   ├── styles/
 │   │   └── base.css
 │   ├── scripts/
 │   │   ├── generate-samples.js             # Generate all pillar/theme/layout samples
 │   │   └── generate-illustration-library.js # Pre-generate illustration cache
 │   ├── tests/
+│   │   ├── test-themes.js
+│   │   ├── test-main-api.js
 │   │   ├── test-background-migration.js
 │   │   ├── test-cache-separation.js
 │   │   ├── test-gemini-client.js
@@ -476,6 +395,16 @@ automation/
 - Phase 7: Created pillar-theme-map.js, rewired content pipeline to use hybrid compositor, added IMAGE_DATA to all 6 Claude prompt templates
 - Phase 8: Sample generation for all 6 pillar/theme/layout combinations, updated feature documentation
 
+### v3.0 (Whiteboard Theme Overhaul) - Complete
+
+- Replaced all 6 themes with 4 cohesive whiteboard variants (glass-mounted + standing)
+- Retired 2 layouts (notebook, single), kept and restyled 4 (comparison, evolution, whiteboard, dense-infographic)
+- Restructured evolution layout from horizontal flow to vertical flowchart with CSS-drawn arrows
+- Added marker color system (`--marker-1` through `--marker-4`) for consistent color-coded sections
+- Updated DALL-E/Gemini prompts for photorealistic whiteboard backgrounds
+- Updated pillar-theme mapping for new theme names
+- Unified visual identity: square corners, handwritten fonts, no text shadows
+
 ---
 
 ## Cost Analysis
@@ -492,7 +421,6 @@ automation/
 **Caching Strategy:**
 
 - Backgrounds generated on-demand, cached by theme/provider
-- Illustrations (deprecated in v2.0) were pre-generated and reused
 - Net cost after caching: ~$0.039-0.059 per post
 
 ---
@@ -535,11 +463,23 @@ DALLE_VERBOSE=true
 - **Rationale:** AI-generated text is illegible at infographic scale; HTML/CSS guarantees crisp typography
 - **Implementation:** All layouts use Puppeteer HTML templates with Google Fonts
 
+### Cohesive Whiteboard Aesthetic (v3.0)
+
+- **Decision:** Replace all 6 diverse themes with 4 whiteboard variants
+- **Rationale:** Cohesive visual identity performs better on LinkedIn; whiteboard "explaining to you" style is professional and engaging
+- **Implementation:** Glass-mounted (wb-glass-sticky, wb-glass-clean) + Standing (wb-standing-marker, wb-standing-minimal) variants
+
 ### Theme-Layout Pairings
 
 - **Decision:** Pillar categories auto-map to default theme/layout combinations
 - **Rationale:** Consistent visual identity per content type; reduces decision overhead
-- **Implementation:** `pillar-theme-map.js` with fallback to chalkboard/single
+- **Implementation:** `pillar-theme-map.js` with fallback to `wb-standing-minimal/comparison`
+
+### Marker Color System (v3.0)
+
+- **Decision:** Each theme defines 4 marker colors exposed as CSS custom properties
+- **Rationale:** Enables color-coded sections via `nth-child` rotation without hardcoded colors in layouts
+- **Implementation:** `--marker-1` through `--marker-4` in theme CSS, consumed by all 4 layouts
 
 ### Claude Metadata Extraction
 
@@ -563,22 +503,26 @@ DALLE_VERBOSE=true
 
 ## Testing
 
-### Unit Tests
+### Theme Tests
 
-- `test-gemini-client.js` - Gemini API wrapper
-- `test-provider-factory.js` - Provider routing logic
-- `test-theme-layouts.js` - Theme/layout rendering
+- `test-themes.js` - Loads all 4 themes, validates structure, checks marker color CSS variables
+
+### API Tests
+
+- `test-main-api.js` - Full pipeline tests (comparison, evolution, dense-infographic, auto-selection, quick generate, error handling)
 
 ### Integration Tests
 
 - `test-integration.js` - Full pipeline (IMAGE_PROVIDER modes)
+- `test-provider-factory.js` - Provider routing logic
 - `test-provider-routing.js` - Provider fallback chain
 - `test-cache-separation.js` - Multi-provider cache isolation
 
-### Manual Tests
+### Sample Generation
 
-- `test-workflow-local.js` - End-to-end content generation
-- `scripts/generate-samples.js` - All 6 pillar/theme/layout combinations
+- `scripts/generate-samples.js` - All theme/layout combinations (16 grid + 6 pillar samples)
+  - `--pillar` flag generates pillar-specific samples
+  - `--all` flag generates both grid and pillar samples
 
 ---
 
@@ -589,8 +533,7 @@ DALLE_VERBOSE=true
 | A/B testing     | Track which themes get more engagement |
 | Animated GIFs   | Frame sequence with CSS animation      |
 | Custom branding | User-uploaded logo, colors             |
-| More themes     | "Blueprint", "Newspaper", "Neon"       |
 
 ---
 
-[← Back to TODO](../01-Project/TODO.md) | [Development Guide](../04-Development/coding-standards.md)
+[Back to TODO](../01-Project/TODO.md) | [Development Guide](../04-Development/coding-standards.md)

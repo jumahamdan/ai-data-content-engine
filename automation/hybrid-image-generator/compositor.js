@@ -21,6 +21,10 @@ const CANVAS_WIDTH = 1080;
 const CANVAS_HEIGHT = 1080;
 const SCALE_FACTOR = 2; // 2x rendering for crisp output (actual: 2160x2160)
 const LAYOUTS_DIR = path.join(__dirname, 'layouts');
+const BASE_STYLES_PATH = path.join(LAYOUTS_DIR, 'base-styles.css');
+
+// Cached base styles (loaded once)
+let baseStylesCache = null;
 
 /**
  * Convert local file path to base64 data URL
@@ -51,16 +55,33 @@ async function fileToDataURL(filePath) {
 }
 
 /**
- * Load HTML template from layouts directory
+ * Load shared base CSS styles (cached after first read)
  *
- * @param {string} layoutName - Name of layout ('comparison', 'evolution', 'single')
- * @returns {Promise<string>} HTML template string
+ * @returns {Promise<string>} Base CSS content
+ */
+async function loadBaseStyles() {
+  if (!baseStylesCache) {
+    baseStylesCache = await fs.readFile(BASE_STYLES_PATH, 'utf-8');
+  }
+  return baseStylesCache;
+}
+
+/**
+ * Load HTML template from layouts directory and inject shared base styles
+ *
+ * @param {string} layoutName - Name of layout ('comparison', 'evolution', 'whiteboard', 'dense-infographic')
+ * @returns {Promise<string>} HTML template string with base styles injected
  */
 async function loadTemplate(layoutName) {
   const templatePath = path.join(LAYOUTS_DIR, `${layoutName}.html`);
 
   try {
-    const html = await fs.readFile(templatePath, 'utf-8');
+    let html = await fs.readFile(templatePath, 'utf-8');
+
+    // Inject shared base styles at the beginning of the <style> tag
+    const baseStyles = await loadBaseStyles();
+    html = html.replace('<style>', `<style>\n${baseStyles}`);
+
     return html;
   } catch (err) {
     throw new Error(`Template '${layoutName}' not found at ${templatePath}: ${err.message}`);
@@ -146,11 +167,8 @@ async function prepareTemplateData(config) {
     // Comparison layout: left and right sections
     templateData.leftSection = sections[0] || { title: '', items: [] };
     templateData.rightSection = sections[1] || { title: '', items: [] };
-    templateData.illustration1Url = illustrationUrls['left'] || illustrationUrls['illustration1'];
-    templateData.illustration2Url = illustrationUrls['right'] || illustrationUrls['illustration2'];
     templateData.leftLabel = sections[0]?.label || '';
     templateData.rightLabel = sections[1]?.label || '';
-    templateData.showIllustrations = !!(templateData.illustration1Url || templateData.illustration2Url);
   } else if (layout === 'evolution') {
     // Evolution layout: multiple stages with progression
     templateData.stages = sections.map((section, index) => {
@@ -166,19 +184,12 @@ async function prepareTemplateData(config) {
         ...section,
         items: transformedItems,
         illustrationUrl: illustrationUrls[`stage${index + 1}`] || illustrationUrls[section.slot],
-        isLast: index === sections.length - 1
+        isLast: index === sections.length - 1,
+        colorClass: `stage-color-${(index % 4) + 1}`
       };
     });
     templateData.showArrows = sections.length > 1;
     templateData.summary = insight;
-  } else if (layout === 'single') {
-    // Single layout: deep dive on one topic
-    templateData.sections = sections;
-    templateData.mainIllustrationUrl = illustrationUrls['main'] || illustrationUrls['center'];
-    templateData.showMainIllustration = !!templateData.mainIllustrationUrl;
-  } else if (layout === 'notebook') {
-    // Notebook layout: sections displayed as cards in a grid
-    templateData.sections = sections;
   } else if (layout === 'whiteboard') {
     // Whiteboard layout: two-column comparison with bordered boxes and arrows
     if (sections.length >= 2) {
@@ -311,8 +322,8 @@ async function renderToPNG(html, options = {}) {
  * Main compositor function - Composes final image from layout template, theme, and content
  *
  * @param {Object} config - Configuration object
- * @param {string} config.layout - Layout type ('comparison', 'evolution', 'single')
- * @param {string} config.theme - Theme name ('chalkboard', 'watercolor', 'tech')
+ * @param {string} config.layout - Layout type ('comparison', 'evolution', 'whiteboard', 'dense-infographic')
+ * @param {string} config.theme - Theme name ('wb-glass-sticky', 'wb-glass-clean', 'wb-standing-marker', 'wb-standing-minimal')
  * @param {string} config.backgroundPath - Path to background image file
  * @param {string} config.title - Main title text
  * @param {string} [config.subtitle] - Optional subtitle
@@ -327,18 +338,14 @@ async function renderToPNG(html, options = {}) {
  * @example
  * const buffer = await compositeImage({
  *   layout: 'comparison',
- *   theme: 'chalkboard',
- *   backgroundPath: 'cache/backgrounds/chalkboard_001.png',
+ *   theme: 'wb-standing-minimal',
+ *   backgroundPath: 'cache/backgrounds/wb-standing-minimal_001.png',
  *   title: 'Data Mesh vs Data Warehouse',
  *   sections: [
  *     { title: 'Features', items: ['Domain ownership', 'Data as product'] },
  *     { title: 'Challenges', items: ['Org change', 'Complexity'] }
  *   ],
- *   illustrations: [
- *     { slot: 'left', path: 'cache/illustrations/cafe.png' },
- *     { slot: 'right', path: 'cache/illustrations/warehouse.png' }
- *   ],
- *   insight: 'Data Mesh is not just technology—it's organizational change.',
+ *   insight: 'Data Mesh is not just technology—it is organizational change.',
  *   outputPath: 'test-outputs/comparison-test.png',
  *   verbose: true
  * });
