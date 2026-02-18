@@ -2,7 +2,7 @@
  * Illustration Cache
  *
  * Manages illustration element generation and caching using DALL-E.
- * - Generates theme-specific illustrations (chalk sketches, watercolor, tech icons)
+ * - Generates theme-specific illustrations (whiteboard marker style drawings)
  * - Caches with meaningful names and metadata
  * - Provides lookup by name and category
  * - Illustrations are generated once and reused forever
@@ -16,31 +16,40 @@ const { resolveProviders, createProviderClient } = require('./provider-factory')
 
 // Illustration categories and their style modifiers per theme
 const ILLUSTRATION_STYLES = {
-  chalkboard: {
-    baseStyle: 'hand-drawn chalk sketch style, white lines, simple line art',
+  'wb-glass-sticky': {
+    baseStyle: 'hand-drawn whiteboard marker style, bold colored lines on transparent',
     categories: {
-      building: 'chalk outline drawing of',
-      icon: 'simple chalk icon of',
-      diagram: 'chalk diagram showing',
-      character: 'chalk stick figure representing'
+      building: 'marker-drawn outline of',
+      icon: 'simple marker icon of',
+      diagram: 'marker-drawn diagram showing',
+      character: 'marker stick figure representing'
     }
   },
-  watercolor: {
-    baseStyle: 'soft watercolor illustration, pastel colors, architectural style',
+  'wb-glass-clean': {
+    baseStyle: 'clean whiteboard marker drawing, teal and green tones, professional',
     categories: {
-      building: 'watercolor painting of',
-      icon: 'watercolor icon of',
-      diagram: 'watercolor illustration showing',
-      character: 'watercolor character representing'
+      building: 'clean marker outline of',
+      icon: 'minimal marker icon of',
+      diagram: 'clean marker diagram showing',
+      character: 'marker character representing'
     }
   },
-  tech: {
-    baseStyle: 'isometric 3D tech icon, glowing edges, modern style',
+  'wb-standing-marker': {
+    baseStyle: 'bold whiteboard marker drawing, thick colored lines, hand-drawn feel',
     categories: {
-      building: 'isometric 3D tech building of',
-      icon: 'isometric tech icon of',
-      diagram: '3D isometric diagram showing',
-      character: 'isometric tech character representing'
+      building: 'bold marker drawing of',
+      icon: 'bold marker icon of',
+      diagram: 'bold marker diagram showing',
+      character: 'bold marker figure representing'
+    }
+  },
+  'wb-standing-minimal': {
+    baseStyle: 'clean whiteboard marker drawing, thin lines, minimal and professional',
+    categories: {
+      building: 'minimal marker outline of',
+      icon: 'thin marker icon of',
+      diagram: 'minimal marker diagram showing',
+      character: 'minimal marker figure representing'
     }
   }
 };
@@ -77,7 +86,7 @@ class IllustrationCache {
   /**
    * Get an illustration by name and theme
    * @param {string} name - Illustration name (e.g., "warehouse", "database")
-   * @param {string} theme - Theme name (chalkboard, watercolor, tech)
+   * @param {string} theme - Theme name (wb-glass-sticky, wb-glass-clean, wb-standing-marker, wb-standing-minimal)
    * @param {string} category - Category (building, icon, diagram, character)
    * @returns {Promise<Object>} - {imagePath, metadata, source}
    */
@@ -153,7 +162,7 @@ class IllustrationCache {
       this._migrationChecked = true;
     }
 
-    const theme = options.theme || 'watercolor';
+    const theme = options.theme || 'wb-standing-minimal';
     const category = options.category || 'icon';
     const size = options.size || this.defaultSize;
 

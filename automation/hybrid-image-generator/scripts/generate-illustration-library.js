@@ -6,7 +6,7 @@
  *
  * Usage:
  *   DALLE_ENABLED=true node generate-illustration-library.js
- *   DALLE_ENABLED=true node generate-illustration-library.js --theme watercolor
+ *   DALLE_ENABLED=true node generate-illustration-library.js --theme wb-glass-clean
  *   DALLE_ENABLED=true node generate-illustration-library.js --clear
  */
 
@@ -95,7 +95,9 @@ async function generateLibrary(options = {}) {
   }
 
   // Determine themes to generate
-  const themes = targetTheme ? [targetTheme] : ['chalkboard', 'watercolor', 'tech'];
+  const themes = targetTheme
+    ? [targetTheme]
+    : ['wb-glass-sticky', 'wb-glass-clean', 'wb-standing-marker', 'wb-standing-minimal'];
 
   console.log('📋 Generation plan:');
   console.log(`   Themes: ${themes.join(', ')}`);

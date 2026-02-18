@@ -2,7 +2,7 @@
  * Background Generator
  *
  * Manages themed background generation and caching using DALL-E.
- * - Generates backgrounds for chalkboard, watercolor, and tech themes
+ * - Generates backgrounds for 4 whiteboard themes (wb-glass-sticky, wb-glass-clean, wb-standing-marker, wb-standing-minimal)
  * - Caches backgrounds locally to minimize API calls
  * - Returns random cached background when available
  * - Pre-generates backgrounds with warmup function
@@ -14,43 +14,31 @@ const fs = require('fs').promises;
 const path = require('path');
 const { resolveProviders, createProviderClient } = require('./provider-factory');
 
-// Theme definitions with DALL-E prompts
+// Theme definitions with DALL-E prompts (whiteboard family)
 const THEMES = {
-  chalkboard: {
-    name: 'chalkboard',
+  'wb-glass-sticky': {
+    name: 'wb-glass-sticky',
     dallePrompt:
-      'Dark green chalkboard texture background, slightly dusty, soft lighting from top, no text or drawings, photorealistic, 1024x1024',
-    fallbackColor: '#2d4a3e'
+      'Photorealistic glass whiteboard mounted on a modern office wall with chrome mounting clips at the four corners. The glass surface is clean and white with very subtle reflections. A modern open-plan office with plants and desks is softly blurred behind the glass. Warm natural lighting from overhead. No text, no writing, no drawings, no annotations, no sticky notes, no markers. Completely blank glass surface only. Professional corporate environment. 1024x1024',
+    fallbackColor: '#f4f4f6'
   },
-  watercolor: {
-    name: 'watercolor',
+  'wb-glass-clean': {
+    name: 'wb-glass-clean',
     dallePrompt:
-      'Light cream paper texture background, subtle watercolor wash edges, soft warm lighting, no text, minimal, 1024x1024',
-    fallbackColor: '#faf8f5'
+      'Clean glass or acrylic whiteboard panel mounted on a light gray office wall with small chrome clips at top corners. The surface is pristine white with a very faint glossy sheen and subtle light reflection from overhead fluorescent lights. Blurred modern office background visible through the edges. No text, no writing, no drawings, no annotations. Completely blank clean surface. Minimalist professional setting. 1024x1024',
+    fallbackColor: '#f6f6f8'
   },
-  tech: {
-    name: 'tech',
+  'wb-standing-marker': {
+    name: 'wb-standing-marker',
     dallePrompt:
-      'Dark gradient background with subtle circuit board pattern, deep blue to purple, futuristic, no text, 1024x1024',
-    fallbackColor: '#1a1a2e'
+      'Freestanding whiteboard on a metal frame in a bright office or classroom. The whiteboard surface is clean white with a thin aluminum frame border visible at the edges. A narrow marker tray with colored dry-erase markers sits at the bottom edge. Background shows blurred office chairs, desks, and warm lighting. No text, no writing, no drawings, no annotations on the board surface. Completely blank white surface. Photorealistic. 1024x1024',
+    fallbackColor: '#fafafa'
   },
-  notebook: {
-    name: 'notebook',
+  'wb-standing-minimal': {
+    name: 'wb-standing-minimal',
     dallePrompt:
-      'Cream-colored grid paper notebook page texture, light blue graph lines, slightly aged paper with subtle coffee stains, soft shadow at edges, no text no words no letters no numbers no writing no annotations, abstract paper texture only, 1024x1024',
-    fallbackColor: '#f5f0e8'
-  },
-  whiteboard: {
-    name: 'whiteboard',
-    dallePrompt:
-      'Clean white dry-erase whiteboard surface texture, very subtle gray smudge marks from previous erasing, slight glossy reflection, whiteboard markers tray shadow at bottom edge, no text no words no letters no writing no annotations, abstract surface texture only, 1024x1024',
+      'Large wall-mounted dry-erase whiteboard with clean white surface, very subtle gray smudge marks from previous erasing barely visible. Thin silver aluminum frame at edges. Bottom edge has a narrow marker tray casting a slight shadow upward. Plain office wall visible at frame edges. Soft even overhead lighting. No text, no writing, no drawings, no annotations. Completely blank surface only. Corporate meeting room setting. 1024x1024',
     fallbackColor: '#f8f8f8'
-  },
-  'dense-infographic': {
-    name: 'dense-infographic',
-    dallePrompt:
-      'Light warm beige parchment paper texture with very subtle noise grain, slightly aged look, soft vignette at corners, no text no words no letters no writing no annotations, abstract paper texture only, 1024x1024',
-    fallbackColor: '#faf6ef'
   }
 };
 
@@ -87,7 +75,7 @@ class BackgroundGenerator {
 
   /**
    * Get a background image for the specified theme
-   * @param {string} theme - Theme name (chalkboard, watercolor, tech)
+   * @param {string} theme - Theme name (wb-glass-sticky, wb-glass-clean, wb-standing-marker, wb-standing-minimal)
    * @param {Object} options - Options
    * @param {boolean} options.force - Force generation even if cache exists
    * @returns {Promise<Object>} - {imagePath, theme, source, latency} or {success: false, theme, source}

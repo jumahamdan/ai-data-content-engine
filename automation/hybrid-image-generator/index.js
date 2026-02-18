@@ -13,8 +13,8 @@
  *   const result = await generateImage({
  *     title: 'Data Mesh vs Data Warehouse',
  *     sections: [...],
- *     theme: 'chalkboard',  // optional, auto-selected
- *     layout: 'comparison', // optional, auto-selected
+ *     theme: 'wb-glass-sticky',  // optional, auto-selected
+ *     layout: 'comparison',       // optional, auto-selected
  *     outputPath: './output.png'
  *   });
  *
@@ -23,13 +23,12 @@
 
 const { createBackgroundGenerator } = require('./background-generator');
 const { compositeImage } = require('./compositor');
-const { getThemeNames, isValidTheme } = require('./themes');
+const { getThemeNames, isValidTheme, DEFAULT_THEME } = require('./themes');
 const { createIllustrationCache } = require('./illustration-cache');
 
 // Constants
-const DEFAULT_THEME = 'chalkboard';
-const DEFAULT_LAYOUT = 'single';
-const VALID_LAYOUTS = ['comparison', 'evolution', 'single', 'notebook', 'whiteboard', 'dense-infographic'];
+const DEFAULT_LAYOUT = 'comparison';
+const VALID_LAYOUTS = ['comparison', 'evolution', 'whiteboard', 'dense-infographic'];
 
 /**
  * Auto-select theme based on content metadata
@@ -45,14 +44,14 @@ function autoSelectTheme(contentData) {
     return imageTheme;
   }
 
-  // Priority 2: Mood-based mapping
+  // Priority 2: Mood-based mapping (all whiteboard variants)
   const moodMap = {
-    educational: 'chalkboard',
-    professional: 'watercolor',
-    technical: 'tech',
-    modern: 'tech',
-    traditional: 'watercolor',
-    casual: 'chalkboard'
+    educational: 'wb-standing-marker',
+    professional: 'wb-glass-clean',
+    technical: 'wb-glass-clean',
+    modern: 'wb-glass-sticky',
+    traditional: 'wb-standing-minimal',
+    casual: 'wb-standing-marker'
   };
 
   if (imageMood && moodMap[imageMood.toLowerCase()]) {
@@ -62,17 +61,17 @@ function autoSelectTheme(contentData) {
   // Priority 3: Content analysis (keywords in title/content)
   const combinedText = `${title || ''} ${content || ''}`.toLowerCase();
 
-  if (combinedText.includes('architecture') || combinedText.includes('design pattern')) {
-    return 'watercolor';
+  if (combinedText.includes('governance') || combinedText.includes('trust') || combinedText.includes('decision')) {
+    return 'wb-glass-sticky';
   }
   if (combinedText.includes('api') || combinedText.includes('system') || combinedText.includes('cloud')) {
-    return 'tech';
+    return 'wb-glass-clean';
   }
-  if (combinedText.includes('explain') || combinedText.includes('introduction') || combinedText.includes('basics')) {
-    return 'chalkboard';
+  if (combinedText.includes('pipeline') || combinedText.includes('step') || combinedText.includes('process')) {
+    return 'wb-standing-marker';
   }
 
-  // Default: chalkboard (most versatile)
+  // Default
   return DEFAULT_THEME;
 }
 
@@ -95,7 +94,7 @@ function autoSelectLayout(contentData) {
 
   // Priority 2: Structure analysis
   if (sections.length === 0) {
-    return 'single'; // No sections = deep dive
+    return 'comparison'; // Fallback for no sections
   }
 
   // Check if sections have comparison indicators (pros/cons)
@@ -109,7 +108,7 @@ function autoSelectLayout(contentData) {
   );
 
   if (hasComparison && sections.length <= 2) {
-    return 'comparison'; // 2 sections with pros/cons = comparison
+    return 'comparison';
   }
 
   // Check for evolution/progression indicators
@@ -121,18 +120,21 @@ function autoSelectLayout(contentData) {
   );
 
   if (hasProgression && sections.length >= 2) {
-    return 'evolution'; // Multiple stages = evolution
+    return 'evolution';
   }
 
   // Default based on section count
+  if (sections.length >= 4) {
+    return 'dense-infographic'; // Many sections = grid layout
+  }
   if (sections.length >= 3) {
-    return 'evolution'; // 3+ sections = horizontal flow
+    return 'evolution'; // 3 sections = vertical flow
   }
   if (sections.length === 2) {
     return 'comparison'; // 2 sections = side-by-side
   }
 
-  return DEFAULT_LAYOUT; // Single as fallback
+  return DEFAULT_LAYOUT;
 }
 
 /**
@@ -240,22 +242,6 @@ async function resolveIllustrations(contentData, theme, illustrationCache) {
  * @param {Object} [options.illustrationCache] - Custom illustration cache instance
  *
  * @returns {Promise<Object>} Result object with image buffer and metadata
- *
- * @example
- * const result = await generateImage({
- *   title: 'Data Mesh for Data Engineers',
- *   subtitle: 'Understanding distributed data architecture',
- *   sections: [
- *     { title: 'Key Features', type: 'pros', items: ['Domain ownership', 'Data as product'] },
- *     { title: 'Challenges', type: 'cons', items: ['Org change', 'Complexity'] }
- *   ],
- *   insight: 'Data Mesh turns data engineering from a service desk into product engineering.',
- *   theme: 'chalkboard', // optional
- *   layout: 'comparison'  // optional
- * }, {
- *   outputPath: './test-outputs/data-mesh.png',
- *   verbose: true
- * });
  */
 async function generateImage(contentData, options = {}) {
   const startTime = Date.now();
@@ -339,7 +325,7 @@ async function generateImage(contentData, options = {}) {
 
     if (verbose) {
       console.log('[HybridGen] ========================================');
-      console.log(`[HybridGen] ✓ Image generated successfully (${totalTime}ms)`);
+      console.log(`[HybridGen] Image generated successfully (${totalTime}ms)`);
       if (options.outputPath) {
         console.log(`[HybridGen] Saved to: ${options.outputPath}`);
       }
@@ -367,7 +353,7 @@ async function generateImage(contentData, options = {}) {
   } catch (error) {
     const totalTime = Date.now() - startTime;
 
-    console.error('[HybridGen] ✗ Image generation failed:', error.message);
+    console.error('[HybridGen] Image generation failed:', error.message);
 
     return {
       success: false,
@@ -389,16 +375,6 @@ async function generateImage(contentData, options = {}) {
  * @param {Array} sections - Content sections
  * @param {string} outputPath - Output file path
  * @returns {Promise<Object>} Generation result
- *
- * @example
- * await quickGenerate(
- *   'Comparison Title',
- *   [
- *     { title: 'Features', items: ['A', 'B'] },
- *     { title: 'Challenges', items: ['X', 'Y'] }
- *   ],
- *   './output.png'
- * );
  */
 async function quickGenerate(title, sections, outputPath) {
   return generateImage({ title, sections }, { outputPath, verbose: true });
@@ -410,12 +386,6 @@ async function quickGenerate(title, sections, outputPath) {
  * @param {Array} contentDataArray - Array of content data objects
  * @param {Object} options - Shared options for all images
  * @returns {Promise<Array>} Array of generation results
- *
- * @example
- * const results = await batchGenerate([
- *   { title: 'Image 1', sections: [...], outputPath: './img1.png' },
- *   { title: 'Image 2', sections: [...], outputPath: './img2.png' }
- * ], { verbose: true });
  */
 async function batchGenerate(contentDataArray, options = {}) {
   const results = [];
