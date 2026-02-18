@@ -29,6 +29,7 @@
 
 ## Backlog
 
+- [ ] Image quality overhaul — generated images still don't match reference style (dense, hand-drawn whiteboard feel with side annotations, full canvas coverage, strong visual hierarchy). Needs: layout CSS rework, annotation rendering, content density tuning, and reference image comparison testing.
 - [ ] Error alerting (Slack/email on failures)
 - [ ] Dashboard for monitoring posts
 - [ ] Backup/archive of generated content
